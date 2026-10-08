@@ -24,7 +24,7 @@ window.ROOM_CONTENT = {
         "At AIT since 2005."
       ],
       "portrait": true,
-      "lead": "Prof. Vaishali S. Ingale is an Assistant Professor of Information Technology at the Army Institute of Technology (AIT), Pune. She has taught at AIT since July 2005.",
+      "lead": "Assistant Professor of Information Technology at the Army Institute of Technology (AIT), Pune, since July 2005.",
       "stats": [
         {
           "n": "18",
@@ -103,8 +103,7 @@ window.ROOM_CONTENT = {
               "b": "Security",
               "t": "cyberattack prediction, cryptography, steganography"
             }
-          ],
-          "more": true
+          ]
         },
         {
           "h": "Selected papers",
@@ -432,7 +431,7 @@ window.ROOM_CONTENT = {
               "l": "university textbooks"
             },
             {
-              "n": "2008–2022",
+              "n": "2008–22",
               "l": "Nirali Prakashan"
             }
           ],
@@ -474,7 +473,7 @@ window.ROOM_CONTENT = {
           "items": [
             "10 university textbooks on AI and data structures (Nirali Prakashan, 2008–2022)",
             "SPPU resource person: ML labs (2021), DL labs (2022)",
-            "Best Teacher Award (2011–12); Best Result Award, Design and Analysis of Algorithms (2014–15)"
+            "Best Teacher Award (2011–12); Best Result Award, Design and Analysis of Algorithms (2014–15); Paper Presenter Award, CSI Annual Convention 2020"
           ]
         }
       ]

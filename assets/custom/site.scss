@@ -844,3 +844,7 @@ html body {
   .cv .badge, .cv .card .badge.danger-color-dark { background: #fffaf4 !important; background-color: #fffaf4 !important; }
   .publications .links .btn:hover { background: $ink !important; background-color: $ink !important; color: #fffaf4 !important; }
 }
+
+/* persona review fixes 2 and 8 */
+.contact-links a[href^="mailto:"]::after { content: none; }
+@media (min-width: 992px) { .hero-kicker { white-space: nowrap; } }

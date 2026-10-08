@@ -46,13 +46,12 @@ Applied machine learning, much of it co-authored with AIT students and colleague
 - **Medical images:** diabetic retinopathy grading with GNNs
 - **Language:** machine reading comprehension
 - **Security:** cyberattack prediction, cryptography, steganography
-- Paper Presenter Award, CSI Annual Convention 2020
 
 ### Teaching
 
 - 10 university textbooks on AI and data structures (Nirali Prakashan, 2008–2022)
 - SPPU resource person: ML labs (2021), DL labs (2022)
-- Best Teacher Award (2011–12); Best Result Award, *Design and Analysis of Algorithms* (2014–15)
+- Best Teacher Award (2011–12); Best Result Award, *Design and Analysis of Algorithms* (2014–15); Paper Presenter Award, CSI Annual Convention 2020
 
 ### Leadership and service
 

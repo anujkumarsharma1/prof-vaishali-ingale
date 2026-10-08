@@ -104,7 +104,7 @@ layout: default
       <div class="social">
         {% assign so = site.data.socials %}
         <ul class="contact-links">
-          {% if so.email %}<li><a href="mailto:{{ so.email }}">Email</a></li>{% endif %}
+          {% if so.email %}<li><a href="mailto:{{ so.email }}">{{ so.email }}</a></li>{% endif %}
           {% if so.scholar_userid %}<li><a href="https://scholar.google.com/citations?user={{ so.scholar_userid }}" rel="external noopener">Google Scholar</a></li>{% endif %}
           {% if so.orcid_id %}<li><a href="https://orcid.org/{{ so.orcid_id }}" rel="external noopener">ORCID</a></li>{% endif %}
           {% if so.linkedin_username %}<li><a href="https://www.linkedin.com/in/{{ so.linkedin_username }}" rel="external noopener">LinkedIn</a></li>{% endif %}

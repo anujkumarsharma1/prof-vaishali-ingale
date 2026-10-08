@@ -19,6 +19,9 @@
   skip.firstChild.nodeValue = C.skipLabel + ' ';
   skip.href = SITE + C.skipUrl;
   sitBtn.textContent = touch ? C.hintTouch : C.hint;
+  // persona fix 6: touch screens get "Tap", not "Click", in the room caption
+  var cap = roomUI.querySelector('.room-cap');
+  if (cap && (mq('(hover: none)') || mq('(pointer: coarse)'))) cap.textContent = cap.textContent.replace(/\bClick\b/, 'Tap');
   skipIntroBtn.textContent = C.skipIntroLabel;
   $('loader-label').textContent = C.loadingLabel;
 
@@ -34,11 +37,27 @@
   D.build(osEl, { siteBase: SITE, roomBase: ROOM, standLabel: C.standLabel, onOffice: function () { stand(); } });
 
   function progress(p) { bar.style.transform = 'scaleX(' + Math.max(0, Math.min(1, p)).toFixed(3) + ')'; }
+  // persona fix 5: during the intro the loader's name moves to the top-left corner instead of fading out
+  var nameEl = loader.querySelector('.loader-name');
+  function cornerName() { if (nameEl && nameEl.parentNode === loader) { document.body.appendChild(nameEl); nameEl.classList.add('is-corner'); } }
+  function uncornerName() { if (nameEl && nameEl.parentNode !== loader) { nameEl.classList.remove('is-corner'); loader.insertBefore(nameEl, loader.firstChild); } }
   function hideLoader(slow) {
+    if (slow) cornerName();
     if (slow && !reduced) loader.classList.add('is-slow');
     loader.classList.add('is-done'); document.body.classList.remove('is-loading');
   }
   function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  // persona fix 1: the intro plays once per session; returning visitors (same session, or coming
+  // from one of the site's own pages) go straight to the desk through the deep-link path
+  var INTRO_KEY = 'vsi-intro';
+  function introSeen() {
+    try { if (sessionStorage.getItem(INTRO_KEY)) return true; } catch (e) { /* storage blocked */ }
+    try {
+      var base = new URL(SITE, location.href).href;
+      return !!document.referrer && document.referrer.indexOf(base) === 0;
+    } catch (e) { return false; }
+  }
+  function markIntroSeen() { try { sessionStorage.setItem(INTRO_KEY, '1'); } catch (e) { /* storage blocked */ } }
   function deepLink() { var h = (location.hash || '').slice(1); return C.folders.some(function (f) { return f.id === h; }) ? h : ''; }
 
   function webglOK(strict) {
@@ -71,6 +90,7 @@
   /* ---------- 2D desktop ---------- */
   function start2D(r) {
     var was = state;
+    uncornerName();
     mode = '2d'; reason = r || reason; state = 'desktop';
     if (scene) { try { scene.dispose(); } catch (e) { /* already gone */ } scene = null; }
     stage.innerHTML = '';
@@ -101,8 +121,8 @@
     mode = '3d';
     var failed = false;
     // reduced motion and direct folder links go straight to the folders; the room loads behind them
-    var early = reduced || !!deepLink();
-    if (early) { state = 'desktop'; hideLoader(); D.show({ openHash: true }); }
+    var early = reduced || !!deepLink() || introSeen();
+    if (early) { state = 'desktop'; hideLoader(); D.show({ openHash: true }); markIntroSeen(); }
     var timer = setTimeout(function () { if (!scene) { failed = true; start2D('timeout'); } }, 12000);
     progress(0.04);
     prefetch(ROOM + 'vendor/three.module.min.js', 691648, function (p) { progress(0.05 + p * 0.65); })
@@ -149,6 +169,8 @@
   function toDesk(folder) {
     if (state === 'desktop' || mode !== '3d') return;
     state = 'desktop';
+    markIntroSeen();
+    uncornerName();
     skipIntroBtn.classList.remove('is-on'); skipIntroBtn.hidden = true;
     roomUI.classList.remove('is-on'); roomUI.hidden = true;
     tip.classList.remove('is-on'); stage.classList.remove('is-hover');

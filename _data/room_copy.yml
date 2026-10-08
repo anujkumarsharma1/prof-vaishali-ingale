@@ -19,6 +19,8 @@ objects:
     url: /about/
     link: /about/
     suggested_object: nameplate
+    # first line of the About window (the /about/ page keeps its own lead)
+    lead: Assistant Professor of Information Technology at the Army Institute of Technology (AIT), Pune, since July 2005.
     blurb:
       - Assistant Professor, Information Technology, AIT Pune.
       - At AIT since 2005.

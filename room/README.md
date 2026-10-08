@@ -34,6 +34,8 @@ The two attributes on `<html>` are the only configuration:
 
 Handy addresses:
 - `#publications` (or any folder id) opens that folder directly, without the intro
+- The intro plays once per browser tab session. After it ends or is skipped, `sessionStorage['vsi-intro']` is set, and later visits in that tab, or arrivals from one of the site's own pages, go straight to the desk (the same path as `#folder` links). A new tab or a new session plays it again.
+- During the intro her name stays in the top-left corner, where the desk bar shows it afterwards (the loader's name element, moved there by `main.js`).
 - `?2d` always shows the plain folder desktop
 - `?3d` forces the 3D room even on slow or software graphics (testing only)
 
