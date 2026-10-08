@@ -764,3 +764,83 @@ footer a:hover { text-decoration-color: currentColor; }
   *, *::before, *::after { transition-duration: 0.01ms !important; animation: none !important; }
   figure.memory-frame { transform: none; }
 }
+
+/* ==========================================================================
+   Cards: one consistent, medium-weight style for every card on the site
+   (leadership sections, awards, CV entries, news, the about-page stats,
+   publication entries). The room windows use the same values in
+   room/css/cards.css. Flat fill + faint cinnamon hairline + soft shadow;
+   no glass, no gradients. Hover lift only on cards that are links.
+   ========================================================================== */
+$card-fill: #f5e6d6;   // deeper, warmer than the #fbf4ec page (chosen over #fffaf4 by screenshot; all text >= 4.5:1)
+$card-border: rgba(160, 74, 13, 0.10);
+$card-radius: 16px;
+$card-shadow: 0 1px 2px rgba(60, 30, 10, 0.04), 0 8px 24px rgba(60, 30, 10, 0.06);
+$card-shadow-hover: 0 2px 4px rgba(60, 30, 10, 0.05), 0 14px 32px rgba(60, 30, 10, 0.09);
+$card-pad: 32px;
+$card-pad-sm: 20px;
+
+html body {
+  .card-soft,
+  .news-card,
+  .leadership-page > .card-soft,
+  .awards-page > .card-soft,
+  .cv .card,
+  .cv .card.mt-3,
+  .publications ol.bibliography > li,
+  .hero-stats {
+    background: $card-fill !important;
+    border: 1px solid $card-border !important;
+    border-radius: $card-radius !important;
+    box-shadow: $card-shadow !important;
+    padding: $card-pad !important;
+  }
+  .cv .card-body { background: transparent !important; padding: 0 !important; border: 0 !important; box-shadow: none !important; }
+  .leadership-page > .card-soft { margin: 0 0 24px; }
+  .leadership-page > .card-soft:first-child { padding-top: $card-pad !important; }
+  .leadership-page .milestones { padding-top: calc(#{$section-pad} - 24px); }
+  .card-soft, .news-card { margin-bottom: 24px; }
+  .awards-page > .card-soft, .card-grid .card-soft { margin-bottom: 0; }
+  .publications ol.bibliography > li { margin-bottom: 16px; }
+  .news-card { padding-top: 12px !important; padding-bottom: 12px !important; }
+  .news-card .news table tr + tr td, .news-card .news table tr + tr th { border-top: 1px solid $card-border !important; }
+  /* about page: the counters sit in one card instead of a full-bleed band */
+  .hero-stats { margin: 0 0 8px; }
+  .hero-stats::before { content: none; }
+  /* stat strips inside a card stay flat */
+  .card-soft .stat-strip { background: none; border: 0; box-shadow: none; padding: 0; }
+  /* hover only when the whole card is a link */
+  a.card-soft, .card-soft.is-clickable, a.news-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  a.card-soft:hover, .card-soft.is-clickable:hover, a.news-card:hover {
+    transform: translateY(-2px);
+    box-shadow: $card-shadow-hover !important;
+  }
+}
+@media (max-width: 575.98px) {
+  html body {
+    .card-soft,
+    .news-card,
+    .leadership-page > .card-soft,
+    .leadership-page > .card-soft:first-child,
+    .awards-page > .card-soft,
+    .cv .card,
+    .cv .card.mt-3,
+    .publications ol.bibliography > li,
+    .hero-stats { padding: $card-pad-sm !important; }
+    .news-card { padding-top: 8px !important; padding-bottom: 8px !important; }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html body a.card-soft:hover, html body .card-soft.is-clickable:hover, html body a.news-card:hover { transform: none; }
+}
+
+/* chips inside the deeper cards use the light surface so they still read as chips */
+html body {
+  .publications ol.bibliography li .abbr abbr.badge,
+  .publications .abbr .badge,
+  .publications .links .btn,
+  .cv .badge, .cv .card .badge.danger-color-dark { background: #fffaf4 !important; background-color: #fffaf4 !important; }
+  .publications .links .btn:hover { background: $ink !important; background-color: $ink !important; color: #fffaf4 !important; }
+}

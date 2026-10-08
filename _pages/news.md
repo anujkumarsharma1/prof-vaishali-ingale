@@ -4,4 +4,4 @@ title: News
 permalink: /news/
 ---
 
-{% include news.liquid %}
+<div class="card-soft news-card">{% include news.liquid %}</div>
