@@ -11,11 +11,6 @@ cv:
 
   sections:
     Education:
-      - institution: Ganpat University
-        area: Computer Science & Information Technology
-        studyType: PhD (pursuing)
-        end_date: present
-
       - institution: Pune University
         area: Computer Engineering
         studyType: M.E.
@@ -35,7 +30,7 @@ cv:
         end_date: present
         summary: Teaches and researches in the Department of Information Technology.
         highlights:
-          - Conference Chair, ICNDIA-2026, the first edition of ICNDIA, an IEEE international conference hosted at AIT (September 2026)
+          - Conference Chair, ICNDIA-2026, an IEEE international conference hosted at AIT (September 2026)
           - Vice Branch Counsellor, IEEE AIT Student Branch
           - Faculty In-Charge, Open Source Software Club, and its national hackathon Innerve (listed as staff in-charge on AIT's clubs page, 2018-19 to 2022-23)
           - Mentor of both AIT teams that won first prize at Smart India Hackathon 2024

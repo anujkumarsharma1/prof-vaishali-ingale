@@ -12,7 +12,7 @@ nav_order: 4
 <section class="card-soft" id="recognitions">
   <h2>Recognition</h2>
   <ul class="timeline-list">
-    <li><span class="timeline-year">2026</span> Conference Chair, ICNDIA-2026, the first edition of ICNDIA, an IEEE international conference hosted at AIT</li>
+    <li><span class="timeline-year">2026</span> Conference Chair, ICNDIA-2026, an IEEE international conference hosted at AIT</li>
     <li><span class="timeline-year">2026</span> Vice Branch Counsellor, IEEE AIT Student Branch</li>
     <li><span class="timeline-year">2025</span> Faculty In-Charge, Innerve 9.0, a national hackathon with 9,500+ students</li>
     <li><span class="timeline-year">2024</span> Mentor of two first-prize teams, Smart India Hackathon 2024</li>

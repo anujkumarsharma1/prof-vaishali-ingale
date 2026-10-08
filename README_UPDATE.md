@@ -51,6 +51,8 @@ News items dated in the future are shown straight away (the site sets `future: t
 - The home-page biography is the text in `_pages/about.md`, below the second `---` line.
 - Email, Google Scholar, ORCID and LinkedIn links are in `_data/socials.yml`.
 
+If her PhD is confirmed complete, add it to Education in _data/cv.yml and the bio.
+
 ## Change photos
 
 - **Profile photo:** upload a new picture named exactly `prof_pic.jpg` into `assets/img/` (**Add file → Upload files**). GitHub asks to replace the old one; confirm.

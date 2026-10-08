@@ -60,4 +60,4 @@ She has written ten university textbooks on artificial intelligence and data str
 
 ### Education
 
-M.E. in Computer Engineering, Pune University, 2008. B.E. in Computer Science and Engineering, SRTM University, 2002. She is working towards a PhD at Ganpat University.
+M.E. in Computer Engineering, Pune University, 2008. B.E. in Computer Science and Engineering, SRTM University, 2002.
