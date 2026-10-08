@@ -463,6 +463,11 @@ progress#progress::-moz-progress-bar { background: $accent; }
 .social .contact-icons { font-size: 1.6rem; }
 .social .contact-icons a { color: $ink-soft; margin-right: 0.8rem; transition: color 0.3s ease; }
 .social .contact-icons a:hover { color: $accent; }
+.contact-links { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem 1.75rem; }
+.contact-links li { margin: 0 !important; }
+.contact-links a { font-family: $serif; font-size: clamp(1.25rem, 1rem + 0.8vw, 1.5rem); font-weight: 400; color: $ink !important; text-decoration: none !important; }
+.contact-links a::after { content: "\2197"; font-family: $sans; font-size: 0.6em; color: $accent; margin-left: 0.3em; }
+.contact-links a:hover { color: $accent !important; }
 .social .contact-note { color: $ink-soft; font-size: 0.9375rem; margin-top: 0.5rem; }
 .social .contact-address { font-style: normal; color: $ink-soft; font-size: 0.875rem; line-height: 1.6; margin: 1.25rem 0 0; p { margin: 0; } }
 .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
@@ -734,6 +739,7 @@ footer a:hover { text-decoration-color: currentColor; }
   .hero-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 2.25rem; }
 }
 @media (max-width: 767px) {
+  .hero-art { background-image: url("../img/hero_watercolor-800.webp"); } // 5 KB wash on phones (LCP)
   /* text first, then a centred portrait (QA P1-3) */
   .hero-step-1 { grid-template-columns: 1fr; min-height: auto; padding-top: 1.5rem; gap: 2.25rem; }
   .hero-portrait { justify-self: center; max-width: 300px; margin-inline: auto; }

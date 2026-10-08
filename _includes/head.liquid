@@ -52,8 +52,8 @@
 {% endif %}
 
 <!-- Icons -->
-{% if site.plugins contains 'al_icons' %}
-  {%- comment -%} Icon fonts are only used for the contact icons at the bottom, so load them without blocking render. {%- endcomment -%}
+{% if site.plugins contains 'al_icons' and page.layout != 'about' %}
+  {%- comment -%} Icon fonts (CV, publications) load without blocking render. The home page uses text links instead, so it skips them. {%- endcomment -%}
   {% capture icon_css %}{% include plugins/al_icons_styles.liquid %}{% endcapture %}
   {{ icon_css | replace: 'rel="stylesheet"', 'rel="stylesheet" media="print" onload="this.media=&#39;all&#39;"' }}
   <noscript>{{ icon_css }}</noscript>
@@ -62,7 +62,8 @@
 {% if page.layout == 'about' %}{%- comment -%} Preload only on the home page (the usual landing page); on later pages the fonts are already cached. {%- endcomment -%}
 <link rel="preload" as="font" type="font/woff2" href="{{ '/assets/fonts/fraunces-latin.woff2' | relative_url }}" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="{{ '/assets/fonts/inter-latin.woff2' | relative_url }}" crossorigin>
-<link rel="preload" as="image" type="image/webp" href="{{ '/assets/img/hero_watercolor.webp' | relative_url }}" fetchpriority="high">{% endif %}
+<link rel="preload" as="image" type="image/webp" href="{{ '/assets/img/hero_watercolor-800.webp' | relative_url }}" media="(max-width: 767px)" fetchpriority="high">
+<link rel="preload" as="image" type="image/webp" href="{{ '/assets/img/hero_watercolor.webp' | relative_url }}" media="(min-width: 768px)" fetchpriority="high">{% endif %}
 
 <!-- Code Syntax Highlighting -->
 <link
