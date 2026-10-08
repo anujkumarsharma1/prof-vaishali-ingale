@@ -16,6 +16,9 @@ The Publications page is built from one file: `_bibliography/papers.bib`.
 
 Add papers from Google Scholar or the publisher's page only. Do not import them automatically from ORCID or Scopus: those databases mix in papers by another researcher with the same name.
 
+**Never add these two Google Scholar entries:** the 2023 *Soft Computing* paper on diabetic retinopathy (it was retracted by the publisher) and the 2017 pomegranate juice-powder paper (it belongs to someone else with a similar name). Both still appear on her Scholar profile.
+
+
 ## Add a news item
 
 News appears on the home page. Each item is one small file in the `_news` folder.

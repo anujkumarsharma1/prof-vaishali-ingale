@@ -8,39 +8,56 @@ layout: default
   front matter of _pages/about.md (kicker, name_prefix, tagline, birthday_ribbon, hero_stats).
 {%- endcomment -%}
 <div class="post about-page">
+  {%- comment -%}
+    Signature hero (MOTION_SPEC effect 1): two steps that crossfade while the hero is pinned
+    (desktop, motion on). Without JS / reduced motion / mobile, the steps simply stack.
+  {%- endcomment -%}
+  {% assign ribbon_text = page.birthday_ribbon.text | default: 'Happy birthday, Ma’am. A small surprise from IT 2028' %}
+  {% assign bday_parts = ribbon_text | split: '. ' %}
+  {% assign bday_line = page.hero_birthday | default: bday_parts[0] | append: '.' | replace: '..', '.' %}
+  {% assign bday_sub = page.hero_birthday_sub | default: bday_parts[1] %}
   <section class="about-hero" data-hero data-pin-hero>
-    <div class="hero-text">
-      {% if page.birthday_ribbon %}
-        <a class="birthday-ribbon" data-hero-item href="{{ page.birthday_ribbon.url | default: '/birthday/' | relative_url }}">
-          <span class="ribbon-dot" aria-hidden="true"></span>
-          <span>{{ page.birthday_ribbon.text | default: 'Happy Birthday, Ma’am! A surprise from your students' }}</span>
-          <span class="ribbon-arrow" aria-hidden="true">&rarr;</span>
-        </a>
-      {% endif %}
-      {% if page.kicker %}<p class="hero-kicker" data-hero-item>{{ page.kicker }}</p>{% endif %}
-      <h1 class="post-title hero-title" data-hero-item data-reveal="lines">
-        {% if page.name_prefix %}<span class="name-prefix">{{ page.name_prefix }}</span>{% endif %}
-        <span class="name-main">{{ site.first_name }} {{ site.middle_name }} <em>{{ site.last_name }}</em></span>
-      </h1>
-      {% assign hero_tagline = page.hero_tagline | default: page.tagline %}
-      {% if hero_tagline %}<p class="hero-tagline" data-hero-item data-reveal="lines">{{ hero_tagline }}</p>{% endif %}
-      <p class="desc hero-desc" data-hero-item>{{ page.subtitle }}</p>
-    </div>
-
-    {% if page.profile and page.profile.image %}
-      <div class="hero-portrait" data-parallax="0.08">
-        <div class="portrait-frame">
-          {% assign profile_image_path = page.profile.image | prepend: 'assets/img/' %}
-          {%
-            include figure.liquid loading="eager" path=profile_image_path class="img-fluid portrait-img" sizes="(min-width: 768px) 340px, 80vw"
-            alt="Prof. Vaishali S. Ingale" cache_bust=true
-          %}
+    <div class="hero-art" data-parallax="80" aria-hidden="true"></div>
+    <div class="pin-stage">
+      <div class="hero-step hero-step-1" data-pin-step>
+        <div class="hero-text">
+          {% if page.birthday_ribbon %}
+            <a class="birthday-ribbon" data-hero-item data-reveal="fade-up" data-start="load" data-delay="0.6" href="{{ page.birthday_ribbon.url | default: '/wishes/' | relative_url }}">
+              <span class="ribbon-dot" aria-hidden="true"></span>
+              <span>{{ ribbon_text }}</span>
+              <span class="ribbon-arrow" aria-hidden="true">&rarr;</span>
+            </a>
+          {% endif %}
+          {% if page.kicker %}<p class="hero-kicker" data-hero-item data-reveal="fade-up" data-start="load" data-delay="0.5">{{ page.kicker }}</p>{% endif %}
+          <h1 class="post-title hero-title" data-hero-item data-reveal="lines" data-start="load" data-delay="0.15">
+            {% if page.name_prefix %}<span class="name-prefix">{{ page.name_prefix }}</span>{% endif %}
+            <span class="name-main">{{ site.first_name }} {{ site.middle_name }} {{ site.last_name }}</span>
+          </h1>
+          {% assign hero_tagline = page.hero_tagline | default: page.tagline %}
+          {% if hero_tagline %}<p class="hero-tagline" data-hero-item data-reveal="lines" data-start="load" data-delay="0.35">{{ hero_tagline }}</p>{% endif %}
+          <p class="desc hero-desc" data-hero-item data-reveal="fade-up" data-start="load" data-delay="0.7">{{ page.subtitle }}</p>
         </div>
-        {% if page.profile.more_info %}
-          <div class="more-info">{{ page.profile.more_info }}</div>
+        {% if page.profile and page.profile.image %}
+          <div class="hero-portrait" data-parallax="24">
+            <div class="portrait-frame">
+              {% assign profile_image_path = page.profile.image | prepend: 'assets/img/' %}
+              {%
+                include figure.liquid loading="eager" path=profile_image_path class="img-fluid portrait-img" sizes="(min-width: 768px) 380px, 80vw"
+                alt="Prof. Vaishali S. Ingale" cache_bust=true
+              %}
+            </div>
+            {% if page.profile.more_info %}
+              <div class="more-info">{{ page.profile.more_info }}</div>
+            {% endif %}
+          </div>
         {% endif %}
       </div>
-    {% endif %}
+      <div class="hero-step hero-step-2" data-pin-step>
+        <h2 class="hero-birthday">{{ bday_line }}</h2>
+        {% if bday_sub %}<p class="hero-birthday-sub">{{ bday_sub }}</p>{% endif %}
+        <a class="hero-birthday-link" href="{{ page.birthday_ribbon.url | default: '/wishes/' | relative_url }}">Read the wishes from your students &rarr;</a>
+      </div>
+    </div>
   </section>
 
   {%- comment -%} Counters come from _data/stats.yml. "since" (YYYY-MM-DD) turns into whole years at build time; birthday.js recomputes it in the browser so it never goes stale. {%- endcomment -%}

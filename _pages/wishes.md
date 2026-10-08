@@ -13,7 +13,7 @@ nav_order: 6
   <h2>Happy birthday, Ma&#39;am.</h2>
   <p>Dear Ma&#39;am,</p>
   <p>This website is from all of us in IT 2028.</p>
-  <p>We wanted one place that holds what you have built at AIT since 2005. Your papers and textbooks. The OSS Club and Innerve. ICNDIA-2026. And the students you have guided along the way.</p>
+  <p>We wanted one place that holds your work at AIT since 2005. Your papers and textbooks. The OSS Club and Innerve. ICNDIA-2026. And the students you have guided along the way.</p>
   <p>It is made to grow. New papers, news and photos can be added at any time, without rebuilding anything.</p>
   <p>Thank you, and happy birthday.</p>
   <p class="wishes-from">With respect and affection,<br>IT 2028, Army Institute of Technology, Pune</p>

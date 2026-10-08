@@ -52,7 +52,7 @@ In 2024 she mentored both AIT teams that won first prize at the Smart India Hack
 
 ### Service
 
-She is Vice Branch Counsellor of the IEEE AIT Student Branch. In September 2026 she was a Conference Chair of ICNDIA-2026, the first IEEE international conference held at AIT.
+She is Vice Branch Counsellor of the IEEE AIT Student Branch. In September 2026 she was a Conference Chair of ICNDIA-2026, the first edition of ICNDIA, an IEEE international conference hosted at AIT.
 
 ### Books and awards
 

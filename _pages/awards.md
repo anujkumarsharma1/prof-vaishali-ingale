@@ -12,7 +12,7 @@ nav_order: 4
 <section class="card-soft" id="recognitions">
   <h2>Recognition</h2>
   <ul class="timeline-list">
-    <li><span class="timeline-year">2026</span> Conference Chair, ICNDIA-2026, the first IEEE international conference held at AIT</li>
+    <li><span class="timeline-year">2026</span> Conference Chair, ICNDIA-2026, the first edition of ICNDIA, an IEEE international conference hosted at AIT</li>
     <li><span class="timeline-year">2026</span> Vice Branch Counsellor, IEEE AIT Student Branch</li>
     <li><span class="timeline-year">2025</span> Faculty In-Charge, Innerve 9.0, a national hackathon with 9,500+ students</li>
     <li><span class="timeline-year">2024</span> Mentor of two first-prize teams, Smart India Hackathon 2024</li>
@@ -29,7 +29,6 @@ nav_order: 4
   <h2>Patent</h2>
   <p class="lead"><strong>Interactive Shopping Experience Using Augmented Reality</strong></p>
   <p>Indian patent application No. 202221075977. Filed in December 2022, published on 13 January 2023.</p>
-  <p>Co-inventors from the AIT IT department: Dr. Aparna Joshi, Dr. G. M. Walunjkar, Dr. Rahul Desai, Dr. Rupali Bagate and Prof. Yuvraj Gholap.</p>
 </section>
 
 <section class="card-soft" id="textbooks">
@@ -44,7 +43,7 @@ nav_order: 4
     <li><em>Artificial Intelligence</em> for Dr. Babasaheb Ambedkar Technological University (BATU), 2020. Two titles, one with Dr. Ashwini Sapkal.</li>
     <li><em>Data Structures &amp; Files</em>, 2010. Two editions.</li>
   </ul>
-  <p>Several were co-written with Ashwini C. Bokhare. The 2008–2011 titles carry her earlier name, Vaishali J. Dharkar.</p>
+  <p>Several were co-written with Ashwini C. Bokhare.</p>
 </section>
 
 <section class="card-soft" id="certifications">

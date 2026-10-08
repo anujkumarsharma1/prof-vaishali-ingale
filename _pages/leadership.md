@@ -2,7 +2,7 @@
 layout: page
 permalink: /leadership/
 title: leadership
-description: The conference, the clubs and the hackathons she runs at AIT.
+description: The conference, the clubs and the hackathons she has led or guided at AIT.
 nav: true
 nav_order: 2
 ---
@@ -12,7 +12,7 @@ nav_order: 2
 <section class="card-soft" id="icndia-2026">
   <p class="card-kicker">September 2026 · Conference Chair</p>
   <h2>ICNDIA-2026</h2>
-  <p class="lead">The first IEEE international conference held at AIT. She was one of its two Conference Chairs.</p>
+  <p class="lead">The first edition of ICNDIA, an IEEE international conference hosted at AIT. She was one of its two Conference Chairs.</p>
   <div class="stat-strip">
     <div class="stat"><span class="stat-number">1,500+</span><span class="stat-label">submissions</span></div>
     <div class="stat"><span class="stat-number">237</span><span class="stat-label">accepted</span></div>
@@ -20,7 +20,7 @@ nav_order: 2
     <div class="stat"><span class="stat-number">6</span><span class="stat-label">parallel tracks</span></div>
   </div>
   <p>The full name is the IEEE International Conference on Nexus of Digitalization, Intelligence and Applications. Her own Department of Information Technology organised it on 18–19 September 2026, on campus and online. She shared the chair with Dr. Ashwini Sapkal.</p>
-  <p>Every paper went through double-blind review. Accepted papers go to IEEE Xplore, and the proceedings were released on the first day.</p>
+  <p>Papers were accepted after double-blind peer review. Accepted and presented papers go to IEEE Xplore, and the proceedings were released on the first day.</p>
   <p>Lt Gen Vipul Shinghal, AVSM, SM, Deputy Chief of Army Staff (Information Systems &amp; Technology), was chief guest at the opening. Keynotes came from Prof. Mukul S. Sutaone (Director, IIIT Allahabad), Lt Gen (Dr) S. P. Kochhar (Retd) (Director General, COAI) and Dr. Makrand G. Joshi (Director, R&amp;DE (Engrs), DRDO).</p>
   <p>Technical co-sponsor: IEEE Consumer Technology Society, Pune Section. Collaborators: the AIT IEEE Student Branch and the AIT ACM Student Chapter.</p>
   <p class="card-source">Source: ICNDIA-2026 brochure; AIT Pune official posts, September 2026.</p>
@@ -39,7 +39,7 @@ nav_order: 2
 </section>
 
 <section class="card-soft" id="oss-club">
-  <p class="card-kicker">Since 2018–19 · Faculty In-Charge</p>
+  <p class="card-kicker">OSS Club · Faculty In-Charge</p>
   <h2>OSS Club and Innerve</h2>
   <p class="lead">She looks after AIT's Open Source Software Club and its hackathon, Innerve.</p>
   <div class="stat-strip">
@@ -48,7 +48,7 @@ nav_order: 2
     <div class="stat"><span class="stat-number">₹12 lakh</span><span class="stat-label">prize pool, Innerve 9.0</span></div>
     <div class="stat"><span class="stat-number">10,000+</span><span class="stat-label">registrations, Innerve X</span></div>
   </div>
-  <p>AIT's records list her as the club's staff in-charge from 2018–19. Today she is Faculty In-Charge, with Prof. Kuldeep Hule as co-in-charge. The club started in 2014. Its motto is <em>"May The Source Be With You!"</em></p>
+  <p>AIT's clubs page, which covers 2018–19 to 2022–23, lists her as the club's staff in-charge. Today she is Faculty In-Charge, with Prof. Kuldeep Hule as co-in-charge. The club started in 2014. Its motto is <em>"May The Source Be With You!"</em></p>
   <p>Besides Innerve, the club runs Anubhav (interview experiences), front-end classes and GRAPHICA, a hackathon for first-year students.</p>
   <p>Innerve, "Nerve to Innovate", has run since 2016. Registration is free.</p>
   <ul>
@@ -93,7 +93,7 @@ nav_order: 2
   <h2>Teaching teachers</h2>
   <p class="lead">She also trains other faculty, at AIT and for the university.</p>
   <ul>
-    <li>Resource person at SPPU orientation programmes for TE IT (2019 course): <em>Machine Learning &amp; Laboratory Practices</em> on 26 July 2021, and <em>Deep Learning and Lab Practices</em> on 30 July 2022.</li>
+    <li>Resource person at SPPU faculty orientation programmes: <em>Machine Learning &amp; Laboratory Practices</em> (TE IT, 2019 course) on 26 July 2021, and <em>Deep Learning and Lab Practices</em> on 30 July 2022.</li>
     <li>University paper setter for <em>Machine Learning</em> (2019 pattern, Semester I), October 2021.</li>
     <li>Organiser at AIT: a Cloud Computing workshop (2015), a two-week FDP on Machine Learning and Image Processing, an AICTE-sponsored one-week STTP on Outcome-Based Education (2020), "Evaluation of Deep Learning Models on High Performance Computer" (March 2021) and a one-week course on Project Life-Cycle Management (May 2022).</li>
   </ul>

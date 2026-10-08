@@ -1,5 +1,7 @@
 <!-- Metadata, OpenGraph and Schema.org -->
 {% include metadata.liquid %}
+<!-- Motion guard (MOTION_SPEC §2): must run BEFORE any CSS. Hides reveal targets only when motion is allowed; 3.5 s failsafe. -->
+<script>!function(d){try{if(!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("motion-pending");setTimeout(function(){d.classList.remove("motion-pending")},3500)}}catch(e){}}(document.documentElement)</script>
 <!-- Launch kit: icons, theme colour, indexing -->
 <link rel="icon" type="image/png" sizes="32x32" href="{{ '/assets/img/favicon-32.png' | relative_url }}">
 <link rel="manifest" href="{{ '/assets/img/site.webmanifest' | relative_url }}">
@@ -212,13 +214,32 @@
   {% include plugins/al_marimo_styles.liquid %}
 {% endif %}
 
-<!-- ===== Site theme (peach & cream) — local additions, see README_UPDATE.md ===== -->
+<!-- ===== Site theme (peach & cream) + motion: local additions, see README_UPDATE.md ===== -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="{{ '/assets/custom/site.css' | relative_url }}?v={{ site.time | date: '%s' }}">
-<!-- Vendored libraries: Lenis 1.3.26 (MIT), GSAP 3.15.0 + ScrollTrigger + SplitText (GSAP Standard 'no charge' licence) -->
+<link rel="stylesheet" href="{{ '/assets/custom/motion.css' | relative_url | bust_file_cache }}">
+<script>
+  // motion.js auto-tagging for this site (MOTION_SPEC §2/§4 + lead decisions: rail on milestones only, "read" effect off)
+  window.MOTION_CONFIG = {
+    auto: {
+      "article h2:not(.bibliography)": { reveal: "lines" },
+      "p.lead": { reveal: "lines" },
+      ".post-header .post-title": { reveal: "lines", start: "load", delay: "0.1" },
+      ".stat-strip": { reveal: "fade-up" },
+      ".awards-page > .card-soft": { reveal: "fade-up" },
+      ".wish-card": { reveal: "fade-up", stagger: "0.06" },
+      "figure.memory-frame": { reveal: "image" },
+      "figure.memory-frame > img": { "reveal-media": "" },
+      "ol.milestones-list > li.milestone": { reveal: "fade-up" },
+      "ol.milestones-list": { rail: "" }
+    }
+  };
+</script>
+<!-- Vendored libraries, in MOTION_SPEC order: Lenis 1.3.26 (MIT), GSAP 3.15.0 + ScrollTrigger + SplitText (GSAP Standard "no charge" licence) -->
 <script defer src="{{ '/assets/lib/lenis.min.js' | relative_url | bust_file_cache }}"></script>
 <script defer src="{{ '/assets/lib/gsap.min.js' | relative_url | bust_file_cache }}"></script>
 <script defer src="{{ '/assets/lib/ScrollTrigger.min.js' | relative_url | bust_file_cache }}"></script>
 <script defer src="{{ '/assets/lib/SplitText.min.js' | relative_url | bust_file_cache }}"></script>
 <script defer src="{{ '/assets/js/birthday.js' | relative_url | bust_file_cache }}"></script>
+<script defer src="{{ '/assets/js/motion.js' | relative_url | bust_file_cache }}"></script>

@@ -35,9 +35,9 @@ cv:
         end_date: present
         summary: Teaches and researches in the Department of Information Technology.
         highlights:
-          - Conference Chair, ICNDIA-2026, the first IEEE international conference held at AIT (September 2026)
+          - Conference Chair, ICNDIA-2026, the first edition of ICNDIA, an IEEE international conference hosted at AIT (September 2026)
           - Vice Branch Counsellor, IEEE AIT Student Branch
-          - Faculty In-Charge, Open Source Software Club, and its national hackathon Innerve (staff in-charge since 2018-19)
+          - Faculty In-Charge, Open Source Software Club, and its national hackathon Innerve (listed as staff in-charge on AIT's clubs page, 2018-19 to 2022-23)
           - Mentor of both AIT teams that won first prize at Smart India Hackathon 2024
           - Co-Investigator, two SPPU QIP grants for faculty development programmes (2017, 2018)
           - Member, Institution's Innovation Council (IIC), AIT
@@ -57,7 +57,7 @@ cv:
 
       - title: "Indian patent application published: Interactive Shopping Experience Using Augmented Reality"
         date: 2023-01-13
-        summary: Application No. 202221075977, with co-inventors from the AIT IT department.
+        summary: Application No. 202221075977, published 13 January 2023.
 
     Certificates:
       - name: "Fundamentals of Deep Learning for Multiple Data Types, Certificate of Competency"
