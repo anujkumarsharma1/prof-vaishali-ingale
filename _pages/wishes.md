@@ -1,7 +1,7 @@
 ---
 layout: page
 permalink: /wishes/
-title: birthday wishes
+title: Birthday wishes
 description: From the IT 2028 class, 10 October 2026.
 nav: true
 nav_order: 6
@@ -10,11 +10,11 @@ nav_order: 6
 <div class="wishes-page">
 
 <section class="wishes-intro card-soft">
-  <h2>Happy birthday, Ma&#39;am.</h2>
-  <p>Dear Ma&#39;am,</p>
+  <h2>Happy birthday, Ma’am.</h2>
+  <p>Dear Ma’am,</p>
   <p>This website is from all of us in IT 2028.</p>
   <p>We wanted one place that holds your work at AIT since 2005. Your papers and textbooks. The OSS Club and Innerve. ICNDIA-2026. And the students you have guided along the way.</p>
-  <p>It is made to grow. New papers, news and photos can be added at any time, without rebuilding anything.</p>
+  <p>It will keep growing as you do: new papers, news and photos.</p>
   <p>Thank you, and happy birthday.</p>
   <p class="wishes-from">With respect and affection,<br>IT 2028, Army Institute of Technology, Pune</p>
 </section>
@@ -22,7 +22,7 @@ nav_order: 6
 <h2 class="section-title">From the class</h2>
 <div class="wishes-wall">
   <div class="wish-card">
-    <p class="wish-text">Happy birthday, Ma&#39;am. Thank you for answering every question, including the ones we asked twice.</p>
+    <p class="wish-text">Happy birthday, Ma’am. Thank you for answering every question, including the ones we asked twice.</p>
     <p class="wish-sign">IT 2028</p>
   </div>
   <div class="wish-card">
@@ -50,7 +50,7 @@ nav_order: 6
     <p class="wish-sign">Your students</p>
   </div>
   <div class="wish-card">
-    <p class="wish-text">May this year be as kind to you as you have been to us. Happy birthday, Ma&#39;am.</p>
+    <p class="wish-text">May this year be as kind to you as you have been to us. Happy birthday, Ma’am.</p>
     <p class="wish-sign">IT 2028</p>
   </div>
 </div>
@@ -84,5 +84,6 @@ nav_order: 6
     <figcaption>10 October 2026</figcaption>
   </figure>
 </div>
+<p class="wishes-note memories-note">Photos coming soon.</p>
 
 </div>

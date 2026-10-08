@@ -1,5 +1,6 @@
 ---
-layout: post
+title: "CSI Paper Presenter Award"
+layout: news-item
 date: 2020-01-18 10:00:00+0530
 inline: true
 related_posts: false

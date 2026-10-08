@@ -1,5 +1,6 @@
 ---
-layout: post
+title: "New Springer paper on topographical features"
+layout: news-item
 date: 2026-04-11 10:00:00+0530
 inline: true
 related_posts: false

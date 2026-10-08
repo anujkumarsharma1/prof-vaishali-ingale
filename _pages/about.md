@@ -1,6 +1,6 @@
 ---
 layout: about
-title: about
+title: About
 permalink: /
 subtitle: Assistant Professor · Department of Information Technology · <a href='https://www.aitpune.com/' target='_blank'>Army Institute of Technology, Pune</a>
 
@@ -27,8 +27,8 @@ social: true
 
 announcements:
   enabled: true
-  scrollable: true
-  limit: 5
+  scrollable: false
+  limit: 3
 
 latest_posts:
   enabled: false

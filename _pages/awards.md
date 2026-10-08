@@ -1,7 +1,7 @@
 ---
 layout: page
 permalink: /awards/
-title: awards
+title: Awards
 description: Awards, a patent, ten textbooks and the courses she has completed.
 nav: true
 nav_order: 4

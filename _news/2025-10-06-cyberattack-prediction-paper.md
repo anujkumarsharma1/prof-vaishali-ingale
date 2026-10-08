@@ -1,5 +1,6 @@
 ---
-layout: post
+title: "New paper on cyberattack prediction"
+layout: news-item
 date: 2025-10-06 10:00:00+0530
 inline: true
 related_posts: false

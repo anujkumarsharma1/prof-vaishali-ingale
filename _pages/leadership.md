@@ -1,7 +1,7 @@
 ---
 layout: page
 permalink: /leadership/
-title: leadership
+title: Leadership
 description: The conference, the clubs and the hackathons she has led or guided at AIT.
 nav: true
 nav_order: 2

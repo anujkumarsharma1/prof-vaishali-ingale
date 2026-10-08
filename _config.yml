@@ -23,7 +23,7 @@ url: https://anujkumarsharma1.github.io
 baseurl: /prof-vaishali-ingale
 last_updated: false # set to true if you want to display last updated in the footer
 impressum_path: # set to path to include impressum link in the footer, use the same path as permalink in a page, helps to conform with EU GDPR
-back_to_top: true # set to false to disable the back to top button
+back_to_top: false # set to false to disable the back to top button
 
 # -----------------------------------------------------------------------------
 # Theme
@@ -195,7 +195,7 @@ collections:
     output: true
   news:
     defaults:
-      layout: post
+      layout: news-item
     output: true
   projects:
     output: true
@@ -447,7 +447,8 @@ external_links:
 imagemagick:
   enabled: true # enables responsive images for your site (recommended, see https://github.com/alshedivat/al-folio/issues/537)
   widths:
-    - 480
+    - 400
+    - 600
     - 800
     - 1400
   input_directories:
@@ -482,7 +483,7 @@ enable_tooltips: false # enables automatic tooltip links generated for each sect
 enable_darkmode: false # enables switching between light/dark modes
 enable_navbar_social: false # enables displaying social links in the navbar on the about page
 enable_project_categories: false # enables categorization of projects into multiple categories
-enable_medium_zoom: true # enables image zoom feature (as on medium.com)
+enable_medium_zoom: false # enables image zoom feature (as on medium.com)
 enable_progressbar: true # enables a horizontal progress bar linked to the vertical scroll position
 enable_video_embedding: false # enables video embedding for bibtex entries. If false, the button opens the video link in a new window.
 

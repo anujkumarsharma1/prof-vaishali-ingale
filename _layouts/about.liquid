@@ -42,13 +42,10 @@ layout: default
             <div class="portrait-frame">
               {% assign profile_image_path = page.profile.image | prepend: 'assets/img/' %}
               {%
-                include figure.liquid loading="eager" path=profile_image_path class="img-fluid portrait-img" sizes="(min-width: 768px) 380px, 80vw"
+                include figure.liquid loading="eager" path=profile_image_path class="img-fluid portrait-img" sizes="(min-width: 768px) 380px, 300px"
                 alt="Prof. Vaishali S. Ingale" cache_bust=true
               %}
             </div>
-            {% if page.profile.more_info %}
-              <div class="more-info">{{ page.profile.more_info }}</div>
-            {% endif %}
           </div>
         {% endif %}
       </div>
@@ -97,6 +94,7 @@ layout: default
   {% endif %}
 
   <article>
+    <h2 class="sr-only">About</h2>
     <div class="clearfix about-bio">{{ content }}</div>
 
     {% if page.selected_papers %}
@@ -115,6 +113,7 @@ layout: default
           <a href="{{ '/news/' | relative_url }}">Recent news</a>
         </h2>
         <div class="card-soft news-card">{% include news.liquid limit=true %}</div>
+        <p class="news-all"><a href="{{ '/news/' | relative_url }}">All news &rarr;</a></p>
       </section>
     {% endif %}
 
@@ -122,6 +121,7 @@ layout: default
       <div class="social">
         <div class="contact-icons">{% social_links %}</div>
         <div class="contact-note">{{ site.contact_note }}</div>
+        {% if page.profile.more_info %}<address class="contact-address">{{ page.profile.more_info }}</address>{% endif %}
       </div>
     {% endif %}
   </article>

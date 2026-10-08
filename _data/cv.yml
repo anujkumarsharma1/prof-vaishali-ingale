@@ -15,12 +15,12 @@ cv:
         area: Computer Engineering
         studyType: M.E.
         location: Pune, India
-        end_date: 2008
+        date: 2008
 
       - institution: SRTM University
         area: Computer Science & Engineering
         studyType: B.E.
-        end_date: 2002
+        date: 2002
 
     Experience:
       - company: Army Institute of Technology, Pune

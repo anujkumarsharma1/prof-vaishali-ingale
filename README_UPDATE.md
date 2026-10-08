@@ -55,6 +55,8 @@ If her PhD is confirmed complete, add it to Education in _data/cv.yml and the bi
 
 ## Change photos
 
+When real memory photos are added on the wishes page, delete the line `<p class="wishes-note memories-note">Photos coming soon.</p>` under the photo grid in `_pages/wishes.md`.
+
 - **Profile photo:** upload a new picture named exactly `prof_pic.jpg` into `assets/img/` (**Add file → Upload files**). GitHub asks to replace the old one; confirm.
 - **Class memories:** upload real photos into `assets/img/memories/` (for example `class_1.jpg`). In `_pages/wishes.md`, find a `<figure class="memory-frame">` block, change its `src` to the new file name and delete `class="memory-placeholder"` from the `<img>`; the site then draws a cream polaroid frame around the photo. Change the `<figcaption>` text too.
 

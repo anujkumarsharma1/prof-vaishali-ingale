@@ -161,7 +161,9 @@
     var stagger = num(el.getAttribute("data-stagger"), 0.08);
     var delay = num(el.getAttribute("data-delay"), 0);
     var st = trigger(el, "top 85%");
-    if (!hasSplit) {
+    /* Never split headings that contain links, icons or images (QA P1-2): splitting would duplicate the
+       anchor and hide it from screen readers. Those get a plain fade-up instead. */
+    if (!hasSplit || el.querySelector("a, i, svg, img, button, abbr")) {
       gsap.fromTo(el, { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: dur, delay: delay, ease: EASE_SOFT, scrollTrigger: st });
       return;
     }
@@ -169,6 +171,7 @@
       type: "lines",
       mask: "lines",
       linesClass: "m-line",
+      aria: "none", /* text stays in the DOM, so no aria-label is needed (aria-label on <p> is invalid) */
       autoSplit: true,
       onSplit: function (self) {
         gsap.set(el, { autoAlpha: 1 });
@@ -334,6 +337,10 @@
       hasSplit = !!window.SplitText;
       if (hasSplit) gsap.registerPlugin(SplitText);
       autoTag();
+      /* Phones/tablets: the hero is static so it paints at first render (QA P1-10, LCP). */
+      if (!window.matchMedia("(min-width: " + CFG.breakpoint + "px)").matches) {
+        all("[data-hero] [data-reveal]").forEach(function (el) { el.removeAttribute("data-reveal"); });
+      }
 
       if (CFG.smooth && window.Lenis && !window.siteLenis) {
         var lenis = new Lenis({ lerp: 0.09, smoothWheel: true, anchors: { offset: -80 } });
