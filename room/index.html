@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The office · Prof. Vaishali S. Ingale</title>
+<meta name="description" content="An interactive way into the portfolio of Prof. Vaishali S. Ingale, Assistant Professor, Department of Information Technology, Army Institute of Technology, Pune.">
+<meta name="theme-color" content="#fbf4ec">
+<link rel="icon" href="../assets/img/favicon-32.png" sizes="32x32">
+<link rel="preload" href="fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/room.css">
+</head>
+<body class="is-loading">
+<a class="skip" id="skip" href="../">Skip to portfolio <span aria-hidden="true">→</span></a>
+
+<div class="loader" id="loader" role="status" aria-live="polite">
+  <p class="loader-name">Vaishali S. Ingale</p>
+  <div class="loader-line" aria-hidden="true"><span id="loader-bar"></span></div>
+  <p class="sr-only" id="loader-label">Loading</p>
+</div>
+
+<div class="stage" id="stage" aria-hidden="true"></div>
+<div class="tip" id="tip" aria-hidden="true"></div>
+
+<div class="room-ui" id="room-ui" hidden>
+  <button class="pill pill-primary" id="sit" type="button">Click the laptop</button>
+</div>
+<button class="pill stand" id="stand" type="button" hidden><span aria-hidden="true">←</span> Back to the office</button>
+
+<div class="os" id="os" hidden></div>
+
+<noscript>
+  <div class="noscript">
+    <p class="loader-name">Vaishali S. Ingale</p>
+    <p>Assistant Professor, Department of Information Technology, Army Institute of Technology, Pune.</p>
+    <ul>
+      <li><a href="../">About</a></li>
+      <li><a href="../publications/">Publications</a></li>
+      <li><a href="../leadership/">Leadership &amp; Service</a></li>
+      <li><a href="../awards/">Awards &amp; Books</a></li>
+      <li><a href="../cv/">CV</a></li>
+      <li><a href="mailto:vingale@aitpune.edu.in">vingale@aitpune.edu.in</a></li>
+    </ul>
+  </div>
+  <style>.loader{display:none}</style>
+</noscript>
+
+<script src="vendor/gsap.min.js" defer></script>
+<script src="js/content.js" defer></script>
+<script src="js/desktop.js" defer></script>
+<script src="js/main.js" defer></script>
+</body>
+</html>

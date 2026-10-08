@@ -3,7 +3,7 @@ layout: default
 ---
 {%- comment -%}
   Local override of al_folio_core's about layout (see README_UPDATE.md).
-  Professional hero: kicker, serif name, tagline, subtitle, two calls to action, portrait.
+  Professional hero: kicker, serif name, tagline, two calls to action, portrait.
   Content keys come from the front matter of _pages/about.md (kicker, name_prefix, hero_tagline, subtitle, profile).
   The primary button opens the interactive office at /room/ (a self-contained static folder, see README_UPDATE.md).
 {%- endcomment -%}
@@ -19,12 +19,11 @@ layout: default
         </h1>
         {% assign hero_tagline = page.hero_tagline | default: page.tagline %}
         {% if hero_tagline %}<p class="hero-tagline" data-hero-item data-reveal="lines" data-start="load" data-delay="0.35">{{ hero_tagline }}</p>{% endif %}
-        {% if page.subtitle %}<p class="desc hero-desc" data-hero-item data-reveal="fade-up" data-start="load" data-delay="0.6">{{ page.subtitle }}</p>{% endif %}
         {%- comment -%} The office button appears only once room/index.html exists in the repo (copied in from Role H's folder). {%- endcomment -%}
         {% assign room_static = site.static_files | where: 'path', '/room/index.html' %}
         {% assign room_page = site.pages | where: 'url', '/room/' %}
         <div class="hero-actions" data-hero-item data-reveal="fade-up" data-start="load" data-delay="0.75">
-          {% if room_static.size > 0 or room_page.size > 0 %}<a class="hero-cta" href="{{ '/room/' | relative_url }}">{{ page.hero_cta_text | default: 'Explore the office' }}</a>{% endif %}
+          {% if room_static.size > 0 or room_page.size > 0 %}<a class="hero-cta" href="{{ '/room/' | relative_url }}">{{ page.hero_cta_text | default: 'Explore the office' }} <span aria-hidden="true">&rarr;</span></a>{% endif %}
           <a class="hero-link" href="{{ '/publications/' | relative_url }}">Publications <span aria-hidden="true">&rarr;</span></a>
         </div>
       </div>

@@ -98,7 +98,10 @@ Everything custom lives in a handful of files. al-folio v1 itself comes from ver
 
 ### The interactive office (`room/`)
 
-`room/` is a self-contained static folder (its own HTML, CSS, JS and assets), copied in as-is; Jekyll publishes it unchanged at `/room/`. The home page shows the **Explore the office** button only when `room/index.html` exists, so deleting the `room/` folder removes the office and the button together.
+`room/` is the interactive office at `/room/` (a 3D study with a laptop desktop and folders; a plain 2D desktop is shown on slow devices or without WebGL). It is a self-contained static folder with its own HTML, CSS, JS, fonts and licences; Jekyll publishes it unchanged. **How to edit it is explained in [`room/README.md`](room/README.md)**, and third-party credits are in [`room/CREDITS.md`](room/CREDITS.md).
+
+- The text in the folders comes from `room/js/content.js`. It is generated from `_pages/about.md`, `_data/*.yml` (including `_data/room_copy.yml`) and `_bibliography/papers.bib`, so after changing those, regenerate it as described in `room/README.md` (otherwise the office shows the old text; the main pages are always current).
+- The home page's **Explore the office** button and the **Office** menu item appear only when `room/index.html` exists. Deleting the `room/` folder removes the office, the button and the menu item together.
 
 ### Third-party code
 
