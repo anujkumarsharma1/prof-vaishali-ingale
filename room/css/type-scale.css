@@ -1,0 +1,321 @@
+/* ==========================================================================
+   TYPE_SCALE.css — one type scale + one spacing scale for the portfolio of
+   Prof. Vaishali S. Ingale (main site on al-folio + the /room/ desktop windows).
+   Role T (typography audit). Load AFTER site.css / motion.css (main site) and
+   AFTER room.css (room). Every rule below is a plain override; delete the file
+   and the site falls back to its previous look.
+
+   Scale: modular, fluid between a 390px and a 1440px viewport.
+     mobile  base 17px, ratio 1.25  (major third)
+     desktop base 18px, ratio 1.333 (perfect fourth)
+   step:  -1     -0.5    0     0.5    1      2      3      4      5
+   390:   13.5   15.2    17    19.0   21.2   26.6   33.2   41.5   51.9 px
+   1440:  13.5   15.6    18    20.8   24.0   32.0   42.6   56.8   75.8 px
+   Adjacent heading levels differ by 1.25 (mobile) to 1.333 (desktop) or more.
+
+   !important is used in exactly four places, each because the rule it
+   replaces is itself !important or an inline style (marked "why !important").
+   ========================================================================== */
+
+:root {
+  /* ---- modular steps (Utopia-style clamp, 390 → 1440px) ---- */
+  --step--1:  0.84375rem;                                         /* 13.5px both */
+  --step--0h: clamp(0.95rem, 0.9414rem + 0.0367vw, 0.975rem);     /* 15.2 → 15.6 */
+  --step-0:   clamp(1.0625rem, 1.0393rem + 0.0952vw, 1.125rem);   /* 17 → 18 */
+  --step-0h:  clamp(1.1875rem, 1.1467rem + 0.1691vw, 1.3rem);     /* 19 → 20.8 */
+  --step-1:   clamp(1.328rem, 1.2644rem + 0.2613vw, 1.5rem);      /* 21.2 → 24 */
+  --step-2:   clamp(1.66rem, 1.5343rem + 0.5163vw, 2rem);         /* 26.6 → 32 */
+  --step-3:   clamp(2.075rem, 1.8562rem + 0.8982vw, 2.665rem);    /* 33.2 → 42.6 */
+  --step-4:   clamp(2.594rem, 2.2382rem + 1.4598vw, 3.552rem);    /* 41.5 → 56.8 */
+  --step-5:   clamp(3.2425rem, 2.6882rem + 2.274vw, 4.735rem);    /* 51.9 → 75.8 */
+
+  /* ---- roles → steps (the only names pages and the room should use) ---- */
+  --fs-hero:  var(--step-5);   /* home name */
+  --fs-h1:    var(--step-4);   /* page title, room desktop name */
+  --fs-stat:  var(--step-4);   /* big numbers */
+  --fs-h2:    var(--step-3);   /* section heading, room window heading */
+  --fs-h3:    var(--step-2);   /* sub-section heading, CV card heading */
+  --fs-h4:    var(--step-1);   /* milestone title, room window sub-heading */
+  --fs-lead:  var(--step-1);   /* lead, page description, hero tagline */
+  --fs-title: var(--step-0h);  /* list-item title: paper, CV entry */
+  --fs-body:  var(--step-0);   /* paragraphs, list items, table cells */
+  --fs-small: var(--step--0h); /* captions, sources, authors, venue, stat labels, nav, buttons, folder labels */
+  --fs-label: var(--step--1);  /* UPPERCASE kickers, dates, badges */
+
+  --lh-hero: 1.04;  --lh-h1: 1.08;  --lh-h2: 1.12;  --lh-h3: 1.2;  --lh-h4: 1.3;
+  --lh-title: 1.35; --lh-lead: 1.45; --lh-body: 1.65; --lh-small: 1.55; --lh-label: 1.4;
+
+  --ls-hero: -0.025em; --ls-h1: -0.02em; --ls-h2: -0.015em; --ls-h3: -0.01em; --ls-h4: -0.005em;
+  --ls-label: 0.1em;
+
+  --measure-body: 64ch;   /* ≈ 70–75 characters of Inter */
+  --measure-lead: 42ch;   /* ≈ 50–55 characters of Fraunces */
+
+  /* ---- spacing: 4/8 scale ---- */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+  --space-9: 96px; --space-10: 128px;
+  --space-section: clamp(80px, 52px + 7.2vw, 128px);  /* between page sections */
+  --space-para: var(--space-5);       /* paragraph → paragraph (24px) */
+  --space-list: var(--space-3);       /* list item → list item (12px) */
+  --space-kicker: var(--space-3);     /* kicker → its heading (12px) */
+  --space-h2-above: var(--space-8);   /* content → h2 (64px) */
+  --space-h2-below: var(--space-5);   /* h2 → content (24px) */
+  --space-h3-above: var(--space-7);   /* content → h3 (48px) */
+  --space-h3-below: var(--space-4);   /* h3 → content (16px) */
+  --space-h4-above: var(--space-6);   /* content → h4 (32px) */
+  --space-h4-below: var(--space-2);   /* h4 → content (8px) */
+  --space-lead-below: var(--space-6); /* lead → what follows (32px) */
+
+  --type-ink: #1f1712;
+  --type-ink-soft: #5e4b3f;  /* 7.6:1 on #fbf4ec */
+  --type-label: #86613c;     /* 5.1:1 on #fbf4ec */
+  --type-serif: "Fraunces", "Newsreader", Georgia, "Times New Roman", serif;
+  --type-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ==========================================================================
+   MAIN SITE (al-folio + site.scss classes)
+   ========================================================================== */
+
+/* ---- body: one size, one weight, one colour ---- */
+body {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  font-weight: 400;          /* al-folio sets 300; Inter is only shipped 400–600 */
+}
+article p, article li, article td, article dd, .post-content,
+.card-text, .font-weight-light, .table td { font-weight: 400; color: var(--type-ink); }
+article p, article td, article li { font-size: var(--fs-body); line-height: var(--lh-body); }
+article p, .post-description, .news table td { max-width: var(--measure-body); }
+article li { max-width: var(--measure-body); }
+
+/* paragraphs and lists */
+article p { margin: 0 0 var(--space-para); }
+article p:last-child { margin-bottom: 0; }
+article ul, article ol { margin: 0 0 var(--space-para); }
+article ul:not(.timeline-list) > li + li,
+article ol:not(.bibliography):not(.milestones-list) > li + li { margin-top: var(--space-list); }
+
+/* ---- headings ---- */
+h1, h2, h3, .post-title { font-family: var(--type-serif); font-weight: 400; color: var(--type-ink); }
+
+.post-header .post-title {
+  font-size: var(--fs-h1); line-height: var(--lh-h1); letter-spacing: var(--ls-h1);
+  margin: 0 0 var(--space-4);
+}
+h2, .publications h2.bibliography, .section-title {
+  font-size: var(--fs-h2); line-height: var(--lh-h2); letter-spacing: var(--ls-h2);
+  margin: 0 0 var(--space-h2-below);
+}
+/* why !important: site.scss sets .section-heading/.section-display font-size with !important */
+.section-heading, .section-display {
+  font-size: var(--fs-h2) !important; line-height: var(--lh-h2); letter-spacing: var(--ls-h2);
+  margin-bottom: var(--space-6);
+}
+h3, .cv h3.card-title {
+  font-family: var(--type-serif); font-weight: 400;
+  font-size: var(--fs-h3); line-height: var(--lh-h3); letter-spacing: var(--ls-h3);
+  margin: var(--space-h3-above) 0 var(--space-h3-below);
+}
+h4, .milestone-title {
+  font-family: var(--type-serif); font-weight: 500;
+  font-size: var(--fs-h4); line-height: var(--lh-h4); letter-spacing: var(--ls-h4);
+  margin: var(--space-h4-above) 0 var(--space-h4-below);
+}
+/* headings that follow content get more room above than below them */
+article :is(p:not(.card-kicker):not(.hero-kicker), ul, ol, table, .stat-strip, figure) + h2 { margin-top: var(--space-h2-above); }
+/* site.scss zeroes the first h3 in the bio even when the intro paragraphs come before it */
+.about-bio h3:first-of-type:not(:first-child) { margin-top: var(--space-h3-above); }
+article h2 + h3, article h3:first-child, .cv h3.card-title, .milestone-title { margin-top: 0; }
+.publications h2.bibliography { margin: var(--space-8) 0 var(--space-5); }
+.publications h2.bibliography:first-of-type { margin-top: var(--space-5); }
+
+/* ---- kicker / eyebrow / dates ---- */
+.hero-kicker, .card-kicker, .milestone-date {
+  font-family: var(--type-sans); font-size: var(--fs-label); font-weight: 500;
+  line-height: var(--lh-label); letter-spacing: var(--ls-label); text-transform: uppercase;
+  color: var(--type-label);
+}
+.card-kicker, .milestone-date { margin: 0 0 var(--space-kicker); }
+.hero-kicker { margin: 0 0 var(--space-4); }
+
+/* ---- hero (home) ---- */
+/* why !important: site.scss sets every .hero-title property with !important */
+.hero-title {
+  font-size: var(--fs-hero) !important; line-height: var(--lh-hero) !important;
+  letter-spacing: var(--ls-hero) !important; margin: 0 0 var(--space-5) !important;
+}
+.hero-title .name-prefix { font-size: 0.3em; margin-bottom: var(--space-2); }
+.hero-tagline {
+  font-size: var(--fs-lead); line-height: var(--lh-lead); max-width: 28ch;
+  margin: 0 0 var(--space-4);
+}
+.hero-desc, .hero-portrait .more-info { font-size: var(--fs-small); line-height: var(--lh-small); }
+.hero-actions { margin-top: var(--space-6); }
+
+/* ---- lead + page description (one style) ---- */
+.lead, p.lead, .post-header .post-description {
+  font-family: var(--type-serif); font-weight: 300;
+  font-size: var(--fs-lead); line-height: var(--lh-lead); letter-spacing: -0.005em;
+  max-width: var(--measure-lead);
+}
+.lead, p.lead { color: var(--type-ink); margin: 0 0 var(--space-lead-below); }
+.post-header .post-description { color: var(--type-ink-soft); margin: 0; }
+.post-header { padding: var(--space-9) 0 var(--space-8); }
+
+/* ---- numbers ---- */
+.stat-number { font-size: var(--fs-stat); line-height: 1; }
+.stat-label { font-size: var(--fs-small); line-height: var(--lh-small); margin-top: var(--space-2); font-weight: 400; }
+.stat-strip { margin: var(--space-6) 0 var(--space-7); gap: var(--space-6); }
+.hero-stats { margin: 0; }
+
+/* ---- captions, sources, meta ---- */
+.card-source, .image-credit, .wishes-note, .contact-note, .social .contact-note, .contact-address,
+.social .contact-address p, figcaption, footer, footer.sticky-bottom, footer .container,
+.news table th, .news-item .post-meta {
+  font-size: var(--fs-small); line-height: var(--lh-small); font-weight: 400;
+}
+.card-source { margin-top: var(--space-5); }
+.social .contact-address p { margin: 0; color: var(--type-ink-soft); }
+
+/* ---- nav, buttons, links-as-buttons ---- */
+.navbar .nav-link { font-size: var(--fs-small); font-weight: 500; }
+/* al-folio uses font-weight: bolder here, which turns into 700 once body is 400 */
+.navbar.navbar-light .navbar-nav .nav-item.active > .nav-link { font-weight: 600; }
+.navbar-brand.title { font-size: var(--step-0h); font-weight: 400; }
+.hero-cta, .hero-link, .news-all, .news-back { font-size: var(--fs-small); font-weight: 500; }
+#toc-sidebar a, #toc-sidebar .toc-link, .toc-list-item { font-size: var(--fs-small); line-height: var(--lh-small); font-weight: 400; }
+
+/* ---- publications / bibliography (publications page and home "Selected") ---- */
+.publications ol.bibliography > li { padding: var(--space-5) var(--space-5); margin-bottom: var(--space-4); }
+.publications .title, .publications ol.bibliography li .title {
+  font-family: var(--type-serif); font-weight: 500;
+  font-size: var(--fs-title); line-height: var(--lh-title); letter-spacing: -0.005em;
+  color: var(--type-ink); margin: 0 0 var(--space-2);
+}
+.publications .title a { color: inherit; }
+.publications .title a:hover, .publications .title a:focus-visible { color: #a04a0d; }
+.publications .author, .publications .periodical {
+  font-size: var(--fs-small); line-height: var(--lh-small); font-weight: 400; color: var(--type-ink-soft);
+}
+.publications .periodical { margin-top: var(--space-1); }
+.publications .periodical:empty { display: none; }
+.publications .links { margin-top: var(--space-3); }
+.publications .title { max-width: 60ch; }
+.publications .author, .publications .periodical { max-width: 72ch; }
+@media (min-width: 576px) {
+  /* al-folio leaves 2 of 12 columns empty to the right of each entry; let the text use them */
+  .publications ol.bibliography li .row > .col-sm-8 { flex: 0 0 83.3333%; max-width: 83.3333%; }
+}
+/* why !important: site.scss sets the link-button font-size and padding with !important */
+.publications .links .btn {
+  font-size: var(--fs-label) !important; font-weight: 500;
+  padding: var(--space-1) var(--space-3) !important; margin: 0 var(--space-1) var(--space-1) 0;
+}
+abbr.badge, .publications .abbr .badge,
+.publications ol.bibliography li .abbr abbr.badge { font-size: var(--fs-label); letter-spacing: 0.04em; }
+
+/* ---- news list ---- */
+.news table td { font-size: var(--fs-body); line-height: var(--lh-body); color: var(--type-ink); }
+.news table th { color: var(--type-ink-soft); }
+
+/* ---- CV (al-folio cv layout) ---- */
+.cv .card.mt-3 { padding: var(--space-6) !important; margin-top: var(--space-4) !important; } /* why !important: Bootstrap utilities .p-3/.mt-3 are !important */
+.cv h3.card-title { margin-bottom: var(--space-5); }
+.cv .list-group-item { padding-top: var(--space-4); padding-bottom: var(--space-4); }
+.cv .list-group-item + .list-group-item { margin-top: 0; }
+.cv h6.title {
+  font-family: var(--type-serif); font-weight: 500;
+  font-size: var(--fs-title); line-height: var(--lh-title); color: var(--type-ink);
+  margin-bottom: var(--space-1);
+}
+/* why !important: the CV template writes font-size: 0.95rem as an inline style on these h6 */
+.cv h6:not(.title) {
+  font-family: var(--type-sans); font-weight: 400;
+  font-size: var(--fs-small) !important; line-height: var(--lh-small); color: var(--type-ink-soft);
+  margin-bottom: var(--space-1);
+}
+.cv ul.items { margin: var(--space-3) 0 0; padding-left: 1.75rem; }
+.cv ul.items li, .cv .list-group-item, .cv .interest-item, .cv p, .cv td {
+  font-size: var(--fs-body); line-height: var(--lh-body); color: var(--type-ink);
+}
+.cv ul.items li + li { margin-top: var(--space-list); }
+.cv p.location { font-size: var(--fs-label); line-height: var(--lh-label); color: var(--type-ink-soft); margin-top: var(--space-2); }
+.cv .badge { font-size: var(--fs-label); letter-spacing: 0.06em; padding: 0.35em 0.6em; }
+.cv .table-cv td { padding-top: var(--space-1) !important; padding-bottom: var(--space-1) !important; } /* why !important: Bootstrap .p-1 */
+
+/* ---- leadership / awards ---- */
+.milestone { padding-bottom: var(--space-7); }
+.milestone-text { font-size: var(--fs-body); line-height: var(--lh-body); }
+ul.timeline-list li { padding-top: var(--space-3); padding-bottom: var(--space-3); max-width: calc(var(--measure-body) + 5.5rem); }
+ul.timeline-list .timeline-year { top: var(--space-3); }
+
+/* ---- phones ---- */
+@media (max-width: 767px) {
+  .post-header { padding: var(--space-8) 0 var(--space-7); }
+  .cv .card.mt-3 { padding: var(--space-5) !important; }
+  .publications ol.bibliography > li { padding: var(--space-5) var(--space-4); }
+  .stat-strip { gap: var(--space-5) var(--space-4); }
+}
+
+/* ==========================================================================
+   ROOM (/room/): desktop + folder windows. Scoped to .os.is-full (phones,
+   2D fallback and the seated desktop in the current room build). Room.css
+   already reads --fs-h2 / --fs-label / --fs-body / --lh-body from here.
+   ========================================================================== */
+.os.is-full { font-size: 16px; }
+.os.is-full .os-bar, .os.is-full .os-office, .skip, .pill, .stand, .room-cap,
+.os.is-full .win-close, .os.is-full .win-back { font-size: var(--fs-small); }
+.os.is-full .os-kicker, .w-kicker, .w-label, .w-sec .w-label {
+  font-size: var(--fs-label); line-height: var(--lh-label); letter-spacing: var(--ls-label);
+  color: var(--type-label); margin: 0 0 var(--space-kicker);
+}
+.os.is-full .os-name { font-size: var(--fs-h1); line-height: var(--lh-h1); letter-spacing: var(--ls-h1); }
+.os.is-full .os-sub { font-size: var(--fs-lead); line-height: var(--lh-lead); max-width: var(--measure-lead); margin-top: var(--space-4); }
+.os.is-full .folder span { font-size: var(--fs-small); line-height: 1.3; }
+.os.is-full .os-foot { font-size: var(--fs-small); margin-top: var(--space-6); }
+
+.os.is-full .win-title { font-size: var(--fs-small); font-weight: 600; }
+.os.is-full .win-body { font-size: var(--fs-body); line-height: var(--lh-body); padding: var(--space-7) var(--space-7) var(--space-8); }
+.os.is-full .win-body > * { max-width: var(--measure-body); }
+.os.is-full .w-h { font-size: var(--fs-h2); line-height: var(--lh-h2); letter-spacing: var(--ls-h2); }
+.os.is-full .w-lead { font-size: var(--fs-lead); line-height: var(--lh-lead); max-width: var(--measure-lead); margin: var(--space-4) 0 0; }
+.os.is-full .w-sec { margin-top: var(--space-7); }
+.os.is-full .w-sec h3 {
+  font-family: var(--type-serif); font-weight: 500;
+  font-size: var(--fs-h4); line-height: var(--lh-h4); letter-spacing: var(--ls-h4);
+  margin: 0 0 var(--space-3);
+}
+.os.is-full .w-sec p, .os.is-full .w-list, .os.is-full .w-tl, .os.is-full .w-facts div,
+.os.is-full .w-links li, .os.is-full .w-sec-more {
+  font-size: var(--fs-body); line-height: var(--lh-body);
+}
+.os.is-full .w-sec p + p { margin-top: var(--space-4); }
+.os.is-full .w-list li { margin: var(--space-3) 0; }
+.os.is-full .w-stats { margin-top: var(--space-6); gap: var(--space-5) var(--space-6); }
+.os.is-full .w-stats b { font-size: var(--fs-h3); }
+.os.is-full .w-stats span, .os.is-full .w-meta, .os.is-full .w-small, .os.is-full .w-note {
+  font-size: var(--fs-small); line-height: var(--lh-small);
+}
+.os.is-full .w-meta { margin-top: var(--space-1); }
+.os.is-full .w-papers li, .os.is-full .w-pubs li { padding: var(--space-4) 0; }
+.os.is-full .w-papers li, .os.is-full .w-pubs li,
+.os.is-full .w-papers a, .os.is-full .w-pubs a, .os.is-full .w-ptitle {
+  font-family: var(--type-serif); font-weight: 500; color: var(--type-ink);
+  font-size: var(--fs-title); line-height: var(--lh-title);
+}
+.os.is-full .w-papers .w-meta, .os.is-full .w-pubs .w-meta { font-family: var(--type-sans); font-weight: 400; color: var(--type-ink-soft); }
+.os.is-full .w-year, .os.is-full .w-sec h3.w-year {
+  font-family: var(--type-serif); font-weight: 400; color: var(--type-label);
+  font-size: var(--fs-h4); line-height: var(--lh-h4); margin: var(--space-7) 0 var(--space-2);
+}
+.os.is-full .w-year:first-child, .os.is-full .w-sec h3.w-year:first-child { margin-top: 0; }
+.os.is-full .w-tl li { padding: var(--space-3) 0; }
+.os.is-full .w-more { margin-top: var(--space-7); }
+.os.is-full .w-more a { font-size: var(--fs-small); }
+
+@media (max-width: 760px) {
+  .os.is-full .win-body { padding: var(--space-6) var(--space-5) var(--space-8); }
+  .os.is-full .os-grid { margin-top: var(--space-7); }
+}
