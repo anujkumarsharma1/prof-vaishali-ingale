@@ -2,9 +2,10 @@
 layout: page
 permalink: /wishes/
 title: Birthday wishes
-description: From the IT 2028 class, 10 October 2026.
-nav: true
-nav_order: 6
+description: A letter from the IT 2028 class.
+nav: false
+sitemap: false
+noindex: true
 ---
 
 <div class="wishes-page">
@@ -13,49 +14,11 @@ nav_order: 6
   <h2>Happy birthday, Ma’am.</h2>
   <p>Dear Ma’am,</p>
   <p>This website is from all of us in IT 2028.</p>
-  <p>We wanted one place that holds your work at AIT since 2005. Your papers and textbooks. The OSS Club and Innerve. ICNDIA-2026. And the students you have guided along the way.</p>
-  <p>It will keep growing as you do: new papers, news and photos.</p>
+  <p>It is yours now: one professional home for your papers, textbooks, roles and news, ready to share with colleagues and collaborators.</p>
+  <p>It is built to be updated without rebuilding anything, so it can keep pace with your work.</p>
   <p>Thank you, and happy birthday.</p>
   <p class="wishes-from">With respect and affection,<br>IT 2028, Army Institute of Technology, Pune</p>
 </section>
-
-<h2 class="section-title">From the class</h2>
-<div class="wishes-wall">
-  <div class="wish-card">
-    <p class="wish-text">Happy birthday, Ma’am. Thank you for answering every question, including the ones we asked twice.</p>
-    <p class="wish-sign">IT 2028</p>
-  </div>
-  <div class="wish-card">
-    <p class="wish-text">Thank you for explaining things until they made sense. We noticed, and we are grateful.</p>
-    <p class="wish-sign">Your students</p>
-  </div>
-  <div class="wish-card">
-    <p class="wish-text">The OSS Club and Innerve are there for students like us. Thank you for keeping them going.</p>
-    <p class="wish-sign">IT 2028</p>
-  </div>
-  <div class="wish-card">
-    <p class="wish-text">Thank you for pushing us to build things and show them to people. Happy birthday.</p>
-    <p class="wish-sign">Your students</p>
-  </div>
-  <div class="wish-card">
-    <p class="wish-text">Two first prizes at SIH 2024 had you behind them. We would like to give you a few more.</p>
-    <p class="wish-sign">IT 2028</p>
-  </div>
-  <div class="wish-card">
-    <p class="wish-text">Wishing you good health, a calm year and many more proud moments with your students.</p>
-    <p class="wish-sign">IT 2028</p>
-  </div>
-  <div class="wish-card">
-    <p class="wish-text">Thank you for holding us to high standards, and for helping us reach them.</p>
-    <p class="wish-sign">Your students</p>
-  </div>
-  <div class="wish-card">
-    <p class="wish-text">May this year be as kind to you as you have been to us. Happy birthday, Ma’am.</p>
-    <p class="wish-sign">IT 2028</p>
-  </div>
-</div>
-
-<p class="wishes-note">More notes from the class are on their way.</p>
 
 <h2 class="section-title">Memories</h2>
 <div class="memories-grid">
@@ -84,6 +47,5 @@ nav_order: 6
     <figcaption>10 October 2026</figcaption>
   </figure>
 </div>
-<p class="wishes-note memories-note">Photos coming soon.</p>
 
 </div>

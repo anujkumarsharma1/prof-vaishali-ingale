@@ -15,12 +15,9 @@ profile:
     <p>Pune 411015, India</p>
 
 kicker: Assistant Professor · Information Technology · AIT Pune
-birthday_ribbon:
-  url: /wishes/
-  text: Happy birthday, Ma’am. A small surprise from IT 2028
 
-hero_tagline: Teaching at AIT since 2005, and building things with her students.
-hero_tagline_status: placeholder, for the IT 2028 class to replace with their own line
+hero_tagline: Machine learning, image analysis and information security. Teaching at AIT Pune since 2005.
+hero_tagline_status: draft, for Prof. Ingale to approve or rewrite after handover
 
 selected_papers: true
 social: true
@@ -35,28 +32,28 @@ latest_posts:
 name_prefix: Prof.
 ---
 
-Prof. Vaishali S. Ingale is an Assistant Professor in the Department of Information Technology at the Army Institute of Technology (AIT), Pune. She joined AIT in July 2005.
+Prof. Vaishali S. Ingale is an Assistant Professor in the Department of Information Technology at the Army Institute of Technology (AIT), Pune, where she has taught since July 2005.
 {: .lead}
+
+**Research interests:** machine learning · deep learning for satellite and medical images · natural language processing · information security
+
+**Currently:** Faculty In-Charge, AIT Open Source Software Club · Vice Branch Counsellor, IEEE AIT Student Branch
+
+**Recently:** Conference Chair, ICNDIA-2026 (September 2026)
 
 ### Research
 
-She works on machine learning, deep learning for satellite and medical images, natural language processing and information security.
+Her work applies machine learning to satellite imagery (map generation, cloud masking, extraction of topographical features), medical images (grading diabetic retinopathy with graph neural networks), language (machine reading comprehension) and security (cyberattack prediction, cryptography and steganography). Much of it is co-authored with AIT students and colleagues.
 
-Much of it is written with her students. One paper turns satellite photos into maps. Another teaches a neural network to compose folk tunes.
+### Teaching
 
-### With students
+She is the author of ten university textbooks on artificial intelligence and data structures, published by Nirali Prakashan between 2008 and 2022. She has served as a resource person for Savitribai Phule Pune University faculty programmes on machine learning and deep learning laboratories. Her teaching recognitions include a Best Teacher Award (2011–12) and a Best Result Award for *Design and Analysis of Algorithms* (2014–15).
 
-She is Faculty In-Charge of AIT's Open Source Software Club. The club runs Innerve, a national hackathon that drew more than 9,500 students in 2025.
+### Leadership and service
 
-In 2024 she mentored both AIT teams that won first prize at the Smart India Hackathon.
+She was a Conference Chair, with Dr. Ashwini Sapkal, of ICNDIA-2026, the first edition of ICNDIA, an IEEE international conference hosted at AIT by her department. The conference received more than 1,500 submissions and 217 papers were presented.
 
-### Service
-
-She is Vice Branch Counsellor of the IEEE AIT Student Branch. In September 2026 she was a Conference Chair of ICNDIA-2026, the first edition of ICNDIA, an IEEE international conference hosted at AIT.
-
-### Books and awards
-
-She has written ten university textbooks on artificial intelligence and data structures. She received a Best Teacher Award for 2011–12 and the Paper Presenter Award at the CSI Annual Convention 2020.
+As Faculty In-Charge of the Open Source Software Club, she guides Innerve, the club's national hackathon; the 2025 edition drew more than 9,500 students. In 2024 she mentored both AIT teams that won first prize at the Smart India Hackathon. She also received the Paper Presenter Award at the CSI Annual Convention 2020.
 
 ### Education
 

@@ -18,7 +18,6 @@ Add papers from Google Scholar or the publisher's page only. Do not import them 
 
 **Never add these two Google Scholar entries:** the 2023 *Soft Computing* paper on diabetic retinopathy (it was retracted by the publisher) and the 2017 pomegranate juice-powder paper (it belongs to someone else with a similar name). Both still appear on her Scholar profile.
 
-
 ## Add a news item
 
 News appears on the home page. Each item is one small file in the `_news` folder.
@@ -38,7 +37,7 @@ related_posts: false
 Your news sentence goes here, for example a new paper, an award or an event.
 ```
 
-News items dated in the future are shown straight away (the site sets `future: true`).
+A news item dated in the future stays hidden until that date arrives and the site is next updated.
 
 ## Add an award or role
 
@@ -55,23 +54,15 @@ If her PhD is confirmed complete, add it to Education in _data/cv.yml and the bi
 
 ## Change photos
 
-When real memory photos are added on the wishes page, delete the line `<p class="wishes-note memories-note">Photos coming soon.</p>` under the photo grid in `_pages/wishes.md`.
 
 - **Profile photo:** upload a new picture named exactly `prof_pic.jpg` into `assets/img/` (**Add file → Upload files**). GitHub asks to replace the old one; confirm.
-- **Class memories:** upload real photos into `assets/img/memories/` (for example `class_1.jpg`). In `_pages/wishes.md`, find a `<figure class="memory-frame">` block, change its `src` to the new file name and delete `class="memory-placeholder"` from the `<img>`; the site then draws a cream polaroid frame around the photo. Change the `<figcaption>` text too.
+- **Class letter photos:** see "Note for maintainers: class photos" at the end.
 
-## Edit the birthday wishes
+## The class letter page (unlisted)
 
-The Wishes page is `_pages/wishes.md`. Each wish is a block like this:
+`_pages/wishes.md` holds the class letter and six photo frames at `/wishes/`. It is not in the menu, not in the sitemap, has a `noindex` tag for search engines, and no other page links to it, so only the QR code or a direct link reaches it.
 
-```
-  <div class="wish-card">
-    <p class="wish-text">The message goes here.</p>
-    <p class="wish-sign">Name</p>
-  </div>
-```
-
-Change the message and the name, or copy a whole block to add another wish.
+**To remove it for good, delete `_pages/wishes.md` (one commit).** Nothing else links to it. The frame pictures in `assets/img/memories/` can stay or be deleted; nothing else uses them.
 
 ## If something looks wrong
 
@@ -79,30 +70,35 @@ Open the **Actions** tab of the repository. A red cross means the last change ha
 
 ---
 
-## Note for maintainers: replacing the sample wishes and photos
+## Note for maintainers: class photos
 
-The eight wishes on `_pages/wishes.md` were written as warm samples signed "IT 2028" or "Your students", and the six memory pictures are illustrated frames with short captions (Our class, OSS Club, Innerve, Smart India Hackathon, ICNDIA-2026, 10 October 2026). The line "More notes from the class are on their way." sits under the wishes. When the real messages and class photos are ready:
+The six frames on `_pages/wishes.md` are illustrated placeholders captioned Our class, OSS Club, Innerve, Smart India Hackathon, ICNDIA-2026 and 10 October 2026. When real photos are ready:
 
-1. Replace the text inside each `wish-text` paragraph with a real message, and the `wish-sign` line with the student's name, only with that student's permission. Remove any sample cards you no longer need.
-2. Upload the real photos as `assets/img/memories/memory_frame_1.png` to `memory_frame_6.png`, overwriting the frames.
-3. In `_pages/wishes.md`, change each caption to a short description of the real photo, such as the event and year, and update the matching `alt` text. Delete the "More notes from the class are on their way." line once the real wishes are in.
-4. To show more than six photos, copy one `<figure class="memory-frame">` block, raise the number in the file name and upload a matching photo.
+1. Upload them to `assets/img/memories/` (for example `class_1.jpg`).
+2. In `_pages/wishes.md`, change that frame's `<img ...>`: point `src` at the new file, remove `class="memory-placeholder"`, and update the `alt` text and the caption.
+3. To show more than six photos, copy one `<figure class="memory-frame">` block.
 
----
 
-## For maintainers: design and code (Role A)
+## For maintainers: design and code
 
 Everything custom lives in a handful of files. al-folio v1 itself comes from versioned Ruby gems, so these files are the only ones you would touch for the look and feel.
 
 | File | What it does |
 |---|---|
-| `assets/custom/site.scss` | **All custom styling** (one file). Colour tokens and fonts are at the top: page `#fbf4ec`, band `#f8eadc`, card `#fffaf4`, text `#1f1712` / `#5e4b3f`, labels `#86613c`, single accent cinnamon `#a04a0d`. Fraunces (display) + Inter (text) from Google Fonts. |
-| `assets/js/birthday.js` | **All custom JS** (one file): tags content with `data-reveal="lines" / "fade-up"`, `data-count`, `data-parallax`, `data-pin-hero`; keeps "Years at AIT" current from `_data/stats.yml` (`since:`); runs the scroll motion. Turned off automatically for visitors who prefer reduced motion. |
-| `_layouts/about.liquid` | Home page: hero (ribbon, kicker, name, tagline, portrait), counters from `_data/stats.yml`, bio, selected papers, news. Local override of the al-folio gem layout. |
-| `_includes/milestones.liquid` | The vertical milestones timeline at the end of the Leadership page, read from `_data/timeline.yml`. |
-| `_includes/head.liquid` | Copy of the gem's head with our CSS/JS appended at the bottom. |
-| `_data/stats.yml`, `_data/timeline.yml` | Numbers for the home counters and the milestones. Edit these, not the HTML. |
-| `assets/lib/` | Vendored libraries, with licence files (see below). |
+| `assets/custom/site.scss` | **All custom styling** (one file). Self-hosted fonts and colour tokens are at the top: page `#fbf4ec`, band `#f8eadc`, card `#fffaf4`, text `#1f1712` / `#5e4b3f`, labels `#86613c`, single accent cinnamon `#a04a0d`. Fraunces (display) + Inter (text). |
+| `assets/custom/motion.css`, `assets/js/motion.js` | Scroll motion driven by `data-reveal`, `data-count`, `data-parallax` and `data-rail` attributes (auto-tagging rules are in `window.MOTION_CONFIG` at the bottom of `_includes/head.liquid`). Off for visitors who prefer reduced motion; content is always visible without JavaScript. |
+| `assets/js/site.js` | Small glue: navbar hairline on scroll, keeps "Years at AIT" current from `_data/stats.yml` (`since:`). |
+| `_layouts/about.liquid` | Home page: hero (kicker, name, tagline, portrait, "Explore the office" button, Publications link), counters from `_data/stats.yml`, bio, selected papers, news, contact. Local override of the al-folio gem layout. |
+| `_layouts/news-item.liquid` | The page for a single news item (title from front matter, date, text). |
+| `_layouts/bib.liquid` | Copy of the gem's publication entry with lazy-loaded thumbnails. |
+| `_includes/milestones.liquid` | The milestones timeline at the end of the Leadership page, read from `_data/timeline.yml`. |
+| `_includes/head.liquid` | Copy of the gem's head with our fonts, CSS and JS added. |
+| `_data/stats.yml`, `_data/timeline.yml`, `_data/room_copy.yml` | Numbers for the home counters, the milestones, and the text used by the interactive office. Edit these, not the HTML. |
+| `assets/lib/`, `assets/fonts/` | Vendored libraries and fonts, with licence files (see below). |
+
+### The interactive office (`room/`)
+
+`room/` is a self-contained static folder (its own HTML, CSS, JS and assets), copied in as-is; Jekyll publishes it unchanged at `/room/`. The home page shows the **Explore the office** button only when `room/index.html` exists, so deleting the `room/` folder removes the office and the button together.
 
 ### Third-party code
 
@@ -111,8 +107,8 @@ Everything custom lives in a handful of files. al-folio v1 itself comes from ver
 | [al-folio](https://github.com/alshedivat/al-folio) | v1 (al_folio_core 1.0.15) | MIT | Site template |
 | [Lenis](https://github.com/darkroomengineering/lenis) | 1.3.26 | MIT (`assets/lib/LICENSE-lenis.md`) | Smooth scrolling |
 | [GSAP](https://gsap.com) + ScrollTrigger + SplitText | 3.15.0 | GSAP Standard "no charge" licence, <https://gsap.com/standard-license> | Scroll reveals, counters, line-mask headings |
-| [Lucide](https://lucide.dev) icons (by Role C) | — | ISC (`assets/img/section_icons/LUCIDE_LICENSE.txt`) | Section icons, birthday badge |
-| Fraunces, Inter (Google Fonts) | — | SIL Open Font Licence 1.1 | Typography |
+| Fraunces, Inter (self-hosted woff2) | — | SIL Open Font Licence 1.1 (`assets/fonts/FONTS_LICENSE.txt`) | Typography |
+| Font Awesome, Academicons (al-folio, via jsDelivr) | — | Font Awesome Free (icons CC BY 4.0, fonts OFL), Academicons OFL | Icons on the CV and Publications pages |
 | arXiv figures (paper thumbnails) | — | CC BY-NC-SA 4.0 (2105.09253), CC BY 4.0 (2003.04360) | Credited on the Publications page |
 
 ### Build and deploy

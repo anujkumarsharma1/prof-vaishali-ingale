@@ -2,7 +2,7 @@
 layout: page
 permalink: /awards/
 title: Awards
-description: Awards, a patent, ten textbooks and the courses she has completed.
+description: Awards, patent, textbooks, certifications and professional memberships.
 nav: true
 nav_order: 4
 ---
@@ -37,7 +37,7 @@ nav_order: 4
     <div class="stat"><span class="stat-number">10</span><span class="stat-label">university textbooks</span></div>
     <div class="stat"><span class="stat-number">2008–2022</span><span class="stat-label">Nirali Prakashan</span></div>
   </div>
-  <p class="lead">Ten books, written for the syllabus students actually sit.</p>
+  <p class="lead">University textbooks for the Savitribai Phule Pune University and BATU engineering syllabi.</p>
   <ul>
     <li><em>Artificial Intelligence</em> for Savitribai Phule Pune University. Editions for the 2003, 2008 and 2015 syllabus patterns, for Computer, IT and E&amp;TC, and the 2022 TE Computer edition (ISBN 978-93-5451-491-3).</li>
     <li><em>Artificial Intelligence</em> for Dr. Babasaheb Ambedkar Technological University (BATU), 2020. Two titles, one with Dr. Ashwini Sapkal.</li>
@@ -48,7 +48,7 @@ nav_order: 4
 
 <section class="card-soft" id="certifications">
   <h2>Certificates</h2>
-  <p class="lead">Seven NPTEL courses between 2015 and 2021, and one from NVIDIA.</p>
+  <p class="lead">Seven NPTEL online certifications (2015–2021) and an NVIDIA Deep Learning Institute certificate.</p>
   <ul>
     <li><strong>NPTEL.</strong> Introduction to Programming in C and Design &amp; Analysis of Algorithms (2015). Theory of Computation (2016). Introduction to Machine Learning (2018). Python for Data Science (2019). NBA Accreditation and Teaching-Learning in Engineering (2020). Introduction to Research (2021).</li>
     <li><strong>NVIDIA Deep Learning Institute.</strong> Certificate of Competency, "Fundamentals of Deep Learning for Multiple Data Types" (2020).</li>

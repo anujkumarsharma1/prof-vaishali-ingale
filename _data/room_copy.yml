@@ -1,0 +1,79 @@
+# Copy for the interactive office / laptop intro. Neutral third person, no greeting in her voice.
+# Every fact comes from Vaishali_Ingale_Website_Data.md. Keep blurbs to 1-3 short lines.
+intro:
+  line: Prof. Vaishali S. Ingale · Information Technology, AIT Pune
+  title: Prof. Vaishali S. Ingale
+  subtitle: Assistant Professor · Department of Information Technology · Army Institute of Technology, Pune
+
+hint: Click the laptop
+hint_touch: Tap the laptop
+skip_label: Skip to portfolio
+back_label: Back to the office
+loading_label: Loading
+
+objects:
+  - id: about
+    label: About
+    url: /
+    suggested_object: nameplate
+    blurb:
+      - Assistant Professor, Department of Information Technology, AIT Pune.
+      - At AIT since 2005.
+
+  - id: research
+    label: Research
+    url: /#research
+    suggested_object: monitor
+    blurb:
+      - Machine learning for satellite and medical images.
+      - Natural language processing and information security.
+
+  - id: publications
+    label: Publications
+    url: /publications/
+    suggested_object: folder
+    blurb:
+      - 18 papers, preprints and book chapters, 2013–2026.
+      - Springer, IEEE, arXiv and journal venues.
+
+  - id: leadership
+    label: Leadership & Service
+    url: /leadership/
+    suggested_object: folder
+    blurb:
+      - Conference Chair, ICNDIA-2026.
+      - Faculty In-Charge, AIT Open Source Software Club and Innerve.
+      - Vice Branch Counsellor, IEEE AIT Student Branch.
+
+  - id: awards
+    label: Awards & Books
+    url: /awards/
+    suggested_object: bookshelf
+    blurb:
+      - Ten university textbooks on artificial intelligence and data structures.
+      - Best Teacher Award (2011–12) and CSI Paper Presenter Award (2020).
+      - Published Indian patent application.
+
+  - id: teaching
+    label: Teaching
+    url: /#teaching
+    suggested_object: notebook
+    blurb:
+      - Teaching at AIT since 2005.
+      - Resource person for SPPU faculty programmes in machine learning and deep learning.
+      - Best Result Award, Design and Analysis of Algorithms (2014–15).
+
+  - id: cv
+    label: CV
+    url: /cv/
+    suggested_object: document
+    blurb:
+      - Education, experience, awards and certifications.
+
+  - id: contact
+    label: Contact
+    url: mailto:vingale@aitpune.edu.in
+    suggested_object: envelope
+    blurb:
+      - vingale@aitpune.edu.in
+      - Department of Information Technology, Army Institute of Technology, Dighi Hills, Pune 411015.

@@ -1,5 +1,5 @@
 /*!
- * motion.js: calm scroll motion for Prof. Vaishali S. Ingale's birthday site (IT 2028, AIT Pune)
+ * motion.js: calm scroll motion for Prof. Vaishali S. Ingale's academic portfolio (AIT Pune)
  *
  * Needs, loaded BEFORE this file (all with `defer`, same order):
  *   lenis.min.js 1.3.26 (MIT) · gsap.min.js 3.15.0 · ScrollTrigger.min.js 3.15.0 · SplitText.min.js 3.15.0

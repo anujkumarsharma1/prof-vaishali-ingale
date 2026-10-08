@@ -3,7 +3,7 @@ cv:
   label: Assistant Professor, Department of Information Technology
   email: vingale@aitpune.edu.in
   location: Army Institute of Technology, Dighi Hills, Alandi Road, Pune 411015, India
-  summary: Assistant Professor at the Army Institute of Technology, Pune, since July 2005. Works on machine learning, deep learning for satellite and medical images, natural language processing and information security. Faculty In-Charge of the AIT Open Source Software Club and Vice Branch Counsellor of the IEEE AIT Student Branch. Conference Chair of ICNDIA-2026.
+  summary: Assistant Professor in the Department of Information Technology, Army Institute of Technology, Pune, since July 2005. Research in machine learning, deep learning for satellite and medical images, natural language processing and information security. Author of ten university textbooks. Faculty In-Charge of the AIT Open Source Software Club, Vice Branch Counsellor of the IEEE AIT Student Branch, and Conference Chair of ICNDIA-2026.
 
   social_networks:
     - network: LinkedIn
@@ -28,7 +28,7 @@ cv:
         location: Pune, India
         start_date: 2005-07-04
         end_date: present
-        summary: Teaches and researches in the Department of Information Technology.
+        summary: Teaching and research in the Department of Information Technology.
         highlights:
           - Conference Chair, ICNDIA-2026, an IEEE international conference hosted at AIT (September 2026)
           - Vice Branch Counsellor, IEEE AIT Student Branch
