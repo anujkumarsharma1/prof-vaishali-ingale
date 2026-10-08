@@ -1,6 +1,6 @@
 /*
  * motion.css: initial states and fallbacks for motion.js
- * Prof. Vaishali S. Ingale birthday site (IT 2028, AIT Pune)
+ * Prof. Vaishali S. Ingale, academic portfolio (AIT Pune)
  *
  * Content is ALWAYS visible unless <html> carries .motion-pending, which only the inline
  * head snippet adds (see MOTION_SPEC.md §2). No JS = no .motion-pending = everything visible.

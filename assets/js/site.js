@@ -1,5 +1,5 @@
 /*!
- * birthday.js: small site glue for Prof. Vaishali S. Ingale's site. All scroll motion lives in motion.js (Role E).
+ * site.js: small site glue for Prof. Vaishali S. Ingale's portfolio. All scroll motion lives in motion.js.
  *  - navState(): the translucent navbar gets a hairline once the page scrolls.
  *  - refreshSince(): "Years at AIT" (data-since="YYYY-MM-DD" from _data/stats.yml) is recomputed in the
  *    browser, so the number stays right without a rebuild. Runs before motion.js reads data-count.
