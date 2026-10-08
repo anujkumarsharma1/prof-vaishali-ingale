@@ -264,3 +264,9 @@ a:hover, a:focus-visible { text-decoration: underline; text-underline-offset: 0.
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0s !important; animation-duration: 0s !important; }
 }
+
+/* persona fix 5: the loader's name stays on screen in the top-left corner during the intro,
+   where the desk bar shows the same name afterwards */
+.loader-name.is-corner { position: fixed; z-index: 45; top: 0; left: 0; padding: 0 16px; height: 56px; display: flex; align-items: center; font: 600 var(--fs-small, 0.8rem)/1 var(--sans); letter-spacing: 0; color: var(--ink); pointer-events: none; }
+/* persona fix 3: window kickers at the label step (13.5px), above the type scale's body rule */
+.w-label, .os.is-full .win p.w-label { font-size: var(--step--1, 0.84375rem); }
