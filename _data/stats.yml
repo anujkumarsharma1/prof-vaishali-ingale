@@ -1,0 +1,29 @@
+# Hero counters. Every value is taken from Vaishali_Ingale_Website_Data.md (checked 8 Oct 2026).
+- label: Citations
+  value: 43
+  suffix: ""
+  url: https://scholar.google.com/citations?user=Ju77mncAAAAJ
+  source: Google Scholar, citations to the papers listed on this site, checked 8 Oct 2026
+
+- label: Papers
+  value: 18
+  suffix: ""
+  url: /publications/
+  source: Verified publication list, 2013–2026 (papers.bib, 18 entries)
+
+- label: Textbooks
+  value: 10
+  suffix: ""
+  source: AIT staff profile, "Books" (Nirali Prakashan, 2008–2022)
+
+- label: Years at AIT
+  value: 21
+  suffix: ""
+  since: 2005-07-04
+  source: ORCID employment record, at AIT since 4 Jul 2005 (21 years as of Oct 2026; compute from "since" to keep it current)
+
+- label: ICNDIA submissions
+  value: 1500
+  suffix: "+"
+  url: /leadership/#icndia-2026
+  source: AIT Pune official LinkedIn wrap-up, 19 Sep 2026; Sahyadri Startups wrap-up

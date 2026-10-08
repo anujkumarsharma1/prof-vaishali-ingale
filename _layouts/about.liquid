@@ -1,0 +1,111 @@
+---
+layout: default
+---
+{%- comment -%}
+  Local override of al_folio_core's about layout (see README_UPDATE.md).
+  Hero = kicker + big serif name + tagline + birthday badge + animated counters,
+  portrait in a rounded frame with gentle parallax. Content keys come from the
+  front matter of _pages/about.md (kicker, name_prefix, tagline, birthday_ribbon, hero_stats).
+{%- endcomment -%}
+<div class="post about-page">
+  <section class="about-hero" data-hero data-pin-hero>
+    <div class="hero-text">
+      {% if page.birthday_ribbon %}
+        <a class="birthday-ribbon" data-hero-item href="{{ page.birthday_ribbon.url | default: '/birthday/' | relative_url }}">
+          <span class="ribbon-dot" aria-hidden="true"></span>
+          <span>{{ page.birthday_ribbon.text | default: 'Happy Birthday, Ma’am! A surprise from your students' }}</span>
+          <span class="ribbon-arrow" aria-hidden="true">&rarr;</span>
+        </a>
+      {% endif %}
+      {% if page.kicker %}<p class="hero-kicker" data-hero-item>{{ page.kicker }}</p>{% endif %}
+      <h1 class="post-title hero-title" data-hero-item data-reveal="lines">
+        {% if page.name_prefix %}<span class="name-prefix">{{ page.name_prefix }}</span>{% endif %}
+        <span class="name-main">{{ site.first_name }} {{ site.middle_name }} <em>{{ site.last_name }}</em></span>
+      </h1>
+      {% assign hero_tagline = page.hero_tagline | default: page.tagline %}
+      {% if hero_tagline %}<p class="hero-tagline" data-hero-item data-reveal="lines">{{ hero_tagline }}</p>{% endif %}
+      <p class="desc hero-desc" data-hero-item>{{ page.subtitle }}</p>
+    </div>
+
+    {% if page.profile and page.profile.image %}
+      <div class="hero-portrait" data-parallax="0.08">
+        <div class="portrait-frame">
+          {% assign profile_image_path = page.profile.image | prepend: 'assets/img/' %}
+          {%
+            include figure.liquid loading="eager" path=profile_image_path class="img-fluid portrait-img" sizes="(min-width: 768px) 340px, 80vw"
+            alt="Prof. Vaishali S. Ingale" cache_bust=true
+          %}
+        </div>
+        {% if page.profile.more_info %}
+          <div class="more-info">{{ page.profile.more_info }}</div>
+        {% endif %}
+      </div>
+    {% endif %}
+  </section>
+
+  {%- comment -%} Counters come from _data/stats.yml. "since" (YYYY-MM-DD) turns into whole years at build time; birthday.js recomputes it in the browser so it never goes stale. {%- endcomment -%}
+  {% assign stats = site.data.stats %}
+  {% if stats %}
+    <section class="hero-stats stat-strip" aria-label="At a glance" data-reveal="fade-up">
+      {% assign now_y = 'now' | date: '%Y' | plus: 0 %}
+      {% assign now_md = 'now' | date: '%m%d' | plus: 0 %}
+      {% for s in stats %}
+        {% assign value = s.value %}
+        {% if s.since %}
+          {% assign since_str = s.since | date: '%Y-%m-%d' %}
+          {% assign since_y = since_str | slice: 0, 4 | plus: 0 %}
+          {% capture since_md %}{{ since_str | slice: 5, 2 }}{{ since_str | slice: 8, 2 }}{% endcapture %}
+          {% assign since_md = since_md | plus: 0 %}
+          {% assign value = now_y | minus: since_y %}
+          {% if now_md < since_md %}{% assign value = value | minus: 1 %}{% endif %}
+        {% endif %}
+        {% assign stat_url = s.url %}
+        {% if stat_url and stat_url != '' %}
+          {% unless stat_url contains '://' %}{% assign stat_url = stat_url | relative_url %}{% endunless %}
+        {% endif %}
+        <div class="stat">
+          {% if stat_url and stat_url != '' %}<a class="stat-link" href="{{ stat_url }}">{% endif %}
+          {% if value >= 1000 %}
+            {% assign th = value | divided_by: 1000 %}{% assign rest = value | modulo: 1000 | prepend: '00' | slice: -3, 3 %}
+            {% capture shown %}{{ th }},{{ rest }}{% endcapture %}
+          {% else %}
+            {% assign shown = value %}
+          {% endif %}
+          <span class="stat-number"><span data-count="{{ value }}"{% if s.since %} data-since="{{ s.since | date: '%Y-%m-%d' }}"{% endif %}>{{ shown }}</span>{% if s.suffix and s.suffix != '' %}<span class="stat-suffix">{{ s.suffix }}</span>{% endif %}</span>
+          <span class="stat-label">{{ s.label }}</span>
+          {% if stat_url and stat_url != '' %}</a>{% endif %}
+        </div>
+      {% endfor %}
+    </section>
+  {% endif %}
+
+  <article>
+    <div class="clearfix about-bio">{{ content }}</div>
+
+    {% if page.selected_papers %}
+      <section class="about-section">
+        <h2 class="section-heading" data-reveal="lines">
+          <a href="{{ '/publications/' | relative_url }}">Selected publications</a>
+        </h2>
+        {% include selected_papers.liquid %}
+        <p class="image-credit">Figure thumbnails: V. Ingale, R. Singh, P. Patwal, <a href="https://arxiv.org/abs/2105.09253">arXiv:2105.09253</a> (CC BY-NC-SA 4.0).</p>
+      </section>
+    {% endif %}
+
+    {% if page.announcements and page.announcements.enabled %}
+      <section class="about-section">
+        <h2 class="section-heading" data-reveal="lines">
+          <a href="{{ '/news/' | relative_url }}">Recent news</a>
+        </h2>
+        <div class="card-soft news-card">{% include news.liquid limit=true %}</div>
+      </section>
+    {% endif %}
+
+    {% if page.social %}
+      <div class="social">
+        <div class="contact-icons">{% social_links %}</div>
+        <div class="contact-note">{{ site.contact_note }}</div>
+      </div>
+    {% endif %}
+  </article>
+</div>

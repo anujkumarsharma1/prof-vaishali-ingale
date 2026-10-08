@@ -1,0 +1,34 @@
+{%- comment -%}
+  Vertical milestones timeline, rendered from _data/timeline.yml (newest first).
+  Add a milestone by adding an entry there: date ("YYYY-MM" or "YYYY"), title, text, optional link.
+{%- endcomment -%}
+{% if site.data.timeline %}
+  <section class="milestones" aria-labelledby="milestones-title">
+    <p class="card-kicker">2002 – today</p>
+    <h2 id="milestones-title" class="section-display" data-reveal="lines">Milestones</h2>
+    <ol class="milestones-list">
+      {% for m in site.data.timeline %}
+        {% assign d = m.date | append: '' %}
+        {% if d.size == 7 %}
+          {% assign shown = d | append: '-01' | date: '%b %Y' %}
+        {% else %}
+          {% assign shown = d %}
+        {% endif %}
+        <li class="milestone" data-reveal="fade-up">
+          <span class="milestone-dot" aria-hidden="true"></span>
+          <time class="milestone-date" datetime="{{ d }}">{{ shown }}</time>
+          <h3 class="milestone-title">
+            {% if m.link %}
+              {% assign ml = m.link %}
+              {% unless ml contains '://' %}{% assign ml = ml | relative_url %}{% endunless %}
+              <a href="{{ ml }}">{{ m.title }}</a>
+            {% else %}
+              {{ m.title }}
+            {% endif %}
+          </h3>
+          <p class="milestone-text">{{ m.text }}</p>
+        </li>
+      {% endfor %}
+    </ol>
+  </section>
+{% endif %}
