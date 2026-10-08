@@ -32,6 +32,11 @@ html.lenis body { height: auto; }
   opacity: 0;
 }
 
+/* Below the pin breakpoint (900px, motion.js) the hero is static, so never hide it (LCP on phones) */
+@media (max-width: 899px) {
+  .motion-pending [data-hero] [data-reveal] { opacity: 1; }
+}
+
 /* Split lines: the mask wrapper SplitText adds clips the rising line */
 .m-line-mask { padding-bottom: 0.08em; margin-bottom: -0.08em; }
 .m-line, .m-word { will-change: auto; }
