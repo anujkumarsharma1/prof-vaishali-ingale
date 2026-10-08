@@ -64,7 +64,15 @@
   <!-- Entry bib key -->
   <div id="{{ entry.key }}" class="{% if site.enable_publication_thumbnails %}col-sm-8{% else %}col-sm-10{% endif %}">
     <!-- Title -->
-    <div class="title">{{ entry.title }}</div>
+    {%- comment -%} Local change: the title is the primary link. Priority DOI > arXiv > url > html > pdf. {%- endcomment -%}
+    {% assign title_href = nil %}
+    {% if entry.doi %}{% assign title_href = entry.doi | prepend: 'https://doi.org/' %}
+    {% elsif entry.arxiv %}{% assign title_href = entry.arxiv | prepend: 'https://arxiv.org/abs/' %}
+    {% elsif entry.url %}{% assign title_href = entry.url %}
+    {% elsif entry.html %}{% if entry.html contains '://' %}{% assign title_href = entry.html %}{% else %}{% assign title_href = entry.html | prepend: '/assets/html/' | relative_url %}{% endif %}
+    {% elsif entry.pdf %}{% if entry.pdf contains '://' %}{% assign title_href = entry.pdf %}{% else %}{% assign title_href = entry.pdf | prepend: '/assets/pdf/' | relative_url %}{% endif %}
+    {% endif %}
+    <div class="title">{% if title_href %}<a class="pub-title-link" href="{{ title_href }}" target="_blank" rel="noopener">{{ entry.title }}</a>{% else %}{{ entry.title }}{% endif %}</div>
     <!-- Author -->
     <div class="author">
       {% assign author_array_size = entry.author_array | size %}

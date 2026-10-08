@@ -3,7 +3,7 @@ cv:
   label: Assistant Professor, Department of Information Technology
   email: vingale@aitpune.edu.in
   location: Army Institute of Technology, Dighi Hills, Alandi Road, Pune 411015, India
-  summary: Assistant Professor in the Department of Information Technology, Army Institute of Technology, Pune, since July 2005. Research in machine learning, deep learning for satellite and medical images, natural language processing and information security. Author of ten university textbooks. Faculty In-Charge of the AIT Open Source Software Club, Vice Branch Counsellor of the IEEE AIT Student Branch, and Conference Chair of ICNDIA-2026.
+  summary: Assistant Professor of Information Technology at AIT Pune since 2005, working in machine learning, image analysis, NLP and information security. Author of ten university textbooks; Conference Chair, ICNDIA-2026.
 
   social_networks:
     - network: LinkedIn
@@ -28,13 +28,12 @@ cv:
         location: Pune, India
         start_date: 2005-07-04
         end_date: present
-        summary: Teaching and research in the Department of Information Technology.
         highlights:
-          - Conference Chair, ICNDIA-2026, an IEEE international conference hosted at AIT (September 2026)
+          - Conference Chair, ICNDIA-2026, an IEEE international conference hosted at AIT (2026)
           - Vice Branch Counsellor, IEEE AIT Student Branch
-          - Faculty In-Charge, Open Source Software Club, and its national hackathon Innerve (listed as staff in-charge on AIT's clubs page, 2018-19 to 2022-23)
-          - Mentor of both AIT teams that won first prize at Smart India Hackathon 2024
-          - Co-Investigator, two SPPU QIP grants for faculty development programmes (2017, 2018)
+          - Faculty In-Charge, Open Source Software Club and its hackathon Innerve
+          - Mentor, two first-prize teams, Smart India Hackathon 2024
+          - Co-Investigator, two SPPU QIP grants (2017, 2018)
           - Member, Institution's Innovation Council (IIC), AIT
 
     Awards:
@@ -52,7 +51,7 @@ cv:
 
       - title: "Indian patent application published: Interactive Shopping Experience Using Augmented Reality"
         date: 2023-01-13
-        summary: Application No. 202221075977, published 13 January 2023.
+        summary: Application No. 202221075977.
 
     Certificates:
       - name: "Fundamentals of Deep Learning for Multiple Data Types, Certificate of Competency"
@@ -86,12 +85,11 @@ cv:
     Interests:
       - name: Research
         icon: fa-solid fa-tag
-        keywords: "Machine Learning, Deep Learning for Satellite Imagery, Medical Image Analysis, Natural Language Processing, Generative AI, Algorithms and Security, Embedded and Real-Time Systems"
+        keywords: "Machine Learning, Satellite and Medical Image Analysis, NLP, Information Security, Generative AI, Embedded Systems"
 
     Memberships:
       - bullet: Life Member, Indian Society for Technical Education (ISTE), since 2006
       - bullet: Member, Computer Society of India (CSI), 2007–2020 and 2021–2023
-      - bullet: Vice Branch Counsellor, IEEE AIT Student Branch
 
     Books:
-      - bullet: Author of 10 university textbooks with Nirali Prakashan (2008–2022), including *Artificial Intelligence* (SPPU and BATU editions) and *Data Structures & Files*
+      - bullet: "10 university textbooks, Nirali Prakashan, 2008–2022: *Artificial Intelligence* (SPPU, BATU) and *Data Structures & Files*"

@@ -240,7 +240,8 @@ export async function createScene(container, o) {
   keys.build().castShadow = false;
   const pad = new THREE.Mesh(new THREE.PlaneGeometry(0.11, 0.066), mat('#c3bbb1', 0.55));
   pad.rotation.x = -Math.PI / 2; pad.position.set(0, LB.h + 0.0005, 0.067); laptop.add(pad);
-  const lid = new THREE.Group(); lid.position.set(0, LB.h, -LB.d / 2); lid.rotation.x = -0.25; laptop.add(lid);
+  const LID_OPEN = -0.25, LID_SHUT = 1.5;
+  const lid = new THREE.Group(); lid.position.set(0, LB.h, -LB.d / 2); lid.rotation.x = LID_SHUT; laptop.add(lid);
   const LID = { w: 0.34, h: 0.226, t: 0.007 };
   box(LID.w, LID.h, LID.t, mat(PAL.alu, 0.5, 0.25), { r: 0.0034, y: LID.h / 2, z: -LID.t / 2, parent: lid });
   const bezel = new THREE.Mesh(new THREE.PlaneGeometry(LID.w - 0.006, LID.h - 0.006), mat(PAL.bezel, 0.6));
@@ -250,7 +251,9 @@ export async function createScene(container, o) {
     g.fillStyle = cssGradient(g, w, h, 160, [[0, '#fbf4ec'], [0.58, '#f5e6d7'], [1, '#eed5bf']]);
     g.fillRect(0, 0, w, h);
   });
+  const SLEEP = 0.14;
   const screen = new THREE.Mesh(new THREE.PlaneGeometry(SCR.w, SCR.h), new THREE.MeshBasicMaterial({ map: screenTex, toneMapped: false }));
+  screen.material.color.setScalar(SLEEP);
   screen.position.set(0, LID.h / 2 + 0.003, 0.0009); lid.add(screen);
 
   /* ---------- chair ---------- */
@@ -379,7 +382,7 @@ export async function createScene(container, o) {
     const y = 0.62 + pr() * 0.78, a = pr() * Math.PI * 2, rr = 0.08 + pr() * 0.2 * (1 - Math.abs(y - 1.05));
     plantLeaves.add([Math.cos(a) * rr, y, Math.sin(a) * rr], [(pr() - 0.5) * 0.9, -a, 0.35 + pr() * 0.4], [0.075, 0.016, 0.05], i % 3 ? PAL.sage : PAL.sageDark);
   }
-  plantLeaves.build();
+  const plantSway = plantLeaves.build();
 
   o.onProgress && o.onProgress(0.8);
 
@@ -397,21 +400,51 @@ export async function createScene(container, o) {
   const fill = new THREE.DirectionalLight('#fff1e3', 0.55);
   fill.position.set(2.5, 2.4, 3.5); scene.add(fill);
 
-  /* ---------- camera poses ---------- */
-  const tmp = new THREE.Vector3();
-  const POSES = {
-    wide: {
-      door: { p: [0.05, 1.62, 5.6], t: [0.0, 1.32, 0.0] },
-      via: [0.12, 1.6, 2.7],
-      stand: { p: [0.95, 1.6, 1.9], t: [-0.12, 0.9, -1.95] },
-      fov: 40
-    },
-    tall: {
-      door: { p: [0.02, 1.58, 5.4], t: [0.0, 1.25, 0.0] },
-      via: [0.06, 1.55, 2.7],
-      stand: { p: [0.0, 1.45, 0.6], t: [-0.3, 0.9, -1.9] },
-      fov: 62
+  /* ---------- ambient life: dust in the window light, a slow light shift, a barely moving plant ---------- */
+  const sunDir = new THREE.Vector3().subVectors(sun.target.position, sun.position).normalize();
+  const MOTES = phone ? 34 : 60;
+  const moteBase = new Float32Array(MOTES * 3), motePhase = new Float32Array(MOTES);
+  const mr = rng(21);
+  for (let i = 0; i < MOTES; i++) {
+    const z = W.z0 + 0.12 + mr() * (ww - 0.24), y = W.y0 + 0.12 + mr() * (wh - 0.24), d = 0.3 + mr() * 1.9;
+    moteBase.set([R.x0 + sunDir.x * d, y + sunDir.y * d, z + sunDir.z * d], i * 3);
+    motePhase[i] = mr() * Math.PI * 2;
+  }
+  const moteGeo = new THREE.BufferGeometry();
+  moteGeo.setAttribute('position', new THREE.BufferAttribute(moteBase.slice(), 3));
+  const moteTex = canvasTex(64, 64, (g, w, h) => {
+    const r = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2);
+    r.addColorStop(0, 'rgba(255,255,255,1)'); r.addColorStop(0.45, 'rgba(255,255,255,0.35)'); r.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = r; g.fillRect(0, 0, w, h);
+  });
+  const motes = new THREE.Points(moteGeo, new THREE.PointsMaterial({
+    map: moteTex, color: '#fff3df', size: phone ? 0.014 : 0.011, sizeAttenuation: true,
+    transparent: true, opacity: 0.55, depthWrite: false
+  }));
+  motes.frustumCulled = false;
+  scene.add(motes);
+  const SUN_I = sun.intensity;
+  function ambient(t) {
+    const pos = moteGeo.attributes.position.array;
+    for (let i = 0; i < MOTES; i++) {
+      const ph = motePhase[i], j = i * 3;
+      pos[j] = moteBase[j] + Math.sin(t * 0.11 + ph) * 0.05;
+      pos[j + 1] = moteBase[j + 1] + Math.sin(t * 0.07 + ph * 1.7) * 0.06;
+      pos[j + 2] = moteBase[j + 2] + Math.cos(t * 0.09 + ph) * 0.05;
     }
+    moteGeo.attributes.position.needsUpdate = true;
+    sun.intensity = SUN_I * (1 + 0.035 * Math.sin(t * 0.29) + 0.012 * Math.sin(t * 0.83 + 1.3));
+    plantSway.rotation.z = Math.sin(t * 0.55) * 0.005;
+    plantSway.rotation.x = Math.sin(t * 0.37 + 1) * 0.004;
+  }
+
+  /* ---------- camera ---------- */
+  const tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3(), sph = new THREE.Spherical();
+  const V = (x, y, z) => new THREE.Vector3(x, y, z);
+  const xyz = v => ({ x: v.x, y: v.y, z: v.z });
+  const POSES = {
+    wide: { fov: 40, door: { p: V(0.05, 1.62, 5.6), t: V(0.0, 1.32, 0.0) }, via: V(0.1, 1.6, 2.7), stand: { p: V(0.95, 1.6, 1.9), t: V(-0.12, 0.9, -1.95) } },
+    tall: { fov: 62, door: { p: V(0.02, 1.58, 5.4), t: V(0.0, 1.25, 0.0) }, via: V(0.06, 1.55, 2.7), stand: { p: V(0.0, 1.45, 0.6), t: V(-0.3, 0.9, -1.9) } }
   };
   let P = POSES.wide;
   function pickPoses() {
@@ -420,88 +453,154 @@ export async function createScene(container, o) {
     camera.fov = a < 0.9 ? P.fov : a < 1.3 ? 50 : P.fov;
     camera.updateProjectionMatrix();
   }
-
-  function seatPose(cover) {
-    scene.updateMatrixWorld(true);
+  // poses that depend on the open laptop lid
+  function withLidOpen(fn) {
+    const r = lid.rotation.x; lid.rotation.x = LID_OPEN; scene.updateMatrixWorld(true);
+    const out = fn(); lid.rotation.x = r; scene.updateMatrixWorld(true);
+    return out;
+  }
+  function screenFrame() {
     const c = screen.getWorldPosition(new THREE.Vector3());
     const n = new THREE.Vector3(0, 0, 1).transformDirection(screen.matrixWorld);
+    return { c, n };
+  }
+  const seatedPose = () => withLidOpen(() => { const { c, n } = screenFrame(); return { p: c.clone().addScaledVector(n, 0.6), t: c.clone().add(V(0, -0.02, 0)) }; });
+  const coverPose = () => withLidOpen(() => {
+    const { c, n } = screenFrame();
     const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-    const dH = SCR.h / (2 * tan), dW = SCR.w / (2 * tan * camera.aspect);
-    let d;
-    if (cover) d = Math.min(dH, dW) * 0.92;
-    else d = Math.max(dH / 0.8, dW / 0.86);
-    return { p: c.clone().addScaledVector(n, d).toArray(), t: c.toArray() };
-  }
+    const d = Math.min(SCR.h / (2 * tan), SCR.w / (2 * tan * camera.aspect)) * 0.9;
+    return { p: c.clone().addScaledVector(n, d), t: c.clone() };
+  });
+  const photoPos = frame.getWorldPosition(new THREE.Vector3()).add(V(0, 0.1, 0));
+  const CHAIR_IN = { x: DX + 0.02, z: -1.12, ry: 0.04 };
 
-  function screenRect() {
-    scene.updateMatrixWorld(true);
-    camera.updateMatrixWorld(true);
-    const w = renderer.domElement.clientWidth, h = renderer.domElement.clientHeight;
-    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-    [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([sx, sy]) => {
-      tmp.set(sx * SCR.w / 2, sy * SCR.h / 2, 0); screen.localToWorld(tmp); tmp.project(camera);
-      const px = (tmp.x * 0.5 + 0.5) * w, py = (-tmp.y * 0.5 + 0.5) * h;
-      x0 = Math.min(x0, px); x1 = Math.max(x1, px); y0 = Math.min(y0, py); y1 = Math.max(y1, py);
-    });
-    return { x: Math.round(x0), y: Math.round(y0), w: Math.round(x1 - x0), h: Math.round(y1 - y0) };
-  }
-
-  /* ---------- camera state and render loop ---------- */
   const cam = { p: new THREE.Vector3(), t: new THREE.Vector3() };
+  const look = { yaw: 0, pitch: 0, gy: 0, gp: 0 };
   const par = { x: 0, y: 0, gx: 0, gy: 0 };
-  let renders = 0, prevNow = 0;
-  let state = 'intro', active = true, dirty = true, moving = 0, raf = 0, last = 0;
-  let introTween = null;
-  const frameTimes = []; let measuring = !!o.strictPerf;
-  function setCam(pose) { cam.p.fromArray(pose.p); cam.t.fromArray(pose.t); dirty = true; }
-  function apply() {
-    camera.position.copy(cam.p);
-    if (state === 'room') { camera.position.x += par.x * 0.09; camera.position.y += par.y * 0.045; }
-    camera.lookAt(cam.t);
+  const view = new THREE.Vector3();
+  let state = 'intro', active = true, dirty = true, moving = 0, raf = 0, prevNow = 0, lastRender = 0, renders = 0;
+  let introTl = null, measuring = !!o.strictPerf, tuned = false;
+  const frameTimes = [];
+
+  function setCam(pose) { cam.p.copy(pose.p); cam.t.copy(pose.t); dirty = true; }
+  function effective(outP, outT) {
+    outP.copy(cam.p);
+    if (state !== 'room') { outT.copy(cam.t); return; }
+    outP.x += par.x * 0.07; outP.y += par.y * 0.035;
+    tmp2.subVectors(cam.t, cam.p); sph.setFromVector3(tmp2);
+    sph.theta += look.yaw; sph.phi = THREE.MathUtils.clamp(sph.phi + look.pitch, 0.7, 2.3);
+    tmp2.setFromSpherical(sph);
+    outT.copy(outP).add(tmp2);
   }
+  function apply() { effective(camera.position, view); camera.lookAt(view); }
+  // fold the visitor's drag and mouse offsets into the camera before a scripted move
+  function bake() {
+    effective(tmp, view); cam.p.copy(tmp); cam.t.copy(view);
+    look.yaw = look.pitch = look.gy = look.gp = 0; par.x = par.y = par.gx = par.gy = 0;
+  }
+  function setBright(v) { screen.material.color.setScalar(v); dirty = true; }
+
   function loop(now) {
     if (!active) return;
     raf = requestAnimationFrame(loop);
     const dt = prevNow ? Math.min(100, now - prevNow) : 16; prevNow = now;
     if (state === 'room') {
-      const dx = par.gx - par.x, dy = par.gy - par.y;
-      if (Math.abs(dx) + Math.abs(dy) > 2e-3) { const k = Math.min(1, dt * 0.0045); par.x += dx * k; par.y += dy * k; dirty = true; }
-    }
-    if (dirty || moving) {
-      apply();
-      renderer.render(scene, camera);
-      renders++;
-      dirty = false;
-      if (measuring && last) {
-        frameTimes.push(now - last);
-        if (frameTimes.length === 20) {
-          measuring = false;
-          const avg = frameTimes.slice(4).reduce((a, b) => a + b, 0) / 16;
-          if (avg > 62 && o.onSlow) o.onSlow(avg);
-        }
+      const k = Math.min(1, dt * 0.006);
+      const d1 = par.gx - par.x, d2 = par.gy - par.y, d3 = look.gy - look.yaw, d4 = look.gp - look.pitch;
+      if (Math.abs(d1) + Math.abs(d2) + Math.abs(d3) + Math.abs(d4) > 1e-3) {
+        par.x += d1 * k; par.y += d2 * k; look.yaw += d3 * k * 1.6; look.pitch += d4 * k * 1.6; dirty = true;
       }
-      last = now;
-    } else last = 0;
+    }
+    const living = state === 'intro' || state === 'room' || state === 'moving';
+    // camera moves render every frame; the room's quiet life renders at about 30 fps
+    if (!(dirty || moving || (living && now - lastRender > 32))) return;
+    if (living) ambient(now / 1000);
+    apply();
+    renderer.render(scene, camera);
+    renders++; dirty = false;
+    if (measuring && lastRender) {
+      frameTimes.push(now - lastRender);
+      if (frameTimes.length === 20) {
+        const avg = frameTimes.slice(4).reduce((a, b) => a + b, 0) / 16;
+        frameTimes.length = 0;
+        if (avg > 30 && !tuned && renderer.getPixelRatio() > 1) { tuned = true; renderer.setPixelRatio(1); }
+        else { measuring = false; if (avg > 42 && o.onSlow) o.onSlow(avg); }
+      }
+    }
+    lastRender = now;
   }
 
-  function tweenTo(pose, dur, ease, path) {
+  function tweenTo(pose, dur, ease, via) {
     return new Promise(resolve => {
-      const from = { p: cam.p.clone(), t: cam.t.clone() };
-      const to = { p: new THREE.Vector3().fromArray(pose.p), t: new THREE.Vector3().fromArray(pose.t) };
-      if (reduced || dur === 0 || !gsap) { cam.p.copy(to.p); cam.t.copy(to.t); dirty = true; resolve(); return; }
-      const curve = path ? new THREE.CatmullRomCurve3([from.p, new THREE.Vector3().fromArray(path), to.p], false, 'centripetal') : null;
+      if (reduced || !gsap || dur === 0) { setCam(pose); resolve(); return; }
+      const from = cam.p.clone(), fromT = cam.t.clone();
+      const curve = via ? new THREE.CatmullRomCurve3([from, via, pose.p.clone()], false, 'centripetal') : null;
       const k = { v: 0 };
       moving++;
-      const tw = gsap.to(k, {
+      gsap.to(k, {
         v: 1, duration: dur, ease,
-        onUpdate() {
-          if (curve) curve.getPoint(k.v, cam.p); else cam.p.lerpVectors(from.p, to.p, k.v);
-          cam.t.lerpVectors(from.t, to.t, k.v);
-        },
+        onUpdate() { if (curve) curve.getPoint(k.v, cam.p); else cam.p.lerpVectors(from, pose.p, k.v); cam.t.lerpVectors(fromT, pose.t, k.v); },
         onComplete() { moving--; dirty = true; resolve(); }
       });
-      introTween = tw;
     });
+  }
+
+  /* ---------- the intro: one GSAP timeline ---------- */
+  function buildIntro(short, onFill) {
+    const seat = seatedPose(), cover = coverPose();
+    const tl = gsap.timeline({ paused: true, onUpdate() { dirty = true; } });
+    const k = { v: 0 }, b = { v: SLEEP };
+    const wake = (at, dur) => tl.to(b, { v: 1, duration: dur, ease: 'sine.inOut', onUpdate() { setBright(b.v); } }, at);
+    const lidOpen = (at, dur) => tl.to(lid.rotation, { x: LID_OPEN, duration: dur, ease: 'power2.inOut' }, at);
+    const chairIn = (at, dur) => {
+      tl.to(chair.position, { x: CHAIR_IN.x, z: CHAIR_IN.z, duration: dur, ease: 'power2.inOut' }, at);
+      tl.to(chair.rotation, { y: CHAIR_IN.ry, duration: dur, ease: 'power2.inOut' }, at);
+    };
+    const T = (v, at, dur, ease = 'sine.inOut') => tl.to(cam.t, { ...xyz(v), duration: dur, ease }, at);
+    const Pp = (v, at, dur, ease = 'sine.inOut') => tl.to(cam.p, { ...xyz(v), duration: dur, ease }, at);
+    if (!short) {
+      const inside = V(0.35, 1.6, 1.45);
+      const curve = new THREE.CatmullRomCurve3([P.door.p.clone(), P.via.clone(), inside], false, 'centripetal');
+      tl.to(k, { v: 1, duration: 2.9, ease: 'power2.inOut', onUpdate() { curve.getPoint(k.v, cam.p); } }, 0);  // dolly through the door
+      T(V(-0.7, 1.3, -1.6), 0, 2.5);
+      T(V(-2.3, 1.42, -1.15), 2.5, 1.5);                    // the window light
+      Pp(V(0.42, 1.6, 1.25), 2.9, 1.2);
+      T(V(1.42, 1.12, -2.2), 4.3, 1.7);                     // past the bookshelf
+      Pp(V(0.62, 1.57, 0.95), 4.1, 1.9);
+      T(photoPos, 6.0, 1.4, 'power2.inOut');                // her photo on the desk
+      Pp(V(0.22, 1.44, -0.35), 6.0, 1.6, 'power2.inOut');
+      lidOpen(6.9, 1.3);
+      chairIn(7.1, 1.2);
+      Pp(V(-0.12, 1.42, -0.72), 7.6, 1.15, 'sine.in');      // approach the chair
+      T(seat.t, 7.4, 1.5);
+      Pp(seat.p, 8.75, 0.9, 'sine.out');                    // sit down: lower, tilt slightly
+      wake(9.0, 0.8);                                       // the screen wakes
+      Pp(cover.p, 9.75, 1.2, 'power2.inOut');               // the screen fills the view
+      T(cover.t, 9.75, 1.2, 'power2.inOut');
+      tl.call(onFill, null, 10.6);
+    } else {
+      const inside = V(0.0, 1.5, 1.0);
+      const curve = new THREE.CatmullRomCurve3([P.door.p.clone(), P.via.clone(), inside], false, 'centripetal');
+      tl.to(k, { v: 1, duration: 2.3, ease: 'power2.inOut', onUpdate() { curve.getPoint(k.v, cam.p); } }, 0);
+      T(V(-1.5, 1.32, -1.5), 0.1, 1.2);                     // pan across: window side
+      T(V(1.3, 1.12, -2.2), 1.3, 1.2);                      // to the shelf
+      T(photoPos, 2.5, 0.9, 'power2.inOut');                // rest on the photo
+      Pp(V(-0.05, 1.42, 0.15), 2.3, 1.1, 'power2.inOut');
+      lidOpen(2.9, 1.0);
+      chairIn(3.0, 1.0);
+      Pp(seat.p, 3.4, 1.15, 'sine.inOut');                  // approach the laptop
+      T(seat.t, 3.4, 1.15, 'sine.inOut');
+      wake(4.15, 0.6);
+      Pp(cover.p, 4.65, 0.95, 'power2.inOut');
+      T(cover.t, 4.65, 0.95, 'power2.inOut');
+      tl.call(onFill, null, 5.35);
+    }
+    return tl;
+  }
+  function finalDeskState() {
+    lid.rotation.x = LID_OPEN; setBright(1);
+    chair.position.x = CHAIR_IN.x; chair.position.z = CHAIR_IN.z; chair.rotation.y = CHAIR_IN.ry;
+    setCam(coverPose());
   }
 
   function onResize() {
@@ -510,22 +609,22 @@ export async function createScene(container, o) {
     camera.aspect = w / h;
     pickPoses();
     if (state === 'room') setCam(P.stand);
-    if (state === 'seat') { setCam(seatPose(phone)); apply(); o.onRect && o.onRect(screenRect()); }
+    if (state === 'desk') setCam(coverPose());
     dirty = true;
   }
   window.addEventListener('resize', onResize);
 
-  /* ---------- picking ---------- */
+  /* ---------- looking around and picking (room only) ---------- */
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
   const pickables = [
-    { obj: laptop, label: 'Laptop', folder: null },
+    { obj: laptop, label: null, folder: null },
     { obj: shelf, label: 'Awards & Books', folder: 'awards' },
     { obj: frame, label: 'About', folder: 'about' },
     { obj: notebook, label: 'Teaching', folder: 'teaching' }
   ];
-  function pick(e) {
+  function pick(x, y) {
     const r = renderer.domElement.getBoundingClientRect();
-    ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ndc.set(((x - r.left) / r.width) * 2 - 1, -((y - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(ndc, camera);
     const hits = ray.intersectObjects(pickables.map(p => p.obj), true);
     if (!hits.length) return null;
@@ -534,21 +633,37 @@ export async function createScene(container, o) {
     return pickables.find(p => p.obj === n) || null;
   }
   const el = renderer.domElement;
+  let drag = null;
+  el.addEventListener('pointerdown', e => {
+    if (state === 'intro') { o.onIntroPoke && o.onIntroPoke(); return; }
+    if (state !== 'room') return;
+    drag = { x: e.clientX, y: e.clientY, yaw: look.gy, pitch: look.gp, moved: false, id: e.pointerId };
+    el.setPointerCapture(e.pointerId);
+  });
   el.addEventListener('pointermove', e => {
-    if (e.pointerType === 'mouse') {
+    if (e.pointerType === 'mouse' && state === 'room' && !drag) {
       par.gx = (e.clientX / window.innerWidth) * 2 - 1;
       par.gy = (e.clientY / window.innerHeight) * 2 - 1;
     }
+    if (drag) {
+      const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      if (Math.abs(dx) + Math.abs(dy) > 6) drag.moved = true;
+      look.gy = THREE.MathUtils.clamp(drag.yaw + dx * 0.0035, -0.75, 0.75);
+      look.gp = THREE.MathUtils.clamp(drag.pitch + dy * 0.0025, -0.3, 0.3);
+      el.classList.toggle('is-dragging', drag.moved);
+      o.onHover && o.onHover(null);
+      return;
+    }
     if (state !== 'room') { o.onHover && o.onHover(null); return; }
-    o.onHover && o.onHover(pick(e), e.clientX, e.clientY);
+    o.onHover && o.onHover(pick(e.clientX, e.clientY), e.clientX, e.clientY);
   });
-  el.addEventListener('pointerleave', () => { par.gx = par.gy = 0; o.onHover && o.onHover(null); });
-  el.addEventListener('click', e => {
-    if (state === 'intro') { finishIntro(); return; }
-    if (state !== 'room') return;
-    const hit = pick(e);
-    if (hit && o.onPick) o.onPick(hit);
+  el.addEventListener('pointerup', e => {
+    if (!drag) return;
+    const d = drag; drag = null; el.classList.remove('is-dragging');
+    if (!d.moved && state === 'room') { const hit = pick(e.clientX, e.clientY); if (hit && o.onPick) o.onPick(hit); }
   });
+  el.addEventListener('pointercancel', () => { drag = null; el.classList.remove('is-dragging'); });
+  el.addEventListener('pointerleave', () => { if (!drag) { par.gx = par.gy = 0; } o.onHover && o.onHover(null); });
 
   /* ---------- first frame ---------- */
   camera.aspect = container.clientWidth / container.clientHeight;
@@ -560,36 +675,55 @@ export async function createScene(container, o) {
   o.onProgress && o.onProgress(1);
   raf = requestAnimationFrame(loop);
 
-  function finishIntro() { if (introTween && state === 'intro') introTween.progress(1); }
-
+  let introLen = 0;
   return {
     get state() { return state; },
     get renders() { return renders; },
     get calls() { return renderer.info.render.calls; },
-    intro(fast) {
+    /* plays the intro; resolves when it has ended or been skipped. onFill fires when the screen fills the view */
+    intro(short, onFill) {
       state = 'intro';
-      return tweenTo(P.stand, fast ? 1.7 : 3.4, 'power3.inOut', P.via).then(() => { state = 'room'; measuring = false; });
+      if (reduced || !gsap) { finalDeskState(); state = 'desk'; onFill && onFill(); return Promise.resolve(); }
+      return new Promise(resolve => {
+        let filled = false;
+        const fill = () => { if (!filled) { filled = true; onFill && onFill(); } };
+        introTl = buildIntro(short, fill);
+        introLen = introTl.duration();
+        introTl.eventCallback('onComplete', () => { state = 'desk'; measuring = false; introTl = null; fill(); resolve(); });
+        introTl.play(0);
+      });
     },
-    finishIntro,
-    sit() {
-      state = 'moving';
-      return tweenTo(seatPose(phone), phone ? 1.3 : 1.7, 'power3.inOut').then(() => { state = 'seat'; return screenRect(); });
+    get introDuration() { return introLen; },
+    /* test hook: hold the intro at t seconds (used to record still frames on slow software GL) */
+    holdIntro(t) { if (introTl) { introTl.pause(); introTl.seek(Math.min(t, introTl.duration() - 0.5), false); ambient(t); apply(); renderer.render(scene, camera); renders++; } },
+    playIntro() { if (introTl) introTl.play(); },
+    skipIntro() {
+      if (!introTl) return;
+      const tl = introTl; tl.progress(1, false); tl.kill();
+      finalDeskState(); state = 'desk'; dirty = true;
     },
-    jumpSeat() { state = 'seat'; setCam(seatPose(phone)); apply(); renderer.render(scene, camera); return screenRect(); },
+    jumpDesk() { finalDeskState(); state = 'desk'; apply(); renderer.render(scene, camera); },
     stand() {
       state = 'moving';
-      return tweenTo(P.stand, 1.5, 'power3.inOut').then(() => { state = 'room'; });
+      return tweenTo(P.stand, 1.8, 'power2.inOut', V(0.1, 1.35, -0.55)).then(() => { state = 'room'; });
     },
-    screenRect,
+    sit() {
+      bake();
+      state = 'moving';
+      const seat = seatedPose(), cover = coverPose();
+      return tweenTo(seat, reduced ? 0 : 1.5, 'power2.inOut').then(() => tweenTo(cover, reduced ? 0 : 1.1, 'power2.inOut')).then(() => { state = 'desk'; });
+    },
     pause() { active = false; cancelAnimationFrame(raf); },
-    resume() { if (!active) { active = true; dirty = true; last = 0; raf = requestAnimationFrame(loop); } },
+    resume() { if (!active) { active = true; dirty = true; prevNow = 0; lastRender = 0; raf = requestAnimationFrame(loop); } },
     dispose() {
       active = false; cancelAnimationFrame(raf);
+      if (introTl) introTl.kill();
       window.removeEventListener('resize', onResize);
       scene.traverse(n => { if (n.geometry) n.geometry.dispose(); });
       mats.forEach(m => m.dispose());
       extraMats.forEach(m => m.dispose());
-      [floorTex, skyTex, screenTex, artTex, art2Tex, portraitTex, envTex].forEach(t => t && t.dispose());
+      motes.material.dispose();
+      [floorTex, skyTex, screenTex, artTex, art2Tex, portraitTex, envTex, moteTex].forEach(t => t && t.dispose());
       pmrem.dispose();
       renderer.dispose();
       renderer.forceContextLoss();

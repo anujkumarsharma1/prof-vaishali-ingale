@@ -96,12 +96,15 @@ Everything custom lives in a handful of files. al-folio v1 itself comes from ver
 | `_data/stats.yml`, `_data/timeline.yml`, `_data/room_copy.yml` | Numbers for the home counters, the milestones, and the text used by the interactive office. Edit these, not the HTML. |
 | `assets/lib/`, `assets/fonts/` | Vendored libraries and fonts, with licence files (see below). |
 
-### The interactive office (`room/`)
+### The interactive office: the front page (`index.html` + `room/`)
 
-`room/` is the interactive office at `/room/` (a 3D study with a laptop desktop and folders; a plain 2D desktop is shown on slow devices or without WebGL). It is a self-contained static folder with its own HTML, CSS, JS, fonts and licences; Jekyll publishes it unchanged. **How to edit it is explained in [`room/README.md`](room/README.md)**, and third-party credits are in [`room/CREDITS.md`](room/CREDITS.md).
+The site's front page (`/`) is the interactive office (a 3D study with a laptop desktop and folders; a plain 2D desktop is shown on slow devices or without WebGL, and a short text page without JavaScript). The full bio is at **`/about/`** (`_pages/about.md`, `permalink: /about/`); the menu's **About** item points there and **Office** points to the front page.
 
+- `room/` is a self-contained static folder with its own CSS, JS, fonts and licences; Jekyll publishes it unchanged. **How to edit it is explained in [`room/README.md`](room/README.md)**, and third-party credits are in [`room/CREDITS.md`](room/CREDITS.md).
+- The front page file `index.html` (repository root) is generated from `room/index.html` (see `room/README.md`, `tools/make_root_index.py`), plus the social-preview, manifest and `noindex` head lines (added by the maintainer's integration script). `room/index.html` is the same office served at `/room/`, so old `/room/` links keep working; both pages tell search engines the front page is the main address.
 - The text in the folders comes from `room/js/content.js`. It is generated from `_pages/about.md`, `_data/*.yml` (including `_data/room_copy.yml`) and `_bibliography/papers.bib`, so after changing those, regenerate it as described in `room/README.md` (otherwise the office shows the old text; the main pages are always current).
-- The home page's **Explore the office** button and the **Office** menu item appear only when `room/index.html` exists. Deleting the `room/` folder removes the office, the button and the menu item together.
+- **To go back to a normal front page:** delete `index.html` and the `room/` folder, and change `permalink: /about/` to `permalink: /` in `_pages/about.md`. The **Office** menu item and the **Explore the office** button disappear automatically.
+- Publication titles link to the paper (DOI first, then arXiv, then the `url`/`html`/`pdf` field in `_bibliography/papers.bib`). A paper with none of these shows a plain title.
 
 ### Third-party code
 

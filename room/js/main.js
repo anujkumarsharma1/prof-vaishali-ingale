@@ -1,7 +1,12 @@
-/* Boot: decide between the 3D office and the 2D desktop, run the intro, wire the controls. */
+/* Boot: decide between the 3D office and the 2D desktop, run the intro, wire the controls.
+   <html data-site-base> says where the main site's pages are ("../" when this lives at /room/,
+   "./" at the site root). <html data-room-base> says where this folder's files are ("" or "room/"). */
 (function () {
   'use strict';
-  var C = window.ROOM_CONTENT, D = window.RoomDesktop, gsap = window.gsap;
+  var C = window.ROOM_CONTENT, D = window.RoomDesktop;
+  var root = document.documentElement;
+  var SITE = root.getAttribute('data-site-base') || '../';
+  var ROOM = root.getAttribute('data-room-base') || '';
   var q = new URLSearchParams(location.search);
   var mq = function (s) { return window.matchMedia(s).matches; };
   var reduced = mq('(prefers-reduced-motion: reduce)');
@@ -9,21 +14,30 @@
   var phone = mq('(max-width: 760px)') || (touch && Math.min(innerWidth, innerHeight) < 600);
   var $ = function (id) { return document.getElementById(id); };
   var loader = $('loader'), bar = $('loader-bar'), stage = $('stage'), roomUI = $('room-ui'),
-    sitBtn = $('sit'), standBtn = $('stand'), osEl = $('os'), tip = $('tip'), skip = $('skip');
+    sitBtn = $('sit'), skipIntroBtn = $('skip-intro'), osEl = $('os'), tip = $('tip'), skip = $('skip');
 
   skip.firstChild.nodeValue = C.skipLabel + ' ';
+  skip.href = SITE + C.skipUrl;
   sitBtn.textContent = touch ? C.hintTouch : C.hint;
-  standBtn.lastChild.nodeValue = ' ' + C.backLabel;
+  skipIntroBtn.textContent = C.skipIntroLabel;
   $('loader-label').textContent = C.loadingLabel;
 
   var mode = 'pending', reason = '', scene = null, state = 'loading';
-  // read-only status, used by the automated tests
-  window.__room = { get mode() { return mode; }, get state() { return state; }, get reason() { return reason; }, get renders() { return scene ? scene.renders : 0; }, get calls() { return scene ? scene.calls : 0; } };
+  // read-only status for the automated tests
+  window.__room = {
+    get mode() { return mode; }, get state() { return state; }, get reason() { return reason; },
+    get renders() { return scene ? scene.renders : 0; }, get calls() { return scene ? scene.calls : 0; },
+    get introDuration() { return scene ? scene.introDuration : 0; },
+    hold: function (t) { if (scene && state === 'intro') scene.holdIntro(t); }   // test hook for still frames
+  };
 
-  D.build(osEl, { onOffice: function () { stand(); } });
+  D.build(osEl, { siteBase: SITE, roomBase: ROOM, standLabel: C.standLabel, onOffice: function () { stand(); } });
 
   function progress(p) { bar.style.transform = 'scaleX(' + Math.max(0, Math.min(1, p)).toFixed(3) + ')'; }
-  function hideLoader() { loader.classList.add('is-done'); document.body.classList.remove('is-loading'); }
+  function hideLoader(slow) {
+    if (slow && !reduced) loader.classList.add('is-slow');
+    loader.classList.add('is-done'); document.body.classList.remove('is-loading');
+  }
   function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
   function deepLink() { var h = (location.hash || '').slice(1); return C.folders.some(function (f) { return f.id === h; }) ? h : ''; }
 
@@ -56,15 +70,15 @@
 
   /* ---------- 2D desktop ---------- */
   function start2D(r) {
+    var was = state;
     mode = '2d'; reason = r || reason; state = 'desktop';
     if (scene) { try { scene.dispose(); } catch (e) { /* already gone */ } scene = null; }
     stage.innerHTML = '';
-    roomUI.hidden = true; standBtn.hidden = true; tip.classList.remove('is-on');
+    roomUI.hidden = true; skipIntroBtn.hidden = true; tip.classList.remove('is-on');
+    D.setOffice(false);
     progress(1);
-    setTimeout(function () {
-      hideLoader();
-      D.show({ openHash: true });
-    }, reduced ? 0 : 200);
+    if (was === 'desktop') return;   // already showing the folders
+    setTimeout(function () { hideLoader(); D.show({ openHash: true }); }, reduced ? 0 : 200);
   }
 
   /* ---------- 3D office ---------- */
@@ -86,35 +100,33 @@
   function start3D() {
     mode = '3d';
     var failed = false;
-    var timer = setTimeout(function () { if (state === 'loading') { failed = true; start2D('timeout'); } }, 12000);
+    // reduced motion and direct folder links go straight to the folders; the room loads behind them
+    var early = reduced || !!deepLink();
+    if (early) { state = 'desktop'; hideLoader(); D.show({ openHash: true }); }
+    var timer = setTimeout(function () { if (!scene) { failed = true; start2D('timeout'); } }, 12000);
     progress(0.04);
-    prefetch('vendor/three.module.min.js', 691648, function (p) { progress(0.05 + p * 0.65); })
-      .then(function () { return import(new URL('js/scene.js', document.baseURI).href); })
+    prefetch(ROOM + 'vendor/three.module.min.js', 691648, function (p) { progress(0.05 + p * 0.65); })
+      .then(function () { return import(new URL(ROOM + 'js/scene.js', document.baseURI).href); })
       .then(function (m) {
         if (failed) return null;
         return m.createScene(stage, {
           phone: phone, reduced: reduced, strictPerf: !q.has('3d'),
-          portrait: 'assets/portrait.webp',
+          portrait: ROOM + 'assets/portrait.webp',
           onProgress: function (p) { progress(0.7 + p * 0.3); },
           onSlow: function () { if (state === 'intro' || state === 'room') start2D('slow'); },
-          onHover: onHover, onPick: onPick,
-          onRect: function (r) { if (state === 'desktop' && !phone) D.setRect(r); }
+          onHover: onHover, onPick: onPick, onIntroPoke: offerSkip
         });
       })
       .then(function (s) {
         if (!s || failed) { if (s) s.dispose(); return; }
         clearTimeout(timer);
         scene = s;
+        if (early) { scene.jumpDesk(); scene.pause(); D.setOffice(true); return; }
         state = 'intro';
-        return wait(reduced ? 0 : 300).then(function () {
-          hideLoader();
-          if (deepLink()) { var r = scene.jumpSeat(); return seated(r, true); }
-          return scene.intro(phone).then(function () {
-            if (mode !== '3d' || !scene) return;
-            if (phone) { state = 'room'; return wait(reduced ? 0 : 250).then(function () { sit(); }); }
-            enterRoom();
-          });
-        });
+        hideLoader(true);
+        skipIntroBtn.hidden = false;
+        requestAnimationFrame(function () { skipIntroBtn.classList.add('is-on'); });
+        return scene.intro(phone, function () { toDesk(); });
       })
       .catch(function (e) {
         clearTimeout(timer);
@@ -122,10 +134,43 @@
       });
   }
 
+  function offerSkip() {
+    if (state !== 'intro') return;
+    skipIntroBtn.classList.add('is-offered');
+    // after the click has finished moving focus, put it on the button so Enter skips
+    setTimeout(function () { if (state === 'intro') skipIntroBtn.focus({ preventScroll: true }); }, 0);
+  }
+  function skipIntro() {
+    if (state !== 'intro' || !scene) return;
+    scene.skipIntro();   // fires toDesk through the intro's fill callback
+    toDesk();
+  }
+
+  function toDesk(folder) {
+    if (state === 'desktop' || mode !== '3d') return;
+    state = 'desktop';
+    skipIntroBtn.classList.remove('is-on'); skipIntroBtn.hidden = true;
+    roomUI.classList.remove('is-on'); roomUI.hidden = true;
+    tip.classList.remove('is-on'); stage.classList.remove('is-hover');
+    D.show({ office: true });
+    if (folder) D.open(folder, { push: true });
+    // the desktop covers the room: stop drawing it until the visitor stands up
+    setTimeout(function () { if (state === 'desktop' && scene) scene.pause(); }, reduced ? 0 : 700);
+  }
+
+  function stand() {
+    if (state !== 'desktop' || mode !== '3d' || !scene) return;
+    state = 'standing';
+    scene.resume();
+    D.hide();
+    scene.stand().then(enterRoom);
+  }
+
   function enterRoom() {
     state = 'room';
     roomUI.hidden = false;
     requestAnimationFrame(function () { roomUI.classList.add('is-on'); });
+    sitBtn.focus({ preventScroll: true });
   }
 
   function onHover(hit, x, y) {
@@ -144,42 +189,24 @@
     state = 'sitting';
     tip.classList.remove('is-on'); stage.classList.remove('is-hover');
     roomUI.classList.remove('is-on');
-    setTimeout(function () { if (state !== 'room') roomUI.hidden = true; }, reduced ? 0 : 500);
-    scene.sit().then(function (r) { return seated(r, false, folder); });
-  }
-
-  function seated(rect, fromLink, folder) {
-    state = 'desktop';
-    if (phone) {
-      D.show({ office: true, openHash: fromLink, focus: !fromLink });
-      // the screen fills the phone; stop drawing the room until it is needed again
-      setTimeout(function () { if (state === 'desktop' && scene) scene.pause(); }, reduced ? 0 : 600);
-    } else {
-      D.show({ rect: rect, openHash: fromLink, focus: !fromLink });
-      standBtn.hidden = false;
-      requestAnimationFrame(function () { standBtn.classList.add('is-on'); });
-    }
-    if (folder) D.open(folder, { push: true });
-  }
-
-  function stand() {
-    if (state !== 'desktop' || mode !== '3d' || !scene) return;
-    state = 'standing';
-    standBtn.classList.remove('is-on');
-    standBtn.hidden = true;
-    scene.resume();
-    D.hide();
-    scene.stand().then(function () { enterRoom(); sitBtn.focus({ preventScroll: true }); });
+    scene.sit().then(function () { toDesk(folder); });
   }
 
   sitBtn.addEventListener('click', function () { sit(); });
-  standBtn.addEventListener('click', stand);
+  // any click or tap during the intro offers the skip button (the button and the skip link work as usual)
+  document.addEventListener('pointerdown', function (e) {
+    if (state === 'intro' && !e.target.closest('#skip-intro, #skip')) offerSkip();
+  });
+  skipIntroBtn.addEventListener('click', skipIntro);
   document.addEventListener('keydown', function (e) {
     if (e.defaultPrevented) return;
-    if (state === 'intro' && scene && (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape')) { scene.finishIntro(); return; }
-    if (e.key === 'Escape' && state === 'desktop' && mode === '3d' && !D.isOpen()) { e.preventDefault(); stand(); }
+    if (state === 'intro') {
+      if (e.key === 'Escape') { e.preventDefault(); skipIntro(); }
+      else if (e.key !== 'Tab' && document.activeElement !== skipIntroBtn) offerSkip();
+      return;
+    }
+    if (e.key === 'Escape' && state === 'desktop' && mode === '3d' && scene && !D.isOpen()) { e.preventDefault(); stand(); }
   });
-  stage.addEventListener('touchstart', function () { if (state === 'intro' && scene) scene.finishIntro(); }, { passive: true });
 
   var r = why2D();
   if (r) start2D(r); else start3D();

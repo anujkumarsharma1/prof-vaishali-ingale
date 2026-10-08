@@ -19,11 +19,10 @@ layout: default
         </h1>
         {% assign hero_tagline = page.hero_tagline | default: page.tagline %}
         {% if hero_tagline %}<p class="hero-tagline" data-hero-item data-reveal="lines" data-start="load" data-delay="0.35">{{ hero_tagline }}</p>{% endif %}
-        {%- comment -%} The office button appears only once room/index.html exists in the repo (copied in from Role H's folder). {%- endcomment -%}
-        {% assign room_static = site.static_files | where: 'path', '/room/index.html' %}
-        {% assign room_page = site.pages | where: 'url', '/room/' %}
+        {%- comment -%} The office button appears only when the office is deployed (root index.html or room/index.html, see office_url.liquid). {%- endcomment -%}
+        {% include office_url.liquid %}
         <div class="hero-actions" data-hero-item data-reveal="fade-up" data-start="load" data-delay="0.75">
-          {% if room_static.size > 0 or room_page.size > 0 %}<a class="hero-cta" href="{{ '/room/' | relative_url }}">{{ page.hero_cta_text | default: 'Explore the office' }} <span aria-hidden="true">&rarr;</span></a>{% endif %}
+          {% if office_url %}<a class="hero-cta" href="{{ office_url }}">{{ page.hero_cta_text | default: 'Explore the office' }} <span aria-hidden="true">&rarr;</span></a>{% endif %}
           <a class="hero-link" href="{{ '/publications/' | relative_url }}">Publications <span aria-hidden="true">&rarr;</span></a>
         </div>
       </div>

@@ -1,7 +1,7 @@
 ---
 layout: about
 title: About
-permalink: /
+permalink: /about/
 subtitle: Assistant Professor · Department of Information Technology · <a href='https://www.aitpune.com/' target='_blank'>Army Institute of Technology, Pune</a>
 
 profile:
@@ -31,30 +31,36 @@ latest_posts:
   enabled: false
 name_prefix: Prof.
 ---
-
-Prof. Vaishali S. Ingale is an Assistant Professor in the Department of Information Technology at the Army Institute of Technology (AIT), Pune, where she has taught since July 2005.
+Prof. Vaishali S. Ingale is an Assistant Professor of Information Technology at the Army Institute of Technology (AIT), Pune. She has taught at AIT since July 2005.
 {: .lead}
 
 **Research interests:** machine learning · deep learning for satellite and medical images · natural language processing · information security
 
 **Currently:** Faculty In-Charge, AIT Open Source Software Club · Vice Branch Counsellor, IEEE AIT Student Branch
 
-**Recently:** Conference Chair, ICNDIA-2026 (September 2026)
-
 ### Research
 
-Her work applies machine learning to satellite imagery (map generation, cloud masking, extraction of topographical features), medical images (grading diabetic retinopathy with graph neural networks), language (machine reading comprehension) and security (cyberattack prediction, cryptography and steganography). Much of it is co-authored with AIT students and colleagues.
+Applied machine learning, much of it co-authored with AIT students and colleagues.
+
+- **Satellite images:** maps, cloud masking, terrain features
+- **Medical images:** diabetic retinopathy grading with GNNs
+- **Language:** machine reading comprehension
+- **Security:** cyberattack prediction, cryptography, steganography
+- Paper Presenter Award, CSI Annual Convention 2020
 
 ### Teaching
 
-She is the author of ten university textbooks on artificial intelligence and data structures, published by Nirali Prakashan between 2008 and 2022. She has served as a resource person for Savitribai Phule Pune University faculty programmes on machine learning and deep learning laboratories. Her teaching recognitions include a Best Teacher Award (2011–12) and a Best Result Award for *Design and Analysis of Algorithms* (2014–15).
+- 10 university textbooks on AI and data structures (Nirali Prakashan, 2008–2022)
+- SPPU resource person: ML labs (2021), DL labs (2022)
+- Best Teacher Award (2011–12); Best Result Award, *Design and Analysis of Algorithms* (2014–15)
 
 ### Leadership and service
 
-She was a Conference Chair, with Dr. Ashwini Sapkal, of ICNDIA-2026, the first edition of ICNDIA, an IEEE international conference hosted at AIT by her department. The conference received more than 1,500 submissions and 217 papers were presented.
-
-As Faculty In-Charge of the Open Source Software Club, she guides Innerve, the club's national hackathon; the 2025 edition drew more than 9,500 students. In 2024 she mentored both AIT teams that won first prize at the Smart India Hackathon. She also received the Paper Presenter Award at the CSI Annual Convention 2020.
+- Conference Chair, ICNDIA-2026, the first edition of ICNDIA, an IEEE international conference hosted at AIT: 1,500+ submissions, 217 papers presented
+- Faculty In-Charge, OSS Club and Innerve hackathon (9,500+ students, 2025)
+- Mentor of both AIT first-prize teams, Smart India Hackathon 2024
 
 ### Education
 
-M.E. in Computer Engineering, Pune University, 2008. B.E. in Computer Science and Engineering, SRTM University, 2002.
+- M.E., Computer Engineering, Pune University, 2008
+- B.E., Computer Science and Engineering, SRTM University, 2002

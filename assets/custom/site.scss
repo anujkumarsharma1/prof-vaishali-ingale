@@ -335,13 +335,13 @@ progress#progress::-moz-progress-bar { background: $accent; }
   margin: 0 0 1rem;
 }
 .hero-title {
-  font-size: clamp(3rem, 1.4rem + 5.6vw, 5.5rem) !important; // 48 → 88px
+  font-size: clamp(3rem, 1.4rem + 5.6vw, 5.5rem); // 48 → 88px
   font-variation-settings: "opsz" 144;
-  line-height: 1.02 !important;
+  line-height: 1.02;
   font-weight: 400 !important;
-  letter-spacing: -0.025em !important;
+  letter-spacing: -0.025em;
   text-transform: none !important;
-  margin: 0 0 1.5rem !important;
+  margin: 0 0 1.5rem;
 }
 .hero-title .name-prefix {
   display: block;
@@ -420,7 +420,7 @@ progress#progress::-moz-progress-bar { background: $accent; }
 .about-section { padding-top: $section-pad; }
 .section-heading,
 .section-display {
-  font-size: clamp(1.875rem, 1.2rem + 2.6vw, 2.75rem) !important;
+  font-size: clamp(1.875rem, 1.2rem + 2.6vw, 2.75rem);
   font-weight: 400;
   letter-spacing: -0.015em;
   line-height: 1.1;
@@ -469,6 +469,18 @@ progress#progress::-moz-progress-bar { background: $accent; }
 }
 .news table td { max-width: $measure; }
 
+/* linked headings and news titles: text colour, subtle underline on hover, cinnamon on focus */
+article a.heading-link, .news a.news-title {
+  color: $ink !important;
+  text-decoration: underline;
+  text-decoration-color: transparent !important;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  transition: text-decoration-color 0.3s ease, color 0.3s ease;
+}
+article a.heading-link:hover, .news a.news-title:hover { text-decoration-color: rgba($ink, 0.45) !important; }
+article a.heading-link:focus-visible, .news a.news-title:focus-visible { color: $accent !important; text-decoration-color: currentColor !important; }
+.news a.news-title { display: inline-block; font-weight: 600; margin-bottom: 0.2rem; }
 /* news item pages */
 .news-item .post-content { font-size: 1.125rem; max-width: $measure; }
 .news-back { margin-top: 3rem; font-size: 0.9375rem; font-weight: 500; }
@@ -501,6 +513,17 @@ progress#progress::-moz-progress-bar { background: $accent; }
   max-width: none;
 }
 .publications .title { font-family: $serif; font-size: 1.2rem; font-weight: 450; color: $ink; line-height: 1.35; }
+.publications .title a.pub-title-link,
+article .publications .title a.pub-title-link {
+  color: $ink !important;
+  text-decoration: underline;
+  text-decoration-color: transparent !important;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: text-decoration-color 0.3s ease, color 0.3s ease;
+}
+.publications .title a.pub-title-link:hover { text-decoration-color: rgba($ink, 0.45) !important; }
+.publications .title a.pub-title-link:focus-visible { color: $accent !important; text-decoration-color: currentColor !important; }
 .publications .author { color: $ink-soft; font-size: 0.9375rem; }
 .publications .author em,
 .publications .author strong,
@@ -522,8 +545,8 @@ progress#progress::-moz-progress-bar { background: $accent; }
   background: $cream !important;
   color: $ink !important;
   border-radius: 999px !important;
-  font-size: 0.75rem !important;
-  padding: 0.2rem 0.8rem !important;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.8rem;
   transition: background 0.3s ease, color 0.3s ease;
 }
 .publications .links .btn:hover { background: $ink !important; color: $card !important; }

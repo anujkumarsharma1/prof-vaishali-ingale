@@ -1,0 +1,9 @@
+{%- comment -%}
+  Sets `office_url` to the interactive office: the site root when the office is deployed there
+  (root index.html is a static file), else /room/ when only room/index.html exists, else empty.
+{%- endcomment -%}
+{%- assign office_url = nil -%}
+{%- assign _root_room = site.static_files | where: 'path', '/index.html' -%}
+{%- assign _sub_room = site.static_files | where: 'path', '/room/index.html' -%}
+{%- if _root_room.size > 0 -%}{%- assign office_url = '/' | relative_url -%}
+{%- elsif _sub_room.size > 0 -%}{%- assign office_url = '/room/' | relative_url -%}{%- endif -%}

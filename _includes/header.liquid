@@ -1,9 +1,9 @@
-{%- comment -%} Local copy of al_folio_core 1.0.15 _includes/header.liquid; only change: the Office menu item. {%- endcomment -%}
+{%- comment -%} Local copy of al_folio_core 1.0.15 _includes/header.liquid; changes: the bio page lives at /about/ (the site root is the interactive office), and an Office menu item. {%- endcomment -%}
 <header>
   <!-- Nav Bar -->
   <nav id="navbar" class="navbar navbar-light navbar-expand-sm {% if site.navbar_fixed %}fixed-top{% else %}sticky-top{% endif %}" role="navigation">
     <div class="container">
-      {% if page.permalink != '/' %}
+      {% if page.permalink != '/about/' %}
         <a class="navbar-brand title font-weight-lighter" href="{{ site.baseurl }}/">
           {% if site.title == 'blank' %}
             {% if site.first_name %}
@@ -43,14 +43,14 @@
       <div class="collapse navbar-collapse navbar-collapse-main" id="navbarNav">
         <ul class="navbar-nav navbar-menu-list flex-nowrap">
           {% for page in site.pages %}
-            {% if page.permalink == '/' %} {% assign about_title = page.title %} {% endif %}
+            {% if page.permalink == '/about/' %} {% assign about_title = page.title %} {% endif %}
           {% endfor %}
 
           <!-- About -->
-          <li class="nav-item {% if page.permalink == '/' %}active{% endif %}">
-            <a class="nav-link" href="{{ '/' | relative_url }}">
+          <li class="nav-item {% if page.permalink == '/about/' %}active{% endif %}">
+            <a class="nav-link" href="{{ '/about/' | relative_url }}">
               {{- about_title }}
-              {% if page.permalink == '/' %}
+              {% if page.permalink == '/about/' %}
                 <span class="sr-only">(current)</span>
               {% endif %}
             </a>
@@ -118,10 +118,10 @@
             {% endif %}
           {% endfor %}
           {%- comment -%} Local addition: the interactive office (static folder room/), last in the menu, only if it exists. {%- endcomment -%}
-          {% assign room_static = site.static_files | where: 'path', '/room/index.html' %}
-          {% if room_static.size > 0 %}
+          {% include office_url.liquid %}
+          {% if office_url %}
             <li class="nav-item nav-office">
-              <a class="nav-link" href="{{ '/room/' | relative_url }}">Office</a>
+              <a class="nav-link" href="{{ office_url }}">Office</a>
             </li>
           {% endif %}
           {% if site.search_enabled %}

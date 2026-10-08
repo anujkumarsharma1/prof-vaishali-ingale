@@ -14,8 +14,7 @@ noindex: true
   <h2>Happy birthday, Ma’am.</h2>
   <p>Dear Ma’am,</p>
   <p>This website is from all of us in IT 2028.</p>
-  <p>It is yours now: one professional home for your papers, textbooks, roles and news, ready to share with colleagues and collaborators.</p>
-  <p>It is built to be updated without rebuilding anything, so it can keep pace with your work.</p>
+  <p>It is yours now: a home for your work, ready to share and easy to update.</p>
   <p>Thank you, and happy birthday.</p>
   <p class="wishes-from">With respect and affection,<br>IT 2028, Army Institute of Technology, Pune</p>
 </section>
