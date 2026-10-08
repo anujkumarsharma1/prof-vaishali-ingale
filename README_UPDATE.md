@@ -95,14 +95,14 @@ Everything custom lives in a handful of files. al-folio v1 itself comes from ver
 | `_includes/milestones.liquid` | The vertical milestones timeline at the end of the Leadership page, read from `_data/timeline.yml`. |
 | `_includes/head.liquid` | Copy of the gem's head with our CSS/JS appended at the bottom. |
 | `_data/stats.yml`, `_data/timeline.yml` | Numbers for the home counters and the milestones. Edit these, not the HTML. |
-| `assets/vendor/` | Vendored libraries, with licence files (see below). |
+| `assets/lib/` | Vendored libraries, with licence files (see below). |
 
 ### Third-party code
 
 | Library | Version | Licence | Use |
 |---|---|---|---|
 | [al-folio](https://github.com/alshedivat/al-folio) | v1 (al_folio_core 1.0.15) | MIT | Site template |
-| [Lenis](https://github.com/darkroomengineering/lenis) | 1.3.26 | MIT (`assets/vendor/LICENSE-lenis.md`) | Smooth scrolling |
+| [Lenis](https://github.com/darkroomengineering/lenis) | 1.3.26 | MIT (`assets/lib/LICENSE-lenis.md`) | Smooth scrolling |
 | [GSAP](https://gsap.com) + ScrollTrigger + SplitText | 3.15.0 | GSAP Standard "no charge" licence, <https://gsap.com/standard-license> | Scroll reveals, counters, line-mask headings |
 | [Lucide](https://lucide.dev) icons (by Role C) | — | ISC (`assets/img/section_icons/LUCIDE_LICENSE.txt`) | Section icons, birthday badge |
 | Fraunces, Inter (Google Fonts) | — | SIL Open Font Licence 1.1 | Typography |
