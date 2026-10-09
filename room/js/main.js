@@ -166,7 +166,9 @@
   }
 
   /* ---------- "Teach the model": the intro game, then the shortened walk-in ---------- */
-  var gameUI = $('game-ui'), veil = $('veil'), skipHome = skipIntroBtn.parentNode, skipNext = skipIntroBtn.nextSibling;
+  // the overlay and veil are in index.html; created here if an older root index lacks them
+  function ensureEl(id, cls) { var e = $(id); if (!e) { e = document.createElement('div'); e.id = id; e.className = cls; if (id === 'veil') e.setAttribute('aria-hidden', 'true'); document.body.appendChild(e); } return e; }
+  var gameUI = ensureEl('game-ui', 'game-ui'), veil = ensureEl('veil', 'veil'), skipHome = skipIntroBtn.parentNode, skipNext = skipIntroBtn.nextSibling;
   function researchLabels() {
     var f = C.folders.filter(function (x) { return x.id === 'research'; })[0];
     var items = [];
