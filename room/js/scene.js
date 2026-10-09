@@ -1,5 +1,13 @@
-/* The office, built from simple shapes. No external models.
-   Three.js (MIT) draws it, GSAP moves the camera. */
+/* The office, built from simple shapes. Three.js (MIT) draws it, GSAP moves the camera.
+   Optional imported props (js/props.js, role P) are attached through o.props.attach(ctx): see
+   /workspace/site_build/v3/HOOK_P.md. Room metres: x -2.4..2.4 (left wall has the window),
+   z -2.4 (back wall) .. 2.6 (front wall with the door), y 0..2.8. Anchors (fixed, ctx.anchors):
+     chalkboard  ( 1.98, 0,    -1.05)  rotY -1.15  floor, beside the bookshelf, facing the room/door
+     plant       (-2.33, 0.90, -1.60)  rotY  0     windowsill top (sill is 0.16 m deep, x -2.45..-2.29)
+     clock       ( 0.00, 2.47,  2.59)  rotY  PI    front wall above the door, face toward -z (into the room)
+     lamp        (-0.86, 0.75, -2.16)  rotY  0     desk top where the code-built lamp stands (named.lamp)
+     floor       ( 0.00, 0.00,  0.10)  rotX -PI/2  centre of the 4.8 x 5.0 m floor plane (named.floor)
+     shelfTop    ( 1.42, 1.92, -2.23)  rotY  0     top board of the bookshelf (0.92 x 0.32 m) */
 import * as THREE from '../vendor/three.module.min.js';
 import { RoundedBoxGeometry } from '../vendor/RoundedBoxGeometry.js';
 import { RoomEnvironment } from '../vendor/RoomEnvironment.js';
@@ -478,7 +486,7 @@ export async function createScene(container, o) {
   const look = { yaw: 0, pitch: 0, gy: 0, gp: 0 };
   const par = { x: 0, y: 0, gx: 0, gy: 0 };
   const view = new THREE.Vector3();
-  let state = 'intro', active = true, dirty = true, moving = 0, raf = 0, prevNow = 0, lastRender = 0, renders = 0;
+  let state = 'loading', active = true, dirty = true, moving = 0, raf = 0, prevNow = 0, lastRender = 0, renders = 0;
   let introTl = null, measuring = !!o.strictPerf, tuned = false;
   const frameTimes = [];
 
@@ -511,6 +519,7 @@ export async function createScene(container, o) {
         par.x += d1 * k; par.y += d2 * k; look.yaw += d3 * k * 1.6; look.pitch += d4 * k * 1.6; dirty = true;
       }
     }
+    if (hiddenQueue.length && roomHidden()) flushHidden();
     const living = state === 'intro' || state === 'room' || state === 'moving';
     // camera moves render every frame; the room's quiet life renders at about 30 fps
     if (!(dirty || moving || (living && now - lastRender > 32))) return;
@@ -664,6 +673,40 @@ export async function createScene(container, o) {
   });
   el.addEventListener('pointercancel', () => { drag = null; el.classList.remove('is-dragging'); });
   el.addEventListener('pointerleave', () => { if (!drag) { par.gx = par.gy = 0; } o.onHover && o.onHover(null); });
+
+  /* ---------- props hook (role P): fixed anchors, named objects, pickables ---------- */
+  const anchor = (name, x, y, z, ry = 0, rx = 0) => {
+    const g = new THREE.Group(); g.name = 'anchor:' + name; g.position.set(x, y, z); g.rotation.set(rx, ry, 0); scene.add(g); return g;
+  };
+  const anchors = {
+    chalkboard: anchor('chalkboard', 1.98, 0, -1.05, -1.15),
+    plant: anchor('plant', R.x0 + 0.07, W.y0, -1.6),
+    clock: anchor('clock', 0, 2.47, R.z1 - 0.01, Math.PI),
+    lamp: anchor('lamp', lamp.position.x, lamp.position.y, lamp.position.z),
+    floor: anchor('floor', 0, 0, (R.z0 + R.z1) / 2, 0, -Math.PI / 2),
+    shelfTop: anchor('shelfTop', shelf.position.x, SH.h, shelf.position.z)
+  };
+  lamp.name = 'lamp'; floor.name = 'floor'; frame.name = 'photo'; plant.name = 'floorPlant'; notebook.name = 'notebook';
+  const named = {
+    lamp, floor, shelf, laptop, photo: frame, notebook, floorPlant: plant,
+    shelfTop: anchors.shelfTop, windowSill: anchors.plant, doorWall: anchors.clock, chalkboard: anchors.chalkboard
+  };
+  // props may only change what is on camera while the room is hidden (game, loading, or the desk covering it)
+  const hiddenQueue = [];
+  const roomHidden = () => state === 'game' || state === 'desk' || state === 'loading';
+  function whenHidden(fn) { if (roomHidden()) { fn(); dirty = true; } else hiddenQueue.push(fn); }
+  function flushHidden() { while (hiddenQueue.length) { try { hiddenQueue.shift()(); } catch (e) { console.warn(e); } } dirty = true; }
+  const propsCtx = {
+    THREE, scene, renderer, camera, named, anchors, phone, PAL, maxAniso,
+    addPickable(obj, folder, label) { pickables.push({ obj, folder: folder || null, label: label || null }); },
+    invalidate() { dirty = true; },
+    whenHidden
+  };
+  let propsReady = Promise.resolve(null);
+  if (o.props && typeof o.props.attach === 'function') {
+    try { propsReady = Promise.resolve(o.props.attach(propsCtx)).catch(e => { console.warn('props:', e && e.message); return null; }); }
+    catch (e) { console.warn('props:', e && e.message); }
+  }
 
   /* ---------- first frame ---------- */
   camera.aspect = container.clientWidth / container.clientHeight;

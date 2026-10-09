@@ -125,11 +125,16 @@
     if (early) { state = 'desktop'; hideLoader(); D.show({ openHash: true }); markIntroSeen(); }
     var timer = setTimeout(function () { if (!scene) { failed = true; start2D('timeout'); } }, 12000);
     progress(0.04);
+    // role P's imported props: loaded in parallel, optional (null if missing or broken)
+    var propsP = import(new URL(ROOM + 'js/props.js', document.baseURI).href).catch(function () { return null; });
     prefetch(ROOM + 'vendor/three.module.min.js', 691648, function (p) { progress(0.05 + p * 0.65); })
       .then(function () { return import(new URL(ROOM + 'js/scene.js', document.baseURI).href); })
-      .then(function (m) {
+      .then(function (m) { return propsP.then(function (pm) { return [m, pm]; }); })
+      .then(function (mm) {
+        var m = mm[0];
         if (failed) return null;
         return m.createScene(stage, {
+          props: mm[1],
           phone: phone, reduced: reduced, strictPerf: !q.has('3d'),
           portrait: ROOM + 'assets/portrait.webp',
           onProgress: function (p) { progress(0.7 + p * 0.3); },
