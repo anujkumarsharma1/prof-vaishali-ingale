@@ -59,7 +59,7 @@ export function createGame(o) {
     sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.03;
   }
 
-  const SEG = phone ? 40 : 96, SIZE = 11;
+  const SEG = phone ? 48 : 110, SIZE = 24;   // wide enough that the edges dissolve in the fog
   const geo = new THREE.PlaneGeometry(SIZE, SIZE, SEG, SEG);
   geo.rotateX(-Math.PI / 2);
   const pos = geo.attributes.position;

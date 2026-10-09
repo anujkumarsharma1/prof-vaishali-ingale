@@ -745,7 +745,8 @@ export async function createScene(container, o) {
   raf = requestAnimationFrame(loop);
 
   let introLen = 0, introFill = 0;
-  function endGame() { if (game) { const g = game; game = null; g.dispose(); dirty = true; } }
+  let gameWanted = false;
+  function endGame() { gameWanted = false; if (game) { const g = game; game = null; g.dispose(); dirty = true; } }
   return {
     get state() { return state; },
     get renders() { return renders; },
@@ -771,7 +772,9 @@ export async function createScene(container, o) {
     },
     /* "Teach the model" (js/intro-game.js), drawn with this renderer while the room waits behind it */
     async playGame(g) {
+      gameWanted = true;
       const m = await import('./intro-game.js');
+      if (!gameWanted || !active && state !== 'loading') return null;   // skipped (or 2D) while the module loaded
       game = m.createGame({
         THREE, renderer, gsap, phone, touch: g.touch, ui: g.ui, labels: g.labels, title: g.title, tagline: g.tagline,
         onStep: g.onStep, onPlay: g.onPlay, onDone: g.onDone
