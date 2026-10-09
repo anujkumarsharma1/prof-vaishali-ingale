@@ -715,6 +715,9 @@ figure.memory-frame {
   figcaption { font-family: $serif; font-style: normal; text-align: center; color: $ink-soft; font-size: 0.875rem; padding-top: 0.7rem; }
 }
 
+figure.memory-frame picture { display: block; }
+figure.memory-frame img.memory-photo { aspect-ratio: auto; height: auto; object-fit: contain; }
+
 figure.memory-frame:has(img.memory-placeholder) {
   background: transparent;
   padding: 0;

@@ -22,8 +22,8 @@ noindex: true
 <h2 class="section-title">Memories</h2>
 <div class="memories-grid">
   <figure class="memory-frame">
-    <img class="memory-placeholder" src="{{ '/assets/img/memories/memory_frame_1.webp' | relative_url }}" alt="Watercolour frame for a class photo: Our class" loading="lazy">
-    <figcaption>Our class</figcaption>
+    <picture><source srcset="{{ '/assets/img/memories/photo_students.webp' | relative_url }}" type="image/webp"><img class="memory-photo" src="{{ '/assets/img/memories/photo_students.jpg' | relative_url }}" alt="Prof. Ingale with a group of students holding certificates in a seminar hall" width="546" height="365" loading="lazy"></picture>
+    <figcaption>With students</figcaption>
   </figure>
   <figure class="memory-frame">
     <img class="memory-placeholder" src="{{ '/assets/img/memories/memory_frame_2.webp' | relative_url }}" alt="Watercolour frame for a class photo: OSS Club" loading="lazy">
@@ -34,7 +34,7 @@ noindex: true
     <figcaption>Innerve</figcaption>
   </figure>
   <figure class="memory-frame">
-    <img class="memory-placeholder" src="{{ '/assets/img/memories/memory_frame_4.webp' | relative_url }}" alt="Watercolour frame for a class photo: Smart India Hackathon" loading="lazy">
+    <picture><source srcset="{{ '/assets/img/memories/photo_sih.webp' | relative_url }}" type="image/webp"><img class="memory-photo" src="{{ '/assets/img/memories/photo_sih.jpg' | relative_url }}" alt="Prof. Ingale with faculty and a student team at the Smart India Hackathon internal round" width="800" height="373" loading="lazy"></picture>
     <figcaption>Smart India Hackathon</figcaption>
   </figure>
   <figure class="memory-frame">
