@@ -28,20 +28,16 @@
   display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px 10px;
   opacity: 0; transition: opacity 0.6s cubic-bezier(0.45, 0, 0.55, 1), transform 0.6s cubic-bezier(0.45, 0, 0.55, 1);
 }
-.g-bar.is-on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.g-bar.is-on { opacity: 1; transform: translate(-50%, 0); }
+.g-prompt { margin: 0; padding: 0.55rem 1rem; border-radius: 999px; background: rgba(251, 244, 236, 0.88); font: 500 0.9375rem/1.35 var(--sans); color: var(--ink); }
 .g-dots { order: -1; width: 100%; display: flex; justify-content: center; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .g-dots li { width: 7px; height: 7px; border-radius: 50%; border: 1px solid rgba(94, 75, 63, 0.55); transition: background-color 0.4s, border-color 0.4s; }
 .g-dots li.is-done { background: var(--accent); border-color: var(--accent); }
-.g-step { background: var(--ink); color: var(--bg); border-color: var(--ink); text-align: left; }
-.g-step:hover { background: #3a2c23; color: var(--bg); }
-.g-step.is-pulse { animation: g-pulse 600ms cubic-bezier(0.45, 0, 0.55, 1) 1; }
-@keyframes g-pulse { 50% { opacity: 0.6; } }
-/* during the game, Skip intro sits beside the step button (and after it in Tab order) */
-.skip-intro.in-game { position: static; transform: none; opacity: 1; }
-.veil { position: fixed; inset: 0; z-index: 40; background: var(--bg); opacity: 0; pointer-events: none; }
+/* during the game, Skip intro sits beside the prompt; taps elsewhere on the bar reach the canvas */
+.skip-intro.in-game { position: static; transform: none; opacity: 1; pointer-events: auto; }
+.veil { position: fixed; inset: 0; z-index: 40; background: var(--bg); opacity: 0; pointer-events: none; overflow: hidden; }
 @media (max-width: 760px) {
   .g-title { top: 34%; }
-  .g-step { padding: 0.65rem 1.05rem; font-size: 0.875rem; }
+  .g-prompt { padding: 0.5rem 0.9rem; font-size: 0.875rem; }
   .g-bar { bottom: max(3vh, 20px); }
 }
-@media (prefers-reduced-motion: reduce) { .g-step.is-pulse { animation: none; } }
