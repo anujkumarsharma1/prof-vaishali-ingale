@@ -127,6 +127,10 @@ a:hover, a:focus-visible { text-decoration: underline; text-underline-offset: 0.
 .os-bar strong { font-weight: 600; color: var(--ink); }
 .os-office { display: none; border: 0; background: none; padding: 0.4em 0; cursor: pointer; color: var(--ink); font-weight: 500; }
 .os-office:hover { color: var(--accent); }
+/* right side of the bar: "Lighter version" (3D mode only, goes to ?2d) and the date */
+.os-right { display: inline-flex; align-items: center; gap: 1.25em; min-width: 0; }
+.os-lite { display: none; color: var(--ink-soft); font-weight: 500; white-space: nowrap; padding: 0.4em 0; }
+.os-lite:hover, .os-lite:focus-visible { color: var(--accent); }
 .os-desk { flex: 1; min-height: 0; overflow: auto; overflow-x: hidden; padding: 2.4em 3.2em; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2em 3.5em; }
 .os-hello { max-width: 30em; }
 .os-desk:focus { outline: none; }
@@ -223,6 +227,7 @@ a:hover, a:focus-visible { text-decoration: underline; text-underline-offset: 0.
 .os.is-full .os-bar { height: 56px; padding: 0 16px; font-size: 0.8125rem; padding-right: 190px; background: var(--bg); }
 .os.is-full.has-office .os-office { display: inline-flex; }
 .os.is-full.has-office .os-who { display: none; }
+.os.is-full.has-office .os-lite { display: inline-flex; }
 .os.is-full .os-desk { padding: clamp(2rem, 6vh, 4.5rem) clamp(1.25rem, 6vw, 5rem); width: 100%; max-width: 1240px; margin: 0 auto; }
 .os.is-full .os-hello { max-width: 42rem; }
 .os.is-full .os-name { font-size: clamp(2.5rem, 1.6rem + 3.6vw, 4.6rem); }
@@ -270,3 +275,31 @@ a:hover, a:focus-visible { text-decoration: underline; text-underline-offset: 0.
 .loader-name.is-corner { position: fixed; z-index: 45; top: 0; left: 0; padding: 0 16px; height: 56px; display: flex; align-items: center; font: 600 var(--fs-small, 0.8rem)/1 var(--sans); letter-spacing: 0; color: var(--ink); pointer-events: none; }
 /* persona fix 3: window kickers at the label step (13.5px), above the type scale's body rule */
 .w-label, .os.is-full .win p.w-label { font-size: var(--step--1, 0.84375rem); }
+
+/* Higher contrast on request (prefers-contrast: more): deeper secondary text, labels and hairlines, same palette */
+@media (prefers-contrast: more) {
+  :root { --ink-soft: #3d2f26; --camel: #6b4526; --line: rgba(31, 23, 18, 0.26); }
+  .room-cap, .skip, .pill { background: var(--bg); }
+  .win { box-shadow: 0 0 0 1px rgba(31, 23, 18, 0.3), 0 1.4em 3.6em rgba(80, 44, 18, 0.14); }
+  .w-papers a, .w-pubs a { text-decoration-color: rgba(160, 74, 13, 0.7); }
+  .w-list li::before { background: var(--camel); }
+  :focus-visible { outline-width: 3px; }
+}
+
+/* ---------- Contact window: save contact / copy email / PDF / QR (S → X, v3) ---------- */
+.w-kit { display: grid; grid-template-columns: 1fr auto; gap: 16px 24px; align-items: center; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); }
+.w-kit-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.w-kit-btn { display: inline-flex; align-items: center; min-height: 44px; padding: 0.55rem 1.15rem; border-radius: 999px; border: 1px solid rgba(160, 74, 13, 0.45); color: #7a3609; font: 500 0.9375rem/1.3 var(--sans); text-decoration: none; transition: background-color 0.3s var(--ease), border-color 0.3s var(--ease); }
+.w-kit-btn:hover, .w-kit-btn:focus-visible { text-decoration: none; background: rgba(160, 74, 13, 0.08); border-color: var(--accent); }
+.w-kit-primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.w-kit-primary:hover, .w-kit-primary:focus-visible { background: #7a3609; border-color: #7a3609; }
+.w-kit-status { grid-column: 1; min-height: 1.4em; margin: 0; font-size: 0.875rem; color: var(--ink-soft); }
+.w-kit-qr { grid-column: 2; grid-row: 1 / span 2; margin: 0; text-align: center; }
+.w-kit-qr img { display: block; width: 96px; height: 96px; margin: 0 auto; background: var(--paper); border-radius: 8px; padding: 4px; }
+.w-kit-qr figcaption { margin-top: 4px; font-size: 0.8125rem; color: var(--ink-soft); }
+@media (max-width: 560px) {
+  .w-kit { grid-template-columns: 1fr; }
+  .w-kit-actions { flex-direction: column; align-items: stretch; }
+  .w-kit-btn { justify-content: center; }
+  .w-kit-qr { display: none; }   /* a QR code to the page you are already on is useless on a phone */
+}

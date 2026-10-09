@@ -72,6 +72,20 @@
         return '<li><span>' + esc(l.label) + '</span>' + link(l.href, esc(l.value)) + '</li>';
       }).join('') + '</ul>';
     }
+    if (f.id === 'contact') {
+      var em = 'vingale@aitpune.edu.in';
+      h += '<div class="w-kit">' +
+        '<div class="w-kit-actions">' +
+          '<a class="w-kit-btn w-kit-primary" href="' + href('assets/contact/vaishali-ingale.vcf') + '" download="vaishali-ingale.vcf" type="text/vcard">Save contact</a>' +
+          '<a class="w-kit-btn" href="mailto:' + em + '" data-copy-email="' + em + '"><span data-copy-label>' +
+            (navigator.clipboard && window.isSecureContext ? 'Copy email' : 'Email ' + em) + '</span></a>' +
+          '<a class="w-kit-btn" href="' + href('assets/pdf/vaishali-ingale-profile.pdf') + '" download="vaishali-ingale-profile.pdf" type="application/pdf">One-page profile (PDF)</a>' +
+        '</div>' +
+        '<p class="w-kit-status" role="status" aria-live="polite"></p>' +
+        '<figure class="w-kit-qr"><img src="' + href('assets/img/site-qr.svg') + '" width="96" height="96" alt="QR code that opens this website" loading="lazy">' +
+          '<figcaption>Scan to open this site</figcaption></figure>' +
+      '</div>';
+    }
     if (f.url) {
       var mail = /^mailto:/.test(f.url);
       h += '<p class="w-more">' + link(f.url, (mail ? 'Write an email' : 'Open the full page') + ' <span aria-hidden="true">→</span>') + '</p>';
@@ -85,11 +99,13 @@
     opts = o || {};
     SITE = opts.siteBase || SITE; ROOM = opts.roomBase || ROOM;
     os = el;
+    os.setAttribute('role', 'main');
     os.setAttribute('aria-label', 'Portfolio desktop');
     os.innerHTML =
       '<div class="os-bar"><span class="os-who"><strong>Vaishali S. Ingale</strong></span>' +
       '<button class="os-office" type="button"><span aria-hidden="true">←</span>&nbsp;' + esc(opts.standLabel || 'Stand up') + '</button>' +
-      '<span class="os-where">' + esc(new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })) + '</span></div>' +
+      '<span class="os-right"><a class="os-lite" href="?2d">Lighter version</a>' +
+      '<span class="os-where">' + esc(new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })) + '</span></span></div>' +
       '<div class="os-desk" tabindex="-1"><div class="os-hello"><p class="os-kicker">' + esc(C.subtitle) + '</p>' +
       '<h1 class="os-name">' + esc(C.name) + '</h1>' +
       '<p class="os-sub">' + esc(C.tagline || '') + '</p>' +
@@ -117,7 +133,27 @@
     os.querySelector('.win-back').addEventListener('click', function () { close(); });
     scrim.addEventListener('click', function () { close(); });
     os.querySelector('.os-office').addEventListener('click', function () { if (opts.onOffice) opts.onOffice(); });
+    os.addEventListener('click', function (e) {
+      var a = e.target.closest('[data-copy-email]');
+      if (!a || !navigator.clipboard || !window.isSecureContext) return;   // no clipboard: the mailto link opens as normal
+      e.preventDefault();
+      var em = a.getAttribute('data-copy-email'), lab = a.querySelector('[data-copy-label]');
+      var st = a.closest('.w-kit') && a.closest('.w-kit').querySelector('.w-kit-status');
+      navigator.clipboard.writeText(em).then(function () {
+        if (lab) lab.textContent = 'Copied';
+        if (st) st.textContent = em + ' copied to the clipboard.';
+        clearTimeout(a._t);
+        a._t = setTimeout(function () { if (lab) lab.textContent = 'Copy email'; if (st) st.textContent = ''; }, 2500);
+      }, function () { window.location.href = 'mailto:' + em; });
+    });
     win.addEventListener('keydown', trapTab);
+    // Tab from outside the open window (after a click on the bar or the page) goes back into it
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Tab' || !current || win.contains(document.activeElement)) return;
+      if (!isPhone() && os.querySelector('.os-bar').contains(document.activeElement)) return;
+      var f = focusables(); if (!f.length) return;
+      e.preventDefault(); (e.shiftKey ? f[f.length - 1] : f[0]).focus();
+    });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && current) { e.preventDefault(); close(); } });
     window.addEventListener('popstate', function () {
       var id = (location.hash || '').slice(1);
@@ -138,9 +174,13 @@
     btns[Math.max(0, Math.min(btns.length - 1, i + n))].focus();
   }
 
+  function focusables() {
+    return Array.prototype.filter.call(win.querySelectorAll('a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'),
+      function (x) { return !x.hidden && x.offsetParent !== null; });
+  }
   function trapTab(e) {
     if (e.key !== 'Tab') return;
-    var f = Array.prototype.filter.call(win.querySelectorAll('a[href], button:not([hidden])'), function (x) { return x.offsetParent !== null; });
+    var f = focusables();
     if (!f.length) return;
     var first = f[0], last = f[f.length - 1];
     if (e.shiftKey && (document.activeElement === first || document.activeElement === win)) { e.preventDefault(); last.focus(); }
@@ -163,7 +203,7 @@
     if (o.push && !pushed) { history.pushState({ roomWin: id }, '', '#' + id); pushed = true; }
     else if (o.push && pushed) history.replaceState({ roomWin: id }, '', '#' + id);
     win.hidden = false; scrim.hidden = isPhone();
-    desk.setAttribute('aria-hidden', 'true');
+    desk.setAttribute('aria-hidden', 'true'); desk.inert = true;
     if (gsap && !reduced && !swap) {
       gsap.killTweensOf([win, scrim]);
       if (isPhone()) gsap.fromTo(win, { opacity: 1, yPercent: 4 }, { yPercent: 0, opacity: 1, duration: 0.4, ease: 'power3.out' });
@@ -180,7 +220,7 @@
     else if (!o.fromHistory && location.hash) history.replaceState(null, '', location.pathname + location.search);
     current = null;
     grid.querySelectorAll('.folder').forEach(function (b) { b.setAttribute('aria-expanded', 'false'); });
-    desk.removeAttribute('aria-hidden');
+    desk.removeAttribute('aria-hidden'); desk.inert = false;
     var done = function () { win.hidden = true; scrim.hidden = true; };
     if (gsap && !reduced) {
       gsap.killTweensOf([win, scrim]);
