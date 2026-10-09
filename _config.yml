@@ -309,10 +309,6 @@ defaults:
       path: "assets"
     values:
       sitemap: false
-  - scope:
-      path: "v3" # v3 preview copy (Role A): keep it out of the root sitemap; remove with v3/ at merge
-    values:
-      sitemap: false
 
 sass:
   style: compressed
