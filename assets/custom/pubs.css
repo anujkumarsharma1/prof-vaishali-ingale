@@ -30,8 +30,9 @@
 }
 .pub-chip[aria-pressed="true"] .pub-chip-count { color: #f8eadc; }
 .pub-status {
+  display: block;
   font-family: "Inter", system-ui, sans-serif;
-  font-size: 0.875rem;
+  font-size: var(--step--1, 0.84375rem);
   color: #5e4b3f;
   margin: 0 0 1.25rem;
 }

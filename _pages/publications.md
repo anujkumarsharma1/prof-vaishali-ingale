@@ -24,7 +24,7 @@ nav_order: 3
     {%- endif -%}
   {%- endfor %}
 </div>
-<p class="pub-status" aria-live="polite" hidden></p>
+<small class="pub-status" aria-live="polite" hidden></small>
 <script type="application/json" id="pub-topics">{{ pub_map | jsonify }}</script>
 
 <p class="pub-search" hidden><input type="search" id="bibsearch" spellcheck="false" autocomplete="off" class="search bibsearch-form-input" placeholder="Type to filter" aria-label="Filter publications by text"></p>
