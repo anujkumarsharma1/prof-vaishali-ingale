@@ -1,0 +1,173 @@
+/* ==========================================================================
+   print.css: one-page printable profile for /about/ and a clean print of /cv/.
+   Role S (v3). Loaded with media="print", so it never affects the screen.
+   Same palette, Fraunces + Inter, no web chrome, no motion, A4.
+   The prebuilt PDF (assets/pdf/vaishali-ingale-profile.pdf) is this stylesheet
+   printed from /about/ by /workspace/site_build/v3/tools/make_profile_pdf.py.
+   ========================================================================== */
+
+@page { size: A4; margin: 12mm 15mm 12mm; }
+
+html, body { background: #fff !important; }
+body {
+  color: #1f1712 !important;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+  font-size: 9.5pt !important;
+  line-height: 1.4 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ---------- web chrome, motion and interactive parts ---------- */
+#navbar, header > nav, .navbar, progress, #progress, .progress-container,
+footer, .sticky-bottom, #toc-sidebar, .toc-sidebar, .toc,
+.hero-art, .hero-actions, .hero-cta, .hero-link,
+.about-section .news-card, .news-all, .about-section:has(.news-card),
+.image-credit, .publications .abbr, .publications .links, .publications .bibtex, .publications .abstract,
+.contact-kit .kit-actions, .contact-kit .kit-status, .contact-kit .kit-title,
+.contact-note, .sr-only, .skip-link, #back-to-top, .back-to-top,
+iframe, video, canvas, [data-print="hide"] { display: none !important; }
+
+*, *::before, *::after {
+  animation: none !important;
+  transition: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+/* motion.js splits text into masked lines; print them as normal flowing text */
+.m-line-mask, .m-line { display: inline !important; overflow: visible !important; position: static !important; }
+[data-reveal], [data-hero-item], [data-parallax], .hero-step, .m-line, .m-word, .line, .word {
+  opacity: 1 !important;
+  transform: none !important;
+  translate: none !important;
+  visibility: visible !important;
+  clip-path: none !important;
+  filter: none !important;
+}
+
+html body, html body.fixed-top-nav { padding: 0 !important; margin: 0 !important; }
+html body .container, html body .container.mt-5, html body .col-sm-9, html body .post, html body .about-bio, html body article { max-width: none !important; width: 100% !important; padding: 0 !important; margin: 0 !important; flex: none !important; }
+.row { margin: 0 !important; }
+
+a, a:visited { color: #1f1712 !important; text-decoration: none !important; }
+h1, h2, h3, h4 { font-family: "Fraunces", Georgia, "Times New Roman", serif !important; font-weight: 400 !important; color: #1f1712 !important; break-after: avoid; page-break-after: avoid; }
+ul, li, p { orphans: 3; widows: 3; }
+
+/* ==========================================================================
+   /about/  →  one-page profile
+   ========================================================================== */
+.about-page { font-size: 9.5pt !important; }
+
+/* hero: name, role, tagline, small portrait on the right */
+.about-hero { min-height: 0 !important; padding: 0 !important; margin: 0 0 3mm !important; }
+.about-hero .hero-step-1 { display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; gap: 6mm !important; min-height: 0 !important; padding: 0 !important; }
+.about-hero .hero-text { flex: 1 1 auto !important; max-width: none !important; padding: 0 !important; }
+.hero-kicker { font-size: 7.5pt !important; letter-spacing: 0.12em !important; text-transform: uppercase !important; color: #86613c !important; margin: 0 0 1.5mm !important; white-space: normal !important; }
+.hero-title { font-size: 26pt !important; line-height: 1.05 !important; margin: 0 0 2mm !important; letter-spacing: -0.01em !important; }
+.hero-title .name-prefix, .hero-title .name-main { display: inline !important; font-size: inherit !important; }
+.hero-title .name-prefix::after { content: " "; }
+.hero-tagline { font-size: 11pt !important; line-height: 1.35 !important; color: #5e4b3f !important; margin: 0 !important; max-width: none !important; }
+.hero-portrait { flex: 0 0 26mm !important; width: 26mm !important; max-width: 26mm !important; margin: 0 !important; transform: none !important; }
+.hero-portrait .portrait-frame { width: 26mm !important; height: auto !important; border-radius: 3mm !important; overflow: hidden !important; margin: 0 !important; padding: 0 !important; background: none !important; border: 0 !important; aspect-ratio: auto !important; }
+.hero-portrait figure { margin: 0 !important; }
+.hero-portrait img { width: 26mm !important; height: auto !important; border-radius: 3mm !important; display: block !important; }
+
+/* at-a-glance numbers as one quiet row */
+.hero-stats, html body .hero-stats {
+  display: flex !important; flex-wrap: nowrap !important; justify-content: space-between !important; gap: 3mm !important;
+  margin: 0 0 3.5mm !important; padding: 2mm 0 !important;
+  background: none !important; border: 0 !important; border-top: 0.6pt solid #d9c4ae !important; border-bottom: 0.6pt solid #d9c4ae !important; border-radius: 0 !important; box-shadow: none !important;
+}
+.hero-stats .stat { flex: 1 1 0 !important; padding: 0 !important; margin: 0 !important; text-align: left !important; min-width: 0 !important; }
+.hero-stats .stat-link { color: inherit !important; }
+.hero-stats .stat-number { display: block !important; font-family: "Fraunces", Georgia, serif !important; font-size: 14pt !important; line-height: 1.1 !important; color: #a04a0d !important; }
+.hero-stats [data-count] { font-size: 0 !important; }
+.hero-stats [data-count]::before { content: attr(data-count); font-size: 14pt; }
+.hero-stats .stat-label { display: block !important; font-size: 7pt !important; letter-spacing: 0.04em !important; text-transform: uppercase !important; color: #5e4b3f !important; margin: 0.5mm 0 0 !important; }
+
+/* bio: lead + interests full width, then sections in two columns */
+.about-bio { columns: 2 !important; column-gap: 8mm !important; column-fill: balance !important; margin: 0 !important; }
+.about-bio > p { column-span: all; margin: 0 0 1.8mm !important; font-size: 10pt !important; max-width: none !important; }
+.about-bio > p.lead, .about-bio .lead { font-size: 10.5pt !important; line-height: 1.4 !important; font-weight: 400 !important; color: #1f1712 !important; }
+.about-bio > p:last-of-type { margin-bottom: 2.5mm !important; }
+.about-bio h3 { font-size: 12.5pt !important; margin: 0 0 1.2mm !important; padding-top: 1.6mm !important; break-after: avoid; }
+.about-bio h3 a { color: inherit !important; }
+.about-bio h3::after, .about-bio h3 a::after { content: none !important; }
+.about-bio > p + h3 { padding-top: 0 !important; }
+.about-bio ul { margin: 0 0 1.8mm !important; padding-left: 3.6mm !important; }
+.about-bio li { margin: 0 0 0.8mm !important; font-size: 9.5pt !important; line-height: 1.38 !important; break-inside: avoid; }
+.about-bio strong { font-weight: 600 !important; }
+
+/* selected publications: title, URL, authors, venue */
+.about-section { margin: 3mm 0 0 !important; padding: 0 !important; break-inside: avoid; }
+.about-section .section-heading { font-size: 12.5pt !important; margin: 0 0 1.2mm !important; padding: 0 !important; border: 0 !important; }
+.about-section .section-heading a { color: inherit !important; }
+.about-section .section-heading a::after { content: none !important; }
+.about-section .publications, .publications ol.bibliography { margin: 0 !important; padding: 0 !important; list-style: none !important; }
+.about-section .publications > h2.bibliography, .about-section .publications .year { display: none !important; }
+html body .publications ol.bibliography > li {
+  box-shadow: none !important;
+  background: none !important; border: 0 !important; border-radius: 0 !important; padding: 0 !important; margin: 0 0 2mm !important; break-inside: avoid;
+}
+.publications .row > [class*="col"] { max-width: 100% !important; flex: 0 0 100% !important; padding: 0 !important; }
+.publications .title { font-family: "Fraunces", Georgia, serif !important; font-size: 10pt !important; line-height: 1.3 !important; font-weight: 400 !important; margin: 0 !important; }
+.publications .title a::after {
+  content: "  " attr(href);
+  font-family: "Inter", system-ui, sans-serif; font-size: 7pt; color: #a04a0d; letter-spacing: 0; word-break: break-all;
+}
+.publications .author, .publications .periodical { font-size: 8.5pt !important; line-height: 1.3 !important; color: #5e4b3f !important; margin: 0 !important; }
+.publications .periodical + .periodical { display: none !important; }
+.publications .more-authors { border: 0 !important; text-decoration: none !important; color: inherit !important; }
+.publications .author em { font-style: normal !important; font-weight: 600 !important; color: #1f1712 !important; }
+
+/* contact: email, profile URLs, address, QR to the site */
+.about-page .social { display: grid !important; grid-template-columns: 1fr auto auto !important; align-items: start !important; gap: 0 6mm !important; padding: 2.5mm 0 0 !important; margin: 2.5mm 0 0 !important; border-top: 0.6pt solid #d9c4ae !important; break-inside: avoid; }
+.contact-links { display: block !important; margin: 0 !important; padding: 0 !important; }
+.contact-links li { display: block !important; margin: 0 0 0.4mm !important; padding: 0 !important; line-height: 1.4 !important; white-space: nowrap; }
+.contact-links a { font-family: "Inter", system-ui, sans-serif !important; font-size: 8.5pt !important; color: #1f1712 !important; }
+.contact-links a::after { content: none !important; }
+.contact-links a[href^="http"]::after { content: "  " attr(href) !important; font-size: 7pt !important; color: #5e4b3f !important; margin: 0 !important; }
+.contact-links a[href^="mailto:"] { font-weight: 600 !important; }
+.social .contact-address { font-size: 8.5pt !important; line-height: 1.4 !important; color: #5e4b3f !important; margin: 0 !important; }
+.social .contact-address p { white-space: nowrap; margin: 0 !important; font-size: 8.5pt !important; line-height: 1.4 !important; }
+html body .contact-kit { display: block !important; box-shadow: none !important; background: none !important; border: 0 !important; padding: 0 !important; margin: 0 !important; }
+.contact-kit .kit-main { display: none !important; }
+.contact-kit .kit-qr { display: block !important; margin: 0 !important; text-align: center !important; }
+.contact-kit .kit-qr img { width: 19mm !important; height: 19mm !important; padding: 0 !important; background: none !important; }
+.contact-kit .kit-qr figcaption { font-size: 6.5pt !important; margin: 0.6mm 0 0 !important; color: #5e4b3f !important; }
+.contact-kit .kit-qr figcaption::after { content: "\A anujkumarsharma1.github.io/prof-vaishali-ingale"; white-space: pre; }
+
+/* ==========================================================================
+   /cv/  →  clean multi-page print (no nav, no sidebar, flat cards)
+   ========================================================================== */
+html body .col-sm-3:has(#toc-sidebar) { display: none !important; }
+html body .post-header { margin: 0 0 2mm !important; padding: 0 !important; }
+html body .post-header .post-title { font-size: 24pt !important; line-height: 1.1 !important; margin: 0 0 1mm !important; }
+html body .post-header .post-description, html body .post-header p { font-size: 9.5pt !important; color: #5e4b3f !important; margin: 0 0 3mm !important; }
+html body .cv .card, html body .cv .card.mt-3 {
+  box-shadow: none !important;
+  background: none !important; border: 0 !important; border-top: 0.6pt solid #d9c4ae !important; border-radius: 0 !important;
+  padding: 2.5mm 0 1mm !important; margin: 0 0 1.5mm !important; display: block !important; break-inside: auto !important; page-break-inside: auto !important;
+}
+html body .cv .card-title { font-size: 13pt !important; line-height: 1.2 !important; margin: 0 0 1.5mm !important; break-after: avoid; }
+html body .cv, html body .cv .card-text, html body .cv .list-group-item { font-size: 9.5pt !important; line-height: 1.4 !important; }
+html body .cv .card * { font-size: 9.5pt !important; line-height: 1.4 !important; }
+html body .cv .card .card-title { font-size: 13pt !important; line-height: 1.2 !important; }
+html body .cv .card h4, html body .cv .card h5, html body .cv .card h6, html body .cv .card .title { font-family: "Fraunces", Georgia, serif !important; font-size: 10.5pt !important; margin: 0 !important; }
+html body .cv .card .badge, html body .cv .card .date-column, html body .cv .card .date-column * { font-size: 8pt !important; }
+html body .cv ul.items { margin: 0.8mm 0 0 !important; padding-left: 4mm !important; }
+html body .cv ul.items li { margin: 0 0 0.5mm !important; padding: 0 !important; }
+.cv .list-group-item { background: none !important; border: 0 !important; padding: 0.8mm 0 !important; break-inside: auto !important; }
+.cv .list-group-item ul li, .cv .items li { break-inside: avoid; }
+html body .cv .row { display: flex !important; flex-wrap: nowrap !important; break-inside: auto !important; }
+html body .cv .row > .col-md-2 { flex: 0 0 24mm !important; max-width: 24mm !important; padding: 0 2mm 0 0 !important; text-align: left !important; }
+html body .cv .row > .col-md-10 { flex: 1 1 auto !important; max-width: none !important; padding: 0 !important; margin: 0 !important; }
+.cv .date-column, .cv .col-md-2 { font-size: 8pt !important; color: #86613c !important; }
+.cv .badge { background: none !important; color: #86613c !important; border: 0.5pt solid #d9c4ae !important; font-weight: 500 !important; }
+.cv a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 7pt; color: #5e4b3f; word-break: break-all; }
+html body .cv .card, html body .cv .card.mt-3 { margin-top: 0 !important; }
+html body .cv .card > div, html body .cv .list-group, html body .cv .card-text { margin: 0 !important; padding: 0 !important; }
+html body .cv .card .list-group-item + .list-group-item { margin-top: 0.6mm !important; }
+html body .cv .card p { margin: 0 0 0.6mm !important; }
