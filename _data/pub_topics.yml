@@ -1,0 +1,34 @@
+# Topic map for the Publications filter chips. Keyed by bib key in _bibliography/papers.bib.
+# Topics follow the research list on /about/. Assigned from titles only; if a title is ambiguous, it is "other".
+# Chip counts are computed from this map at build time. Adding a paper: add its bib key here with one topic id.
+topics:
+  - id: satellite
+    label: Satellite images
+  - id: medical
+    label: Medical images
+  - id: language
+    label: Language
+  - id: security
+    label: Security
+  - id: other
+    label: Other
+
+papers:
+  sapkal2026automatic: satellite
+  ekbote2025diffusion: other
+  patil2025designing: security
+  maan2024classification: medical
+  singh2023cloud: satellite
+  singh2022smart: other
+  ingale2021image: satellite
+  ingale2021music: other
+  ingale2020gennet: language
+  ingale2019datasets: language
+  jhinkwan2019object: other
+  kumar2018headline: language
+  ingale2015deportation: other
+  ingale2015survey: security
+  yadav2014cryptographic: security
+  patil2013configuration: other
+  desai2013porting: other
+  jain2013kunal: security

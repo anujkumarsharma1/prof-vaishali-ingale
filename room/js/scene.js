@@ -1,5 +1,13 @@
-/* The office, built from simple shapes. No external models.
-   Three.js (MIT) draws it, GSAP moves the camera. */
+/* The office, built from simple shapes. Three.js (MIT) draws it, GSAP moves the camera.
+   Optional imported props (js/props.js, role P) are attached through o.props.attach(ctx): see
+   /workspace/site_build/v3/HOOK_P.md. Room metres: x -2.4..2.4 (left wall has the window),
+   z -2.4 (back wall) .. 2.6 (front wall with the door), y 0..2.8. Anchors (fixed, ctx.anchors):
+     chalkboard  ( 1.98, 0,    -1.05)  rotY -1.15  floor, beside the bookshelf, facing the room/door
+     plant       (-2.33, 0.90, -1.60)  rotY  0     windowsill top (sill is 0.16 m deep, x -2.45..-2.29)
+     clock       ( 0.00, 2.47,  2.59)  rotY  PI    front wall above the door, face toward -z (into the room)
+     lamp        (-0.86, 0.75, -2.16)  rotY  0     desk top where the code-built lamp stands (named.lamp)
+     floor       ( 0.00, 0.00,  0.10)  rotX -PI/2  centre of the 4.8 x 5.0 m floor plane (named.floor)
+     shelfTop    ( 1.42, 1.92, -2.23)  rotY  0     top board of the bookshelf (0.92 x 0.32 m) */
 import * as THREE from '../vendor/three.module.min.js';
 import { RoundedBoxGeometry } from '../vendor/RoundedBoxGeometry.js';
 import { RoomEnvironment } from '../vendor/RoomEnvironment.js';
@@ -478,8 +486,8 @@ export async function createScene(container, o) {
   const look = { yaw: 0, pitch: 0, gy: 0, gp: 0 };
   const par = { x: 0, y: 0, gx: 0, gy: 0 };
   const view = new THREE.Vector3();
-  let state = 'intro', active = true, dirty = true, moving = 0, raf = 0, prevNow = 0, lastRender = 0, renders = 0;
-  let introTl = null, measuring = !!o.strictPerf, tuned = false;
+  let state = 'loading', active = true, dirty = true, moving = 0, raf = 0, prevNow = 0, lastRender = 0, renders = 0;
+  let introTl = null, measuring = !!o.strictPerf, tuned = false, game = null;
   const frameTimes = [];
 
   function setCam(pose) { cam.p.copy(pose.p); cam.t.copy(pose.t); dirty = true; }
@@ -511,6 +519,8 @@ export async function createScene(container, o) {
         par.x += d1 * k; par.y += d2 * k; look.yaw += d3 * k * 1.6; look.pitch += d4 * k * 1.6; dirty = true;
       }
     }
+    if (hiddenQueue.length && roomHidden()) flushHidden();
+    if (game) { game.render(now); renders++; measure(now); lastRender = now; return; }
     const living = state === 'intro' || state === 'room' || state === 'moving';
     // camera moves render every frame; the room's quiet life renders at about 30 fps
     if (!(dirty || moving || (living && now - lastRender > 32))) return;
@@ -518,16 +528,19 @@ export async function createScene(container, o) {
     apply();
     renderer.render(scene, camera);
     renders++; dirty = false;
-    if (measuring && lastRender) {
-      frameTimes.push(now - lastRender);
-      if (frameTimes.length === 20) {
-        const avg = frameTimes.slice(4).reduce((a, b) => a + b, 0) / 16;
-        frameTimes.length = 0;
-        if (avg > 30 && !tuned && renderer.getPixelRatio() > 1) { tuned = true; renderer.setPixelRatio(1); }
-        else { measuring = false; if (avg > 42 && o.onSlow) o.onSlow(avg); }
-      }
-    }
+    measure(now);
     lastRender = now;
+  }
+  // the fps guard: 20 frames; first drop to 1x pixels, then hand the visitor the 2D desk
+  function measure(now) {
+    if (!measuring || !lastRender) return;
+    frameTimes.push(now - lastRender);
+    if (frameTimes.length === 20) {
+      const avg = frameTimes.slice(4).reduce((a, b) => a + b, 0) / 16;
+      frameTimes.length = 0;
+      if (avg > 30 && !tuned && renderer.getPixelRatio() > 1) { tuned = true; renderer.setPixelRatio(1); }
+      else { measuring = false; if (avg > 42 && o.onSlow) o.onSlow(avg); }
+    }
   }
 
   function tweenTo(pose, dur, ease, via) {
@@ -546,7 +559,8 @@ export async function createScene(container, o) {
   }
 
   /* ---------- the intro: one GSAP timeline ---------- */
-  function buildIntro(short, onFill) {
+  let fillAt = 0;
+  function buildIntro(short, onFill, tight) {
     const seat = seatedPose(), cover = coverPose();
     const tl = gsap.timeline({ paused: true, onUpdate() { dirty = true; } });
     const k = { v: 0 }, b = { v: SLEEP };
@@ -558,7 +572,28 @@ export async function createScene(container, o) {
     };
     const T = (v, at, dur, ease = 'sine.inOut') => tl.to(cam.t, { ...xyz(v), duration: dur, ease }, at);
     const Pp = (v, at, dur, ease = 'sine.inOut') => tl.to(cam.p, { ...xyz(v), duration: dur, ease }, at);
-    if (!short) {
+    if (tight && !short) {
+      // after the game: about 7.5 s. Door, bookshelf, chalkboard, photo, sit, screen fill
+      const inside = V(0.4, 1.6, 1.5);
+      const board = anchors.chalkboard.position.clone().add(V(0, 1.0, 0));
+      const curve = new THREE.CatmullRomCurve3([P.door.p.clone(), P.via.clone(), inside], false, 'centripetal');
+      tl.to(k, { v: 1, duration: 2.2, ease: 'power2.inOut', onUpdate() { curve.getPoint(k.v, cam.p); } }, 0);
+      T(V(0.2, 1.25, -1.4), 0, 1.6);
+      T(V(1.42, 1.12, -2.2), 1.5, 1.4);                      // the bookshelf
+      Pp(V(0.62, 1.57, 0.95), 2.2, 1.7);
+      T(board, 2.9, 1.0);                                     // the chalkboard beside it
+      T(photoPos, 3.9, 1.0, 'power2.inOut');                  // her photo on the desk
+      Pp(V(0.22, 1.44, -0.35), 3.9, 1.1, 'power2.inOut');
+      lidOpen(4.3, 1.1);
+      chairIn(4.4, 1.0);
+      Pp(V(-0.12, 1.42, -0.72), 5.0, 0.8, 'sine.in');         // approach the chair
+      T(seat.t, 4.9, 1.1);
+      Pp(seat.p, 5.8, 0.7, 'sine.out');                       // sit down
+      wake(6.0, 0.6);                                         // the screen wakes
+      Pp(cover.p, 6.5, 1.0, 'power2.inOut');                  // the screen fills the view
+      T(cover.t, 6.5, 1.0, 'power2.inOut');
+      fillAt = 7.2; tl.call(onFill, null, 7.2);
+    } else if (!short) {
       const inside = V(0.35, 1.6, 1.45);
       const curve = new THREE.CatmullRomCurve3([P.door.p.clone(), P.via.clone(), inside], false, 'centripetal');
       tl.to(k, { v: 1, duration: 2.9, ease: 'power2.inOut', onUpdate() { curve.getPoint(k.v, cam.p); } }, 0);  // dolly through the door
@@ -577,7 +612,7 @@ export async function createScene(container, o) {
       wake(9.0, 0.8);                                       // the screen wakes
       Pp(cover.p, 9.75, 1.2, 'power2.inOut');               // the screen fills the view
       T(cover.t, 9.75, 1.2, 'power2.inOut');
-      tl.call(onFill, null, 10.6);
+      fillAt = 10.6; tl.call(onFill, null, 10.6);
     } else {
       const inside = V(0.0, 1.5, 1.0);
       const curve = new THREE.CatmullRomCurve3([P.door.p.clone(), P.via.clone(), inside], false, 'centripetal');
@@ -593,7 +628,7 @@ export async function createScene(container, o) {
       wake(4.15, 0.6);
       Pp(cover.p, 4.65, 0.95, 'power2.inOut');
       T(cover.t, 4.65, 0.95, 'power2.inOut');
-      tl.call(onFill, null, 5.35);
+      fillAt = 5.35; tl.call(onFill, null, 5.35);
     }
     return tl;
   }
@@ -665,6 +700,40 @@ export async function createScene(container, o) {
   el.addEventListener('pointercancel', () => { drag = null; el.classList.remove('is-dragging'); });
   el.addEventListener('pointerleave', () => { if (!drag) { par.gx = par.gy = 0; } o.onHover && o.onHover(null); });
 
+  /* ---------- props hook (role P): fixed anchors, named objects, pickables ---------- */
+  const anchor = (name, x, y, z, ry = 0, rx = 0) => {
+    const g = new THREE.Group(); g.name = 'anchor:' + name; g.position.set(x, y, z); g.rotation.set(rx, ry, 0); scene.add(g); return g;
+  };
+  const anchors = {
+    chalkboard: anchor('chalkboard', 1.98, 0, -1.05, -1.15),
+    plant: anchor('plant', R.x0 + 0.07, W.y0, -1.6),
+    clock: anchor('clock', 0, 2.47, R.z1 - 0.01, Math.PI),
+    lamp: anchor('lamp', lamp.position.x, lamp.position.y, lamp.position.z),
+    floor: anchor('floor', 0, 0, (R.z0 + R.z1) / 2, 0, -Math.PI / 2),
+    shelfTop: anchor('shelfTop', shelf.position.x, SH.h, shelf.position.z)
+  };
+  lamp.name = 'lamp'; floor.name = 'floor'; frame.name = 'photo'; plant.name = 'floorPlant'; notebook.name = 'notebook';
+  const named = {
+    lamp, floor, shelf, laptop, photo: frame, notebook, floorPlant: plant,
+    shelfTop: anchors.shelfTop, windowSill: anchors.plant, doorWall: anchors.clock, chalkboard: anchors.chalkboard
+  };
+  // props may only change what is on camera while the room is hidden (game, loading, or the desk covering it)
+  const hiddenQueue = [];
+  const roomHidden = () => state === 'game' || state === 'desk' || state === 'loading';
+  function whenHidden(fn) { if (roomHidden()) { fn(); dirty = true; } else hiddenQueue.push(fn); }
+  function flushHidden() { while (hiddenQueue.length) { try { hiddenQueue.shift()(); } catch (e) { console.warn(e); } } dirty = true; }
+  const propsCtx = {
+    THREE, scene, renderer, camera, named, anchors, phone, PAL, maxAniso,
+    addPickable(obj, folder, label) { pickables.push({ obj, folder: folder || null, label: label || null }); },
+    invalidate() { dirty = true; },
+    whenHidden
+  };
+  let propsReady = Promise.resolve(null);
+  if (o.props && typeof o.props.attach === 'function') {
+    try { propsReady = Promise.resolve(o.props.attach(propsCtx)).catch(e => { console.warn('props:', e && e.message); return null; }); }
+    catch (e) { console.warn('props:', e && e.message); }
+  }
+
   /* ---------- first frame ---------- */
   camera.aspect = container.clientWidth / container.clientHeight;
   pickPoses();
@@ -675,34 +744,59 @@ export async function createScene(container, o) {
   o.onProgress && o.onProgress(1);
   raf = requestAnimationFrame(loop);
 
-  let introLen = 0;
+  let introLen = 0, introFill = 0;
+  let gameWanted = false;
+  function endGame() { gameWanted = false; if (game) { const g = game; game = null; g.dispose(); dirty = true; } }
   return {
     get state() { return state; },
     get renders() { return renders; },
     get calls() { return renderer.info.render.calls; },
     /* plays the intro; resolves when it has ended or been skipped. onFill fires when the screen fills the view */
-    intro(short, onFill) {
+    intro(short, onFill, opts) {
+      const fromGame = !!(opts && opts.fromGame);
+      endGame();
       state = 'intro';
       if (reduced || !gsap) { finalDeskState(); state = 'desk'; onFill && onFill(); return Promise.resolve(); }
+      if (fromGame) { setCam(P.door); measuring = !!o.strictPerf; frameTimes.length = 0; lastRender = 0; }
       return new Promise(resolve => {
         let filled = false;
         const fill = () => { if (!filled) { filled = true; onFill && onFill(); } };
-        introTl = buildIntro(short, fill);
-        introLen = introTl.duration();
+        introTl = buildIntro(short, fill, fromGame);
+        // after the game the phone picks up the short walk-in at the photo (its t = 2.3 s)
+        const from = fromGame && short ? 2.3 : 0;
+        introLen = introTl.duration() - from;
+        introFill = fillAt - from;
         introTl.eventCallback('onComplete', () => { state = 'desk'; measuring = false; introTl = null; fill(); resolve(); });
-        introTl.play(0);
+        introTl.play(from);
       });
     },
+    /* "Teach the model" (js/intro-game.js), drawn with this renderer while the room waits behind it */
+    async playGame(g) {
+      gameWanted = true;
+      const m = await import('./intro-game.js');
+      if (!gameWanted || !active && state !== 'loading') return null;   // skipped (or 2D) while the module loaded
+      game = m.createGame({
+        THREE, renderer, gsap, phone, touch: g.touch, ui: g.ui, labels: g.labels, title: g.title, tagline: g.tagline,
+        onStep: g.onStep, onPlay: g.onPlay, onDone: g.onDone
+      });
+      state = 'game';
+      frameTimes.length = 0; lastRender = 0;
+      if (!active) this.resume();
+      game.start();
+      return game;
+    },
+    get game() { return game; },
     get introDuration() { return introLen; },
+    get introFill() { return introFill; },   // seconds from the start of the walk-in until the desk fades in
     /* test hook: hold the intro at t seconds (used to record still frames on slow software GL) */
     holdIntro(t) { if (introTl) { introTl.pause(); introTl.seek(Math.min(t, introTl.duration() - 0.5), false); ambient(t); apply(); renderer.render(scene, camera); renders++; } },
     playIntro() { if (introTl) introTl.play(); },
     skipIntro() {
-      if (!introTl) return;
-      const tl = introTl; tl.progress(1, false); tl.kill();
-      finalDeskState(); state = 'desk'; dirty = true;
+      endGame();
+      if (introTl) { const tl = introTl; tl.progress(1, false); tl.kill(); introTl = null; }
+      finalDeskState(); state = 'desk'; measuring = false; dirty = true;
     },
-    jumpDesk() { finalDeskState(); state = 'desk'; apply(); renderer.render(scene, camera); },
+    jumpDesk() { endGame(); finalDeskState(); state = 'desk'; apply(); renderer.render(scene, camera); },
     stand() {
       state = 'moving';
       return tweenTo(P.stand, 1.8, 'power2.inOut', V(0.1, 1.35, -0.55)).then(() => { state = 'room'; });
@@ -717,6 +811,7 @@ export async function createScene(container, o) {
     resume() { if (!active) { active = true; dirty = true; prevNow = 0; lastRender = 0; raf = requestAnimationFrame(loop); } },
     dispose() {
       active = false; cancelAnimationFrame(raf);
+      endGame();
       if (introTl) introTl.kill();
       window.removeEventListener('resize', onResize);
       scene.traverse(n => { if (n.geometry) n.geometry.dispose(); });
