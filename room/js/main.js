@@ -26,11 +26,15 @@
   $('loader-label').textContent = C.loadingLabel;
 
   var mode = 'pending', reason = '', scene = null, state = 'loading';
+  // intro timing on the GSAP clock (what a visitor's screen shows, independent of test-machine speed)
+  var timing = { game: 0, fade: 0, walk: 0, total: 0 };
   // read-only status for the automated tests
   window.__room = {
     get mode() { return mode; }, get state() { return state; }, get reason() { return reason; },
     get renders() { return scene ? scene.renders : 0; }, get calls() { return scene ? scene.calls : 0; },
     get introDuration() { return scene ? scene.introDuration : 0; },
+    get timing() { return timing; },
+    get game() { return scene && scene.game ? { phase: scene.game.phase, step: scene.game.step, steps: scene.game.steps } : null; },
     hold: function (t) { if (scene && state === 'intro') scene.holdIntro(t); }   // test hook for still frames
   };
 
@@ -50,7 +54,9 @@
   // persona fix 1: the intro plays once per session; returning visitors (same session, or coming
   // from one of the site's own pages) go straight to the desk through the deep-link path
   var INTRO_KEY = 'vsi-intro';
+  if (q.has('intro')) { try { sessionStorage.removeItem('vsi-intro'); } catch (e) { /* storage blocked */ } }
   function introSeen() {
+    if (q.has('intro')) return false;   // testing: always play the intro
     try { if (sessionStorage.getItem(INTRO_KEY)) return true; } catch (e) { /* storage blocked */ }
     try {
       var base = new URL(SITE, location.href).href;
@@ -91,6 +97,7 @@
   function start2D(r) {
     var was = state;
     uncornerName();
+    restoreSkip();
     mode = '2d'; reason = r || reason; state = 'desktop';
     if (scene) { try { scene.dispose(); } catch (e) { /* already gone */ } scene = null; }
     stage.innerHTML = '';
@@ -138,7 +145,7 @@
           phone: phone, reduced: reduced, strictPerf: !q.has('3d'),
           portrait: ROOM + 'assets/portrait.webp',
           onProgress: function (p) { progress(0.7 + p * 0.3); },
-          onSlow: function () { if (state === 'intro' || state === 'room') start2D('slow'); },
+          onSlow: function () { if (state === 'intro' || state === 'game' || state === 'room') start2D('slow'); },
           onHover: onHover, onPick: onPick, onIntroPoke: offerSkip
         });
       })
@@ -147,16 +154,72 @@
         clearTimeout(timer);
         scene = s;
         if (early) { scene.jumpDesk(); scene.pause(); D.setOffice(true); return; }
-        state = 'intro';
         hideLoader(true);
         skipIntroBtn.hidden = false;
         requestAnimationFrame(function () { skipIntroBtn.classList.add('is-on'); });
-        return scene.intro(phone, function () { toDesk(); });
+        return startGame();
       })
       .catch(function (e) {
         clearTimeout(timer);
         if (!failed) start2D('error: ' + (e && e.message ? e.message : 'unknown'));
       });
+  }
+
+  /* ---------- "Teach the model": the intro game, then the shortened walk-in ---------- */
+  var gameUI = $('game-ui'), veil = $('veil'), skipHome = skipIntroBtn.parentNode, skipNext = skipIntroBtn.nextSibling;
+  function researchLabels() {
+    var f = C.folders.filter(function (x) { return x.id === 'research'; })[0];
+    var items = [];
+    ((f && f.sections) || []).forEach(function (s) { (s.items || []).forEach(function (i) { items.push(typeof i === 'string' ? i : i.b); }); });
+    if (phone) {
+      // phone: the image areas are named together ("Satellite images" + "Medical images" -> "Images")
+      var img = items.filter(function (t) { return / images$/i.test(t); });
+      if (img.length > 1) items = ['Images'].concat(items.filter(function (t) { return !/ images$/i.test(t); }));
+    }
+    var n = phone ? 4 : 6, out = [null];   // step 1 has no label
+    for (var i = 0; i < n - 1; i++) out.push(items[i] || null);
+    return out;
+  }
+  function tagline() {
+    // "Machine learning, image analysis and information security. …" -> "Machine learning · Image analysis · Information security"
+    var first = String(C.tagline || C.subtitle || '').split('. ')[0].replace(/\.$/, '');
+    return first.split(/,\s*|\s+and\s+/).map(function (t) { t = t.trim(); return t.charAt(0).toUpperCase() + t.slice(1); }).filter(Boolean).join(' \u00b7 ');
+  }
+  function restoreSkip() { if (skipIntroBtn.parentNode !== skipHome) skipHome.insertBefore(skipIntroBtn, skipNext); skipIntroBtn.classList.remove('in-game'); }
+  function startGame() {
+    state = 'game';
+    var g0 = window.gsap ? window.gsap.ticker.time : 0;
+    return scene.playGame({
+      ui: gameUI, touch: touch, labels: researchLabels(), tagline: tagline(),
+      title: (nameEl && nameEl.textContent) || C.name,
+      onPlay: function (btn) {
+        // Tab order: the step button, then Skip intro
+        btn.parentNode.insertBefore(skipIntroBtn, btn.nextSibling);
+        skipIntroBtn.classList.add('in-game');
+        if (!document.activeElement || document.activeElement === document.body || document.activeElement === stage) btn.focus({ preventScroll: true });
+      },
+      onDone: function (info) {
+        if (state !== 'game') return;
+        timing.game = info.game;
+        var G = window.gsap;
+        G.to(veil, { opacity: 1, duration: 0.25, ease: 'sine.inOut', onComplete: function () {
+          if (state !== 'game') { G.set(veil, { opacity: 0 }); return; }
+          restoreSkip();
+          state = 'intro';
+          var p = scene.intro(phone, function () { toDesk(); }, { fromGame: true });
+          timing.fade = 0.5; timing.walk = scene.introFill;
+          timing.total = timing.game + timing.fade + timing.walk;
+          G.to(veil, { opacity: 0, duration: 0.25, ease: 'sine.inOut' });
+          return p;
+        } });
+      }
+    }).then(function () { timing.start = g0; }).catch(function (e) {
+      // the game failed to load: play the walk-in on its own
+      console.warn('intro game:', e && e.message);
+      restoreSkip();
+      state = 'intro';
+      return scene.intro(phone, function () { toDesk(); });
+    });
   }
 
   function offerSkip() {
@@ -166,8 +229,11 @@
     setTimeout(function () { if (state === 'intro') skipIntroBtn.focus({ preventScroll: true }); }, 0);
   }
   function skipIntro() {
-    if (state !== 'intro' || !scene) return;
-    scene.skipIntro();   // fires toDesk through the intro's fill callback
+    if ((state !== 'intro' && state !== 'game') || !scene) return;
+    restoreSkip();
+    if (window.gsap) { window.gsap.killTweensOf(veil); window.gsap.set(veil, { opacity: 0 }); }
+    if (state === 'game') state = 'intro';
+    scene.skipIntro();   // ends the game, or fires toDesk through the intro's fill callback
     toDesk();
   }
 
@@ -227,6 +293,11 @@
   skipIntroBtn.addEventListener('click', skipIntro);
   document.addEventListener('keydown', function (e) {
     if (e.defaultPrevented) return;
+    if (state === 'game') {
+      // during the game, keys are game input (js/intro-game.js); Esc skips, Tab reaches Skip intro
+      if (e.key === 'Escape') { e.preventDefault(); skipIntro(); }
+      return;
+    }
     if (state === 'intro') {
       if (e.key === 'Escape') { e.preventDefault(); skipIntro(); }
       else if (e.key !== 'Tab' && document.activeElement !== skipIntroBtn) offerSkip();
