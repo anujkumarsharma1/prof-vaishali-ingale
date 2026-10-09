@@ -1,12 +1,14 @@
 /* "Teach the model" intro game overlay (js/intro-game.js). Matte, no glow. */
 .game-ui { position: fixed; inset: 0; z-index: 20; pointer-events: none; }
 .g-title {
-  position: absolute; left: 0; right: 0; top: 38%; transform: translateY(-50%);
-  text-align: center; padding: 0 24px; opacity: 0; transition: opacity 1s cubic-bezier(0.45, 0, 0.55, 1);
+  position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%);
+  width: max-content; max-width: calc(100% - 32px); box-sizing: border-box;
+  text-align: center; padding: 1.1rem 1.75rem 1rem; border-radius: 14px;
+  background: rgba(251, 244, 236, 0.84); /* subtle paper backing: tagline contrast over the surface */ opacity: 0; transition: opacity 1s cubic-bezier(0.45, 0, 0.55, 1);
 }
 .g-title.is-on { opacity: 1; }
 .g-name { margin: 0; font: 400 clamp(2.4rem, 1.6rem + 3.4vw, 4.4rem)/1.05 var(--serif); letter-spacing: -0.025em; color: var(--ink); font-variation-settings: 'opsz' 144; }
-.g-tag { margin: 0.9rem 0 0; font: 400 clamp(0.95rem, 0.9rem + 0.3vw, 1.125rem)/1.5 var(--sans); color: var(--ink-soft); letter-spacing: 0.01em; }
+.g-tag { margin: 0.9rem 0 0; font: 400 clamp(0.95rem, 0.9rem + 0.3vw, 1.125rem)/1.5 var(--sans); color: #4a3a30; letter-spacing: 0.01em; }
 .g-label {
   position: absolute; left: 0; top: 0; margin: 0; white-space: nowrap;
   padding: 0.3rem 0.7rem; border-radius: 999px; background: rgba(251, 244, 236, 0.88);

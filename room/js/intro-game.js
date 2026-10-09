@@ -3,7 +3,7 @@
    At the minimum the surface flattens into the office floor and the walk-in takes over.
    Renders with the room's WebGLRenderer into its own scene; no library beyond three and GSAP. */
 
-const SAND = '#efe2d1', CLAY = '#cc8d68', FLOOR = '#d8bd9b', BG = '#fbf4ec', BALL = '#a04a0d', TRAIL = '#7d5c45';
+const SAND = '#ecd6bd', CLAY = '#d09670', FLOOR = '#d8bd9b', BG = '#fbf4ec', BALL = '#a04a0d', TRAIL = '#8a4a22', LINE = '#a04a0d', MARK = '#5e4b3f';
 
 // the loss: a wide bowl with two soft hills; ripples fade out near the minimum so descent never stalls
 const MIN = { x: 1.3, z: -0.9 };
@@ -46,38 +46,54 @@ export function createGame(o) {
   /* ---------- scene ---------- */
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(BG);
-  scene.fog = new THREE.Fog(BG, phone ? 10 : 9, phone ? 20 : 18);
+  // haze only at the far periphery, so the surface itself stays crisp
+  scene.fog = new THREE.Fog(BG, phone ? 20 : 17, phone ? 36 : 31);
   const camera = new THREE.PerspectiveCamera(phone ? 52 : 38, 1, 0.1, 60);
-  scene.add(new THREE.HemisphereLight('#fff6ec', '#d6b596', 1.15));
-  const sun = new THREE.DirectionalLight('#ffe8d0', 1.6);
-  sun.position.set(-4, 7, 3.5);
+  // a low, gentle side light so the slopes read; no shadow maps (the ball has a contact shadow)
+  scene.add(new THREE.HemisphereLight('#fff6ec', '#c8a487', 0.8));
+  const sun = new THREE.DirectionalLight('#fff0e0', 2.3);
+  sun.position.set(-6, 4.2, 2.5);
   scene.add(sun, sun.target);
-  if (!phone) {
-    sun.castShadow = true;
-    sun.shadow.mapSize.set(1024, 1024);
-    Object.assign(sun.shadow.camera, { left: -6, right: 6, top: 6, bottom: -6, near: 1, far: 20 });
-    sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.03;
-  }
 
-  const SEG = phone ? 48 : 110, SIZE = 24;   // wide enough that the edges dissolve in the fog
+  const SEG = phone ? 88 : 150, SIZE = 46;   // wide enough that the edges dissolve in the far haze
   const geo = new THREE.PlaneGeometry(SIZE, SIZE, SEG, SEG);
   geo.rotateX(-Math.PI / 2);
   const pos = geo.attributes.position;
   const base = new Float32Array(pos.count);
   let hmax = 0;
   for (let i = 0; i < pos.count; i++) { base[i] = loss(pos.getX(i), pos.getZ(i)); hmax = Math.max(hmax, base[i]); }
+  geo.setAttribute('h0', new THREE.BufferAttribute(base, 1));
   const colors = new Float32Array(pos.count * 3);
   geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
   const cSand = new THREE.Color(SAND), cClay = new THREE.Color(CLAY), cFloor = new THREE.Color(FLOOR), tc = new THREE.Color();
-  const surfMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.85, metalness: 0 });
+  const surfMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.9, metalness: 0 });
+  // thin matte contour lines (isolines of the loss), about 1 px, fading where they would crowd
+  const lineU = { uLine: { value: 1 }, uLineColor: { value: new THREE.Color(LINE) }, uStep: { value: 0.12 }, uPx: { value: renderer.getPixelRatio() } };
+  surfMat.onBeforeCompile = sh => {
+    Object.assign(sh.uniforms, lineU);
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\nattribute float h0;\nvarying float vH0;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvH0 = h0;');
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\nvarying float vH0;\nuniform float uLine;\nuniform vec3 uLineColor;\nuniform float uStep;\nuniform float uPx;')
+      .replace('#include <color_fragment>', [
+        '#include <color_fragment>',
+        'float hh = vH0 / uStep;',
+        'float fw = max(fwidth(hh), 1e-4);',
+        'float dl = abs(fract(hh - 0.5) - 0.5) / fw;',
+        'float ln = 1.0 - smoothstep(0.35 * uPx, 0.35 * uPx + 1.0, dl);',
+        'ln *= 1.0 - smoothstep(0.18, 0.45, fw);',
+        'ln *= step(0.02, vH0);',
+        'diffuseColor.rgb = mix(diffuseColor.rgb, uLineColor, ln * uLine * 0.8);'
+      ].join('\n'));
+  };
   const surface = new THREE.Mesh(geo, surfMat);
-  surface.receiveShadow = !phone;
   scene.add(surface);
   let flat = 1;   // 1 = the loss surface, 0 = flat floor
   function shape(k) {
     for (let i = 0; i < pos.count; i++) {
       pos.setY(i, base[i] * k);
-      tc.copy(cSand).lerp(cClay, Math.pow(base[i] / hmax, 1.5)).lerp(cFloor, 1 - k);
+      tc.copy(cSand).lerp(cClay, Math.pow(base[i] / hmax, 1.2)).lerp(cFloor, 1 - k);
       colors[i * 3] = tc.r; colors[i * 3 + 1] = tc.g; colors[i * 3 + 2] = tc.b;
     }
     pos.needsUpdate = true; geo.attributes.color.needsUpdate = true;
@@ -104,14 +120,31 @@ export function createGame(o) {
 
   const R = phone ? 0.2 : 0.17;
   const ballMat = new THREE.MeshStandardMaterial({ color: BALL, roughness: 0.62, metalness: 0 });
-  const ball = new THREE.Mesh(new THREE.SphereGeometry(R, 24, 16), ballMat);
-  ball.castShadow = !phone;
+  const ball = new THREE.Mesh(new THREE.SphereGeometry(R, 32, 20), ballMat);
   scene.add(ball);
+  // soft contact shadow: a small radial blob laid on the surface under the ball
+  const blobC = document.createElement('canvas'); blobC.width = blobC.height = 64;
+  const bg = blobC.getContext('2d'), rg = bg.createRadialGradient(32, 32, 0, 32, 32, 32);
+  rg.addColorStop(0, 'rgba(60,32,16,0.55)'); rg.addColorStop(0.45, 'rgba(60,32,16,0.25)'); rg.addColorStop(1, 'rgba(60,32,16,0)');
+  bg.fillStyle = rg; bg.fillRect(0, 0, 64, 64);
+  const blobTex = new THREE.CanvasTexture(blobC);
+  const blobMat = new THREE.MeshBasicMaterial({ map: blobTex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2, fog: false });
+  const blob = new THREE.Mesh(new THREE.PlaneGeometry(R * 3.2, R * 3.2), blobMat);
+  scene.add(blob);
+  // the global minimum: a small matte ring with a dot
+  const markMat = new THREE.MeshStandardMaterial({ color: MARK, roughness: 1, transparent: true, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
+  const marker = new THREE.Group();
+  const ring = new THREE.Mesh(new THREE.RingGeometry(R * 1.35, R * 1.6, 48), markMat); ring.rotation.x = -Math.PI / 2;
+  const pip = new THREE.Mesh(new THREE.CircleGeometry(R * 0.28, 24), markMat); pip.rotation.x = -Math.PI / 2;
+  marker.add(ring, pip);
+  marker.position.set(MIN.x, loss(MIN.x, MIN.z) + 0.008, MIN.z);
+  scene.add(marker);
+  const nrm = new THREE.Vector3(), qb = new THREE.Quaternion(), zUp = new THREE.Vector3(0, 0, 1);
 
   // a faint dotted trail behind the ball
   const DOT_GAP = 0.24;
   const nDots = Math.floor(L / DOT_GAP);
-  const dotMat = new THREE.MeshStandardMaterial({ color: TRAIL, roughness: 1, transparent: true, opacity: 0.55 });
+  const dotMat = new THREE.MeshStandardMaterial({ color: TRAIL, roughness: 1, transparent: true, opacity: 0.6 });
   const dots = new THREE.InstancedMesh(new THREE.SphereGeometry(phone ? 0.04 : 0.032, 8, 6), dotMat, Math.max(1, nDots));
   dots.count = 0;
   scene.add(dots);
@@ -137,6 +170,12 @@ export function createGame(o) {
     const dx = ball.position.x - last.x, dz = ball.position.z - last.z, dist = Math.hypot(dx, dz);
     if (dist > 1e-5 && dist < 1) { axis.set(dz, 0, -dx).normalize(); q.setFromAxisAngle(axis, dist / R); ball.quaternion.premultiply(q); }
     last.copy(ball.position);
+    // contact shadow follows the slope under the ball
+    const g = grad(bp.x, bp.z);
+    nrm.set(-g[0] * flat, 1, -g[1] * flat).normalize();
+    qb.setFromUnitVectors(zUp, nrm);
+    blob.quaternion.copy(qb);
+    blob.position.set(bp.x, loss(bp.x, bp.z) * flat + 0.006, bp.z);
     dots.count = Math.min(dotXZ.length, Math.floor(prog.s / DOT_GAP));
   }
   placeBall();
@@ -229,7 +268,11 @@ export function createGame(o) {
     live.textContent = 'Model trained. Opening the office.';
     learned.classList.add('is-on');
     const k = { v: 1 };
-    gsap.to(k, { v: 0, duration: SETTLE, ease: 'power2.inOut', onUpdate() { flat = k.v; shape(k.v); placeDots(); } });
+    gsap.to(k, { v: 0, duration: SETTLE, ease: 'power2.inOut', onUpdate() {
+      flat = k.v; shape(k.v); placeDots();
+      lineU.uLine.value = k.v; markMat.opacity = k.v;
+      marker.position.y = loss(MIN.x, MIN.z) * k.v + 0.008;
+    } });
     gsap.to(cam, { height: cam.height + 1.6, dist: cam.dist * 0.82, duration: SETTLE, ease: 'power2.inOut' });
     gsap.to(dotMat, { opacity: 0, duration: SETTLE * 0.75, ease: 'sine.inOut' });
     later(SETTLE * 0.7, () => learned.classList.remove('is-on'));
@@ -308,8 +351,8 @@ export function createGame(o) {
       window.removeEventListener('pointermove', onMove);
       el.remove();
       scene.traverse(n => { if (n.geometry) n.geometry.dispose(); });
-      [surfMat, ballMat, dotMat].forEach(m => m.dispose());
-      if (sun.shadow && sun.shadow.map) sun.shadow.map.dispose();
+      [surfMat, ballMat, dotMat, blobMat, markMat].forEach(m => m.dispose());
+      blobTex.dispose();
     }
   };
 }
