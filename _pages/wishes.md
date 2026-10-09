@@ -6,6 +6,7 @@ description: A letter from the IT 2028 class.
 nav: false
 sitemap: false
 noindex: true
+show_memories: false
 ---
 
 <div class="wishes-page">
@@ -19,6 +20,7 @@ noindex: true
   <p class="wishes-from">With respect and affection,<br>IT 2028, Army Institute of Technology, Pune</p>
 </section>
 
+{% if page.show_memories %}
 <h2 class="section-title">Memories</h2>
 <div class="memories-grid">
   <figure class="memory-frame">
@@ -46,5 +48,6 @@ noindex: true
     <figcaption>10 October 2026</figcaption>
   </figure>
 </div>
+{% endif %}
 
 </div>
