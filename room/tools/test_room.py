@@ -107,7 +107,7 @@ async def desktop_3d(b):
     await state(pg, 'desktop')
     tm = await pg.evaluate('__room.timing')
     TIMINGS['desktop idle'] = tm
-    check('idle desktop: no input reaches the desk, total <= 22 s', 0 < tm['total'] <= 22 and tm['walk'] <= 8, f"game {tm['game']:.2f} + fade {tm['fade']} + walk-in {tm['walk']:.2f} = {tm['total']:.2f} s (GSAP clock); {time.time() - t0:.1f}s wall on software WebGL")
+    check('idle desktop: no input reaches the desk, total 15.5-18.5 s', 15.5 <= tm['total'] <= 18.5 and tm['walk'] <= 8, f"game {tm['game']:.2f} + fade {tm['fade']} + walk-in {tm['walk']:.2f} = {tm['total']:.2f} s (GSAP clock); {time.time() - t0:.1f}s wall on software WebGL")
     await asyncio.sleep(1.5)
     await pg.screenshot(path=str(SHOTS / 'd01_desktop_after_intro.png'))
     st = await pg.evaluate("[document.getElementById('os').classList.contains('is-full'), getComputedStyle(document.querySelector('.os-office')).display, document.querySelector('.os-office').textContent.trim()]")
@@ -157,16 +157,19 @@ async def skip_intro(b):
     await pg.goto(BASE + '?3d=1')
     await state(pg, 'game')
     await pg.wait_for_function("__room.game && __room.game.phase === 'play'")
-    # during the game a click is a step, not a skip offer; Tab order is the step button, then Skip intro
-    s0 = await pg.evaluate('__room.game.step')
+    # during the game a click speeds the ball up (no stop, no Skip offer); Tab reaches Skip intro
+    u0 = await pg.evaluate('__room.game.progress')
     await pg.mouse.click(720, 450)
-    await asyncio.sleep(0.5)
-    st = await pg.evaluate("[__room.state, __room.game && __room.game.step, document.getElementById('skip-intro').classList.contains('is-offered')]")
-    check('game: a click steps the model and does not offer Skip', st[0] == 'game' and st[1] == s0 + 1 and not st[2], st)
-    await pg.focus('.g-step')
-    await pg.keyboard.press('Tab')
-    fid = await pg.evaluate("document.activeElement.id")
-    check('game: Tab from the step button reaches Skip intro', fid == 'skip-intro', fid)
+    await asyncio.sleep(0.3)
+    st = await pg.evaluate("[__room.state, __room.game && __room.game.speed, __room.game && __room.game.progress, document.getElementById('skip-intro').classList.contains('is-offered'), document.querySelectorAll('.g-step').length]")
+    check('game: a click speeds the ball up, does not offer Skip, no step button', st[0] == 'game' and st[1] > 1.2 and st[2] > u0 and not st[3] and st[4] == 0, st)
+    await pg.evaluate('document.activeElement && document.activeElement.blur()')
+    fid = None
+    for _ in range(8):
+        await pg.keyboard.press('Tab')
+        fid = await pg.evaluate("document.activeElement.id")
+        if fid == 'skip-intro': break
+    check('game: Tab reaches Skip intro', fid == 'skip-intro', fid)
     await pg.screenshot(path=str(SHOTS / 'g05_skip_focused.png'))
     t0 = time.time()
     await pg.keyboard.press('Enter')
@@ -229,12 +232,12 @@ async def game_paced(b, w, h, mobile, n, gap, how, tag, lo, hi):
         if how == 'click': await pg.mouse.click(w * 0.5, h * 0.45)
         elif how == 'tap': await pg.tap('canvas')
         else: await pg.keyboard.press(how[i % len(how)])
-        steps.append(await pg.evaluate("__room.game ? __room.game.step : -1"))
+        steps.append(await pg.evaluate("__room.game ? Math.round(__room.game.progress * 100) : -1"))
     await state(pg, 'desktop', 150000)
     tm = await pg.evaluate('__room.timing')
     TIMINGS[tag] = tm
     check(f'{tag}: {n} inputs play the game to the desk, total {lo}-{hi} s', lo <= tm['total'] <= hi,
-          f"steps after each input {steps}; game {tm['game']:.2f} + fade {tm['fade']} + walk-in {tm['walk']:.2f} = {tm['total']:.2f} s")
+          f"progress % after each input {steps}; game {tm['game']:.2f} + fade {tm['fade']} + walk-in {tm['walk']:.2f} = {tm['total']:.2f} s")
     await ctx.close()
 
 async def game_mash(b):
@@ -245,13 +248,45 @@ async def game_mash(b):
     seen = []
     for i in range(30):
         await pg.mouse.click(700 + (i % 5) * 9, 420)
-        seen.append(await pg.evaluate("__room.game ? __room.game.step : 99"))
+        seen.append(await pg.evaluate("__room.game ? [__room.game.progress, __room.game.speed] : [2, 0]"))
     await state(pg, 'desktop', 150000)
     tm = await pg.evaluate('__room.timing')
     TIMINGS['mash'] = tm
-    mono = all(a <= b2 for a, b2 in zip(seen, seen[1:]))
-    check('mashing: 30 rapid clicks, steps never pass 6 or go back, game completes', mono and max(x for x in seen if x != 99) <= 6,
-          f'steps seen {sorted(set(seen))}; total {tm["total"]:.2f} s')
+    us = [x[0] for x in seen]
+    mono = all(a <= b2 for a, b2 in zip(us, us[1:]))
+    check('mashing: 30 rapid clicks, progress never goes back, speed <= 3x, game completes', mono and max(x[1] for x in seen) <= 3.01,
+          f'max speed {max(x[1] for x in seen):.2f}; total {tm["total"]:.2f} s')
+    await ctx.close()
+
+async def game_hold(b):
+    """Hold Space through the game: the fastest path (target about 11 s on desktop)."""
+    ctx, pg = await page_for(b, 1440, 900, label='hold')
+    await pg.goto(BASE + '?3d=1&intro')
+    await state(pg, 'game')
+    await pg.evaluate('document.activeElement && document.activeElement.blur()')
+    await pg.keyboard.down(' ')
+    await state(pg, 'intro', 150000)
+    await pg.keyboard.up(' ')
+    await state(pg, 'desktop', 150000)
+    tm = await pg.evaluate('__room.timing')
+    TIMINGS['desktop hold Space'] = tm
+    check('desktop: holding Space from the start reaches the desk in 10-12.5 s', 10 <= tm['total'] <= 12.5, f"game {tm['game']:.2f} + walk-in {tm['walk']:.2f} = {tm['total']:.2f} s")
+    await ctx.close()
+
+async def game_motion(b):
+    """Idle: the ball never stops (progress rises at every sample) and labels fade in and out on their own."""
+    ctx, pg = await page_for(b, 1440, 900, label='motion')
+    await pg.goto(BASE + '?3d=1&intro')
+    await state(pg, 'game')
+    await pg.wait_for_function("__room.game && __room.game.phase === 'play'")
+    t = await pg.evaluate('gsap.ticker.time')
+    us, labs = [], set()
+    for i in range(1, 12):
+        await gsap_at(pg, t + 0.45 * i)
+        r = await pg.evaluate("__room.game ? [__room.game.progress, document.querySelector('.g-label').classList.contains('is-on') ? document.querySelector('.g-label').textContent : ''] : [1, '']")
+        us.append(r[0]); labs.add(r[1])
+    moving = all(b2 > a for a, b2 in zip(us, us[1:]) if a < 1)
+    check('idle: the ball moves continuously (no stops) and labels fade in as it passes', moving and len(labs - {''}) >= 2, f'progress {[round(x, 3) for x in us]}; labels {sorted(labs - {""})}')
     await ctx.close()
 
 async def mobile_3d(b):
@@ -268,7 +303,7 @@ async def mobile_3d(b):
     await state(pg, 'desktop')
     tm = await pg.evaluate('__room.timing')
     TIMINGS['phone idle'] = tm
-    check('idle phone: no input reaches the desk, total <= 11 s', 0 < tm['total'] <= 11, f"game {tm['game']:.2f} + fade {tm['fade']} + walk-in {tm['walk']:.2f} = {tm['total']:.2f} s; {time.time() - t0:.1f}s wall")
+    check('idle phone: no input reaches the desk, total 7.5-9.5 s', 7.5 <= tm['total'] <= 9.5, f"game {tm['game']:.2f} + fade {tm['fade']} + walk-in {tm['walk']:.2f} = {tm['total']:.2f} s; {time.time() - t0:.1f}s wall")
     await asyncio.sleep(1.2)
     await pg.screenshot(path=str(SHOTS / 'm01_desktop.png'))
     for fid in ('about', 'research', 'publications', 'leadership'):
@@ -381,11 +416,13 @@ async def main():
         await desktop_3d(b)
         await skip_intro(b)
         await mobile_3d(b)
-        await game_paced(b, 1440, 900, False, 6, 1.2, 'click', 'desktop clicks (1 per 1.2 s)', 15, 20)
-        await game_paced(b, 1440, 900, False, 6, 0.7, ['Space'], 'desktop Space x6', 0, 20)
-        await game_paced(b, 1440, 900, False, 6, 0.7, ['ArrowDown', 'ArrowRight', 'Enter', 'Space', 'ArrowDown', 'ArrowRight'], 'desktop arrows and Enter', 0, 20)
-        await game_paced(b, 390, 844, True, 4, 0.6, 'tap', 'phone taps x4', 0, 10)
+        await game_paced(b, 1440, 900, False, 6, 1.2, 'click', 'desktop clicks (1 per 1.2 s)', 10, 16)
+        await game_paced(b, 1440, 900, False, 6, 0.7, ['Space'], 'desktop Space x6', 10, 15)
+        await game_paced(b, 1440, 900, False, 6, 0.7, ['ArrowDown', 'ArrowRight', 'Enter', 'Space', 'ArrowDown', 'ArrowRight'], 'desktop arrows and Enter', 10, 15)
+        await game_paced(b, 390, 844, True, 4, 0.6, 'tap', 'phone taps x4', 5, 8.5)
         await game_mash(b)
+        await game_hold(b)
+        await game_motion(b)
         await reduced(b)
         await deeplink(b)
         await fallback_default(b)
