@@ -34,7 +34,7 @@
     get renders() { return scene ? scene.renders : 0; }, get calls() { return scene ? scene.calls : 0; },
     get introDuration() { return scene ? scene.introDuration : 0; },
     get timing() { return timing; },
-    get game() { return scene && scene.game ? { phase: scene.game.phase, step: scene.game.step, steps: scene.game.steps } : null; },
+    get game() { return scene && scene.game ? { phase: scene.game.phase, step: scene.game.step, steps: scene.game.steps, progress: scene.game.progress, speed: scene.game.speed } : null; },
     hold: function (t) { if (scene && state === 'intro') scene.holdIntro(t); }   // test hook for still frames
   };
 
@@ -166,6 +166,8 @@
   }
 
   /* ---------- "Teach the model": the intro game, then the shortened walk-in ---------- */
+  // false: no game; the site plays the original walk-in intro instead
+  const INTRO_GAME = true;
   // the overlay and veil are in index.html; created here if an older root index lacks them
   function ensureEl(id, cls) { var e = $(id); if (!e) { e = document.createElement('div'); e.id = id; e.className = cls; if (id === 'veil') e.setAttribute('aria-hidden', 'true'); document.body.appendChild(e); } return e; }
   var gameUI = ensureEl('game-ui', 'game-ui'), veil = ensureEl('veil', 'veil'), skipHome = skipIntroBtn.parentNode, skipNext = skipIntroBtn.nextSibling;
@@ -189,31 +191,36 @@
   }
   function restoreSkip() { if (skipIntroBtn.parentNode !== skipHome) skipHome.insertBefore(skipIntroBtn, skipNext); skipIntroBtn.classList.remove('in-game'); }
   function startGame() {
+    if (!INTRO_GAME) { state = 'intro'; return scene.intro(phone, function () { toDesk(); }); }
     state = 'game';
     var g0 = window.gsap ? window.gsap.ticker.time : 0;
     return scene.playGame({
       ui: gameUI, touch: touch, labels: researchLabels(), tagline: tagline(),
       title: (nameEl && nameEl.textContent) || C.name,
-      onPlay: function (btn) {
-        // Tab order: the step button, then Skip intro
-        btn.parentNode.insertBefore(skipIntroBtn, btn.nextSibling);
+      onPlay: function (prompt) {
+        // Skip intro sits beside the prompt, and Tab reaches it
+        prompt.parentNode.insertBefore(skipIntroBtn, prompt.nextSibling);
         skipIntroBtn.classList.add('in-game');
-        if (!document.activeElement || document.activeElement === document.body || document.activeElement === stage) btn.focus({ preventScroll: true });
       },
       onDone: function (info) {
         if (state !== 'game') return;
         timing.game = info.game;
         var G = window.gsap;
-        G.to(veil, { opacity: 1, duration: 0.25, ease: 'sine.inOut', onComplete: function () {
-          if (state !== 'game') { G.set(veil, { opacity: 0 }); return; }
-          restoreSkip();
-          state = 'intro';
-          var p = scene.intro(phone, function () { toDesk(); }, { fromGame: true });
-          timing.fade = 0.5; timing.walk = scene.introFill;
-          timing.total = timing.game + timing.fade + timing.walk;
-          G.to(veil, { opacity: 0, duration: 0.25, ease: 'sine.inOut' });
-          return p;
-        } });
+        // no blank fade: the game's last frame (already eye level over the floor, still moving forward)
+        // dissolves into the walk-in, which starts moving at once
+        var shot = document.createElement('canvas'), src = info.last();
+        shot.width = src.width; shot.height = src.height;
+        shot.style.cssText = 'width:100%;height:100%;display:block';
+        try { shot.getContext('2d').drawImage(src, 0, 0); } catch (e) { /* tainted or lost context: plain veil */ }
+        veil.textContent = ''; veil.appendChild(shot);
+        G.set(veil, { opacity: 1 });
+        restoreSkip();
+        state = 'intro';
+        var p = scene.intro(phone, function () { toDesk(); }, { fromGame: true });
+        timing.fade = 0; timing.walk = scene.introFill;
+        timing.total = timing.game + timing.fade + timing.walk;
+        G.to(veil, { opacity: 0, duration: phone ? 0.45 : 0.6, ease: 'sine.inOut', onComplete: function () { veil.textContent = ''; } });
+        return p;
       }
     }).then(function () { timing.start = g0; }).catch(function (e) {
       // the game failed to load: play the walk-in on its own
@@ -233,7 +240,7 @@
   function skipIntro() {
     if ((state !== 'intro' && state !== 'game') || !scene) return;
     restoreSkip();
-    if (window.gsap) { window.gsap.killTweensOf(veil); window.gsap.set(veil, { opacity: 0 }); }
+    if (window.gsap) { window.gsap.killTweensOf(veil); window.gsap.set(veil, { opacity: 0 }); } veil.textContent = '';
     if (state === 'game') state = 'intro';
     scene.skipIntro();   // ends the game, or fires toDesk through the intro's fill callback
     toDesk();

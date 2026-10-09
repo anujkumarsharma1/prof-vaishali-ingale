@@ -577,7 +577,8 @@ export async function createScene(container, o) {
       const inside = V(0.4, 1.6, 1.5);
       const board = anchors.chalkboard.position.clone().add(V(0, 1.0, 0));
       const curve = new THREE.CatmullRomCurve3([P.door.p.clone(), P.via.clone(), inside], false, 'centripetal');
-      tl.to(k, { v: 1, duration: 2.2, ease: 'power2.inOut', onUpdate() { curve.getPoint(k.v, cam.p); } }, 0);
+      // after the game the camera is already gliding forward: start moving at once (no ease-in), then slow
+      tl.to(k, { v: 1, duration: 2.2, ease: 'power1.out', onUpdate() { curve.getPoint(k.v, cam.p); } }, 0);
       T(V(0.2, 1.25, -1.4), 0, 1.6);
       T(V(1.42, 1.12, -2.2), 1.5, 1.4);                      // the bookshelf
       Pp(V(0.62, 1.57, 0.95), 2.2, 1.7);
