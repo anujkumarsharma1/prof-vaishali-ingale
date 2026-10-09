@@ -716,6 +716,7 @@ figure.memory-frame {
 }
 
 figure.memory-frame picture { display: block; }
+figure.memory-frame:has(img.memory-photo) { align-self: start; }
 figure.memory-frame img.memory-photo { aspect-ratio: auto; height: auto; object-fit: contain; }
 
 figure.memory-frame:has(img.memory-placeholder) {
