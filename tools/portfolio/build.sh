@@ -9,4 +9,8 @@ JEKYLL="$(bundle exec ruby -e 'print Gem.bin_path("jekyll","jekyll")')"
 ARGS=()
 if [ -n "${DEST:-}" ]; then ARGS+=(--destination "$DEST" --disable-disk-cache); fi
 bundle exec ruby "$JEKYLL" build "${ARGS[@]}" "$@" 2>&1 | grep -vE '^\s+from |AlImgTools: Successfully copied|DEPRECATION WARNING' | tail -20
-test -f "${DEST:-_site}/about/index.html"
+# A front-matter typo silently drops a page while Jekyll still exits 0, so check every page landed.
+for p in about publications leadership awards cv news wishes; do
+  test -f "${DEST:-_site}/$p/index.html" || { echo "MISSING PAGE: $p" >&2; exit 1; }
+done
+test -f "${DEST:-_site}/404.html" || { echo "MISSING PAGE: 404" >&2; exit 1; }

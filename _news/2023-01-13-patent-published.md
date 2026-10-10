@@ -6,4 +6,4 @@ inline: true
 related_posts: false
 ---
 
-Patent application published: **"Interactive Shopping Experience Using Augmented Reality"** (India, No. 202221075977).
+**"Interactive Shopping Experience Using Augmented Reality"**, Indian application No. 202221075977.
