@@ -247,3 +247,14 @@
 <script defer src="{{ '/assets/lib/SplitText.min.js' | relative_url | bust_file_cache }}"></script>
 <script defer src="{{ '/assets/js/site.js' | relative_url | bust_file_cache }}"></script>
 <script defer src="{{ '/assets/js/motion.js' | relative_url | bust_file_cache }}"></script>
+<!-- v5 "loss landscape" layer (plan.md): chrome = nav, transitions, grain; home = hero field and home page; sections = leadership and awards -->
+<link rel="stylesheet" href="{{ '/assets/custom/chrome.css' | relative_url | bust_file_cache }}">
+<script defer src="{{ '/assets/js/chrome.js' | relative_url | bust_file_cache }}"></script>
+{% if page.layout == 'about' %}
+  <link rel="stylesheet" href="{{ '/assets/custom/home.css' | relative_url | bust_file_cache }}">
+  <script defer src="{{ '/assets/js/home.js' | relative_url | bust_file_cache }}"></script>
+{% endif %}
+{% if page.permalink == '/leadership/' or page.permalink == '/awards/' %}
+  <link rel="stylesheet" href="{{ '/assets/custom/sections.css' | relative_url | bust_file_cache }}">
+  <script defer src="{{ '/assets/js/sections.js' | relative_url | bust_file_cache }}"></script>
+{% endif %}

@@ -1,22 +1,24 @@
 # Career and leadership milestones, newest first. Every entry is taken from Vaishali_Ingale_Website_Data.md.
 - date: "2026-09"
   title: ICNDIA-2026
-  text: Conference Chair of the first edition of ICNDIA, an IEEE international conference hosted at AIT. 1,500+ submissions, 217 papers.
+  # Figures (1,500+ submissions, 217 papers) live on the ICNDIA card on /leadership/.
+  text: Conference Chair of the first ICNDIA, an IEEE international conference hosted at AIT.
   link: /leadership/#icndia-2026
 
 - date: "2026-04"
   title: Satellite imagery paper
-  text: Springer (icSoftComp 2025). Deep learning to map roads, water and terrain.
+  text: Deep learning for mapping roads, water and terrain (Springer, icSoftComp 2025).
   link: https://doi.org/10.1007/978-3-032-22065-3_26
 
 - date: "2025-02"
   title: Innerve 9.0
-  text: Faculty In-Charge. 9,500+ students, 2,500+ teams, ₹12 lakh prize pool.
+  # Figures (9,500+ students, 2,500+ teams, ₹12 lakh prize pool) live on the OSS Club card on /leadership/.
+  text: Faculty in-charge of the OSS Club's national hackathon.
   link: /leadership/#oss-club
 
 - date: "2024-12"
   title: Two first prizes at SIH
-  text: Mentored both AIT winning teams at Smart India Hackathon 2024.
+  text: Mentored both winning AIT teams at Smart India Hackathon 2024.
   link: /leadership/#sih-2024
 
 - date: "2023-03"
@@ -30,7 +32,7 @@
 
 - date: "2022-07"
   title: SPPU resource person
-  text: Deep Learning labs (2022) and Machine Learning labs (2021).
+  text: Deep Learning labs in 2022, Machine Learning labs in 2021.
 
 - date: "2020-01"
   title: CSI Paper Presenter Award
@@ -44,7 +46,8 @@
 
 - date: "2018"
   title: OSS Club
-  text: Listed as staff in-charge on AIT's clubs page, 2018–19 to 2022–23.
+  # Source: AIT's clubs page lists her as staff in-charge for 2018–19 to 2022–23.
+  text: Staff in-charge, 2018–19 to 2022–23.
   link: /leadership/#oss-club
 
 - date: "2016"
@@ -57,10 +60,10 @@
 
 - date: "2008"
   title: M.E. and first textbook
-  text: M.E., Computer Engineering, Pune University. Ten textbooks by 2022.
+  text: M.E. in Computer Engineering, Pune University. Ten textbooks by 2022.
 
 - date: "2006"
-  title: Life Member, ISTE
+  title: Life member, ISTE
   text: Indian Society for Technical Education.
 
 - date: "2005-07"

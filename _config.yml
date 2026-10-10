@@ -8,7 +8,7 @@ first_name: Vaishali
 middle_name: S.
 last_name: Ingale
 contact_note: >
-  The best way to reach her is her official AIT email.
+  Her AIT email is the best way to reach her.
 description: "Prof. Vaishali S. Ingale is an Assistant Professor in the Department of Information Technology at the Army Institute of Technology (AIT), Pune, where she has taught since 2005."
 footer_text: >
   Built on <a href="https://github.com/alshedivat/al-folio">al-folio</a>.
@@ -223,6 +223,8 @@ include: ["_pages"]
 exclude:
   - AGENTS.md
   - room/tools/ # office build/test scripts (not for the public site)
+  - tools/ # local build, serve and screenshot helpers
+  - plan.md
   - al-folio-upgrade-report.md
   - bin/
   - CLAUDE.md

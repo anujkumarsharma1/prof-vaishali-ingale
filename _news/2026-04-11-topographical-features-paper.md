@@ -6,4 +6,4 @@ inline: true
 related_posts: false
 ---
 
-New Springer paper with AIT students and colleagues: [*Automatic Extraction of Topographical Features from Satellite Images Using Deep Learning Methodologies*](https://doi.org/10.1007/978-3-032-22065-3_26), from icSoftComp 2025.
+Co-written with AIT students and colleagues for icSoftComp 2025: [*Automatic Extraction of Topographical Features from Satellite Images Using Deep Learning Methodologies*](https://doi.org/10.1007/978-3-032-22065-3_26).
