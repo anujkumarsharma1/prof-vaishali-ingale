@@ -177,4 +177,20 @@
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
+
+  /* Home: reveal the bar's brand once the hero has left the viewport (see chrome.css, .brand-after-hero). */
+  (function heroPassed() {
+    var hero = document.querySelector("[data-hero]");
+    var root = document.documentElement;
+    if (!hero || !("IntersectionObserver" in window)) {
+      root.classList.add("hero-passed");
+      return;
+    }
+    new IntersectionObserver(
+      function (entries) {
+        root.classList.toggle("hero-passed", !entries[0].isIntersecting);
+      },
+      { rootMargin: "-56px 0px 0px 0px" }
+    ).observe(hero);
+  })();
 })();

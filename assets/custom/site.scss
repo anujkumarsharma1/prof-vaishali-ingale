@@ -176,7 +176,7 @@ article a:not(.btn):not(.badge):not(.stat-link):not(.hero-cta):not(.hero-link):f
 
 /* ---------- nav: translucent, sticky, active underline ---------- */
 #navbar, .navbar {
-  background: rgba($paper, 0.96) !important;
+  background: $paper !important; /* solid: sticky home labels showed through the 0.96 bar */
   min-height: 56px;
   border-bottom: 0 !important;
   box-shadow: none !important;

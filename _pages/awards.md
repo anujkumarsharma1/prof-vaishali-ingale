@@ -2,7 +2,7 @@
 layout: page
 permalink: /awards/
 title: Awards
-description: Awards, patent, textbooks, certifications and memberships.
+description: Recognition, a patent and ten university textbooks, with certifications and memberships.
 nav: true
 nav_order: 4
 ---
@@ -10,7 +10,7 @@ nav_order: 4
 <div class="awards-page" data-motion-skip>
 <div class="aw-top">
 <section class="aw-awards" id="recognitions" aria-labelledby="awards-title">
-  <h2 id="awards-title">Awards</h2>
+  <h2 id="awards-title">Teaching and paper awards</h2>
   <ol class="aw-years">
     <li><span class="aw-year">2020</span><span class="aw-what"><strong>Paper Presenter Award</strong><span class="sr-only">, </span> CSI Annual Convention, KIIT Bhubaneswar</span></li>
     <li><span class="aw-year">2016</span><span class="aw-what"><strong>Best Result Award</strong><span class="sr-only">, </span> <em>Design and Analysis of Algorithms</em> (2014–15)</span></li>

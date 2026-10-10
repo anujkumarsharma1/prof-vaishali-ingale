@@ -95,6 +95,9 @@
   color: var(--sx-contour);
   opacity: 0.42;
   pointer-events: none;
+  /* Fade the art out at its edges and toward the title, so nothing is cut flat and "2026" stays clean. */
+  -webkit-mask-image: radial-gradient(closest-side at 62% 50%, #000 55%, transparent 100%);
+  mask-image: radial-gradient(closest-side at 62% 50%, #000 55%, transparent 100%);
 }
 .leadership-page .lx-contours path:nth-child(odd) {
   stroke-opacity: 0.55;

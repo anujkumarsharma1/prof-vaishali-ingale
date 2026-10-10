@@ -201,3 +201,18 @@ body::after {
   text-transform: capitalize !important;
   letter-spacing: 0 !important;
 }
+
+/* Home: the hero already shows the name, so the bar's brand appears only once the hero has scrolled away
+   (chrome.js sets html.hero-passed). Without JS the brand is always visible. */
+html.has-js .brand-after-hero {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+html.has-js.hero-passed .brand-after-hero {
+  opacity: 1;
+  pointer-events: auto;
+}
+#navbar.is-tucked .brand-after-hero {
+  opacity: 0;
+}

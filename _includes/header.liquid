@@ -5,19 +5,19 @@
     (function () {
       try {
         var a = window.navigation && navigation.activation;
-        if (!window.PageRevealEvent || !a || !a.from || a.navigationType === "reload") return;
-        if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-        document.documentElement.classList.add("vt-in");
+        if (!window.PageRevealEvent || !a || !a.from || a.navigationType === 'reload') return;
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        document.documentElement.classList.add('vt-in');
         var c = window.MOTION_CONFIG;
-        if (c && c.auto) delete c.auto[".post-header .post-title"];
+        if (c && c.auto) delete c.auto['.post-header .post-title'];
       } catch (e) {}
     })();
   </script>
   <!-- Nav Bar -->
   <nav id="navbar" class="navbar navbar-light navbar-expand-sm {% if site.navbar_fixed %}fixed-top{% else %}sticky-top{% endif %}" role="navigation">
     <div class="container">
-      {% if page.permalink != '/about/' %}
-        <a class="navbar-brand title font-weight-lighter" href="{{ site.baseurl }}/">
+      {% if page.permalink != '/about/' or site.enable_navbar_social != true %}
+        <a class="navbar-brand title font-weight-lighter{% if page.permalink == '/about/' %} brand-after-hero{% endif %}" href="{{ site.baseurl }}/">
           {% if site.title == 'blank' %}
             {% if site.first_name %}
               <span class="font-weight-bold">

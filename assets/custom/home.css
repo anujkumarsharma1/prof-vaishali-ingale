@@ -795,6 +795,9 @@ html body .about-page .home-section .publications ol.bibliography > li:first-chi
   .about-page .home-ledger {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  .about-page .ledger-item:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
   .about-page .ledger-item {
     padding: 1.25rem 0.75rem 1.25rem 0;
   }

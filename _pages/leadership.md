@@ -20,7 +20,7 @@ nav_order: 2
       <path d="M619.0 150.0C611.7 184.7 576.7 215.7 543.9 244.4C511.1 273.1 474.0 308.0 422.2 322.4C370.5 336.8 283.6 344.1 233.3 330.8C183.0 317.5 152.5 272.6 120.4 242.5C88.4 212.3 48.6 184.1 41.2 150.0C33.9 115.9 42.7 65.0 76.4 38.1C110.2 11.2 187.8 -4.5 243.7 -11.4C299.6 -18.2 354.5 -10.9 411.8 -3.0C469.2 4.9 553.4 10.7 587.9 36.2C622.4 61.7 626.4 115.3 619.0 150.0Z"/>
     </g>
   </svg>
-  <p class="lx-kicker">Conference Chair, September 2026</p>
+  <p class="lx-kicker">September 2026</p>
   <h2 class="lx-feature-title" id="icndia-title"><a class="heading-link" href="{{ '/news/2026-09-19-icndia-2026/' | relative_url }}">ICNDIA-2026</a></h2>
   <p class="lx-feature-name">IEEE International Conference on Nexus of Digitalization, Intelligence and Applications</p>
   <ul class="lx-figures">
@@ -49,7 +49,7 @@ nav_order: 2
     <div class="lx-card-head">
       <p class="lx-kicker">Since 2016</p>
       <h2 id="oss-title">Open Source Software Club</h2>
-      <p class="lx-card-lead">Faculty in-charge of AIT's OSS Club and its national hackathon, Innerve. Co-in-charge: Prof. Kuldeep Hule.</p>
+      <p class="lx-card-lead">Faculty in-charge of AIT's OSS Club and its national hackathon, Innerve, with Prof. Kuldeep Hule as co-in-charge.</p>
       <p class="lx-note">Staff in-charge for 2018–19 to 2022–23. The club, founded in 2014, also runs GRAPHICA, a first-year hackathon.</p>
       <!-- Staff in-charge years as listed on AIT's clubs page. -->
     </div>
@@ -100,7 +100,7 @@ nav_order: 2
 <section class="lx-card lx-card--stats" id="sih-2024" aria-labelledby="sih-title">
   <div class="lx-card-inner">
     <div class="lx-card-head">
-      <p class="lx-kicker">Mentor, December 2024</p>
+      <p class="lx-kicker">December 2024</p>
       <h2 id="sih-title"><a class="heading-link" href="{{ '/news/2024-12-17-sih-2024/' | relative_url }}">Smart India Hackathon 2024</a></h2>
       <p class="lx-card-lead">Mentor, with Prof. Kuldeep Hule, of both AIT teams that won first prize at the grand finale.</p>
     </div>
@@ -133,7 +133,7 @@ nav_order: 2
 <section class="lx-card lx-card--list" id="resource-person" aria-labelledby="fdp-title">
   <div class="lx-card-inner">
     <div class="lx-card-head">
-      <p class="lx-kicker">2015–2022</p>
+      <p class="lx-kicker">Resource person and organiser</p>
       <h2 id="fdp-title">Faculty development</h2>
     </div>
     <ul class="lx-ledger">

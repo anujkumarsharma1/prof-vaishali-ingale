@@ -238,3 +238,11 @@ html body .publications .links .pub-copy.is-copied {
     display: none;
   }
 }
+
+/* Phones: a display-size year over a single paper left long empty stretches. */
+@media (max-width: 599.98px) {
+  .publications h2.bibliography {
+    font-size: 1.5rem;
+    margin: 2rem 0 0.75rem;
+  }
+}
