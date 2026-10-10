@@ -223,6 +223,8 @@ include: ["_pages"]
 exclude:
   - AGENTS.md
   - room/tools/ # office build/test scripts (not for the public site)
+  - tools/ # local build, serve and screenshot helpers
+  - plan.md
   - al-folio-upgrade-report.md
   - bin/
   - CLAUDE.md
