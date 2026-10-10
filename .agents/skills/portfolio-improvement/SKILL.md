@@ -93,6 +93,17 @@ Never commit an agent's files while it is still editing them. If the branch's PR
 
 Reuse the Editor as a read-only Reviewer: every page at 1440 and 390 px, the key interactions, reduced motion, keyboard, console errors, horizontal scroll, CLS, the number diff, a final copy read, and the room hashes. Findings ranked BLOCKER, MAJOR, MINOR, each with evidence and the responsible file. The lead fixes, rebuilds and re-checks.
 
+## What the v5 review caught that the agents missed
+
+Each agent checked its own pages and still shipped these. Check for them directly next time:
+
+- **Layout shift from JS-only controls.** `pubs.js` revealed hidden filter chips after first paint, and the first heading's margin collapsed through `<article>` meanwhile: CLS 0.139 on phones. Fix: the head guard sets `<html class="has-js">`, and JS-only controls hold their space with `visibility: hidden` until revealed. Measure CLS by landing directly on every inner page, not only the home page, and find the culprit with layout-shift `sources`.
+- **Motion that hurts reading.** The card deck dimmed a card to 35 % while it was still the one being read. Scrubbed effects must start only when the next element actually covers the current one.
+- **Display-size glyphs.** At opsz 144, Fraunces draws "+" as a hairline. Pin suffixes and symbols to a text optical size.
+- **One agent's markup, another agent's chrome.** The home page had no brand in the nav, and the nav was translucent enough for sticky labels to show through. Review the integrated build, not each agent's own build.
+- **Copy across owners.** "Faculty In-Charge" in three spellings, kickers repeating the lead under them, page titles repeated as the first heading. One editor has to read every page at the end.
+- **Number checks and punctuation.** "2025." versus "2025" shows up as a false "missing number". Strip trailing punctuation before comparing.
+
 ## Constraints specific to this repo
 
 - `baseurl` is `/prof-vaishali-ingale`; never blank it.

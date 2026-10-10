@@ -109,8 +109,17 @@ Four agents in parallel, then the Editor is reused as the Reviewer, so no fifth 
 
 ## 8. Status
 
-| Phase | State   |
-| ----- | ------- |
-| 0     | done    |
-| 1     | running |
-| 2     | pending |
+| Phase | State                                                                                           |
+| ----- | ----------------------------------------------------------------------------------------------- |
+| 0     | done (`b243360`)                                                                                |
+| 1     | done: Editor `8f6773c`, Sections `c24a28c`, Chrome + Publications `2be85df`, Home `832097b`     |
+| 2     | done: review of `832097b` found 0 blockers, 6 major, 15 minor; fixes in `5893395` and `1536e89` |
+| Skill | done: `.agents/skills/portfolio-improvement/`                                                   |
+
+### Open, for the owner
+
+- OSS Club: the card says "Since 2016", the clubs-page source says staff in-charge 2018–19 to 2022–23. Confirm which.
+- `hero_tagline` on the home page is still a draft for Prof. Ingale to approve.
+- Wishes page: 4 of 6 memory frames are empty placeholders.
+- Real-phone test (iPhone Safari, Android Chrome); topic of the market-manipulation paper; `noindex`.
+- Not done on purpose: CV phone indentation (gem markup), moving the CSI award off the home Teaching list.
