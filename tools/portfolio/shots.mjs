@@ -10,7 +10,9 @@ const pages = only.length ? only : ["about/", "publications/", "leadership/", "a
 const viewports = { desktop: { width: 1440, height: 900 }, phone: { width: 390, height: 844 } };
 fs.mkdirSync(outDir, { recursive: true });
 
-const exe = process.env.PW_CHROMIUM || (fs.existsSync("/opt/pw-browsers/chromium-1194/chrome-linux/chrome") ? "/opt/pw-browsers/chromium-1194/chrome-linux/chrome" : undefined);
+const exe =
+  process.env.PW_CHROMIUM ||
+  (fs.existsSync("/opt/pw-browsers/chromium-1194/chrome-linux/chrome") ? "/opt/pw-browsers/chromium-1194/chrome-linux/chrome" : undefined);
 const browser = await chromium.launch(exe ? { executablePath: exe } : {});
 const errors = [];
 for (const [vpName, vp] of Object.entries(viewports)) {

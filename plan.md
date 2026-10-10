@@ -29,14 +29,14 @@ Why this and not a full rebrand: the watercolour hero art, the 3D room, the OG i
 
 ### Tokens
 
-| Token          | Value                                   | Role                                                         |
-| -------------- | --------------------------------------- | ------------------------------------------------------------ |
-| paper          | `#fbf4ec`                               | page (unchanged, matches the hero art and the room)          |
-| ink            | `#1f1712`                               | text                                                         |
-| cinnamon       | `#a04a0d`                               | the single accent: links, the descent dot, active states     |
-| contour        | `#a67c52` at 14–35 % opacity            | line work only, never text                                   |
-| ink-soft       | `#5e4b3f`                               | secondary text                                               |
-| type           | Fraunces (display, opsz animated), Inter (UI and body) | unchanged families, used harder                |
+| Token    | Value                                                  | Role                                                     |
+| -------- | ------------------------------------------------------ | -------------------------------------------------------- |
+| paper    | `#fbf4ec`                                              | page (unchanged, matches the hero art and the room)      |
+| ink      | `#1f1712`                                              | text                                                     |
+| cinnamon | `#a04a0d`                                              | the single accent: links, the descent dot, active states |
+| contour  | `#a67c52` at 14–35 % opacity                           | line work only, never text                               |
+| ink-soft | `#5e4b3f`                                              | secondary text                                           |
+| type     | Fraunces (display, opsz animated), Inter (UI and body) | unchanged families, used harder                          |
 
 ### Rules every agent follows
 
@@ -53,18 +53,18 @@ Why this and not a full rebrand: the watercolour hero art, the 3D room, the OG i
 
 ## 3. The ten changes
 
-| #   | Change                                                                                                                                                                                                                                                                  | Owner agent      | Files                                                                    |
-| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------ |
-| 1   | **Live loss-landscape hero.** Canvas contour field (marching squares over a sum of Gaussians) behind the hero. The cursor bends the surface; a click or tap drops a cinnamon dot that runs gradient descent to the nearest minimum, leaving a fading trail. One automatic descent while idle. | Home             | `assets/js/home.js`, `assets/custom/home.css`, `_layouts/about.liquid`   |
-| 2   | **Kinetic name.** Per-letter mask rise, with Fraunces optical size and weight settling as the letters land. The ALL-CAPS kicker becomes a sentence-case role line.                                                                                                      | Home             | same                                                                     |
-| 3   | **Portrait reveal.** Clip-path wipe plus a slow scale settle; contour rings draw around the frame (stroke-dashoffset).                                                                                                                                                   | Home             | same                                                                     |
-| 4   | **Odometer stats ledger.** The boxed stat card becomes an open ledger with hairline rules; each digit rolls in its own column, once.                                                                                                                                       | Home             | same                                                                     |
-| 5   | **Editorial home body.** Section labels sit in a sticky left column on desktop; the four research areas become a 2×2 index with line glyphs and a hover state; closing contact finale with contours converging on the email.                                             | Home             | same, `_pages/about.md` (markup only)                                    |
-| 6   | **Navigation that moves with you.** One indicator glides between nav items on hover/focus and rests on the current page; a scroll-progress hairline under the bar; the bar tucks away on scroll down and returns on scroll up.                                            | Chrome           | `_includes/header.liquid`, `assets/custom/chrome.css`, `assets/js/chrome.js` |
-| 7   | **Shared-element page transitions.** Cross-document View Transitions with named elements: the page title morphs and the nav indicator slides between pages. Plain crossfade fallback.                                                                                   | Chrome           | `assets/custom/motion.css`, `assets/custom/chrome.css`                   |
-| 8   | **Leadership and Awards with structure.** Desktop sticky-stack for the leadership cards (each settles back as the next arrives). ICNDIA becomes a feature block. The milestones rail draws and each dot lights as you pass it. The ten textbooks become a shelf of spines. | Sections         | `_pages/leadership.md`, `_pages/awards.md`, `_includes/milestones.liquid`, `assets/custom/sections.css`, `assets/js/sections.js` |
-| 9   | **Publications that respond.** FLIP-animated topic filter (cards glide into place), a sliding active chip, thumbnail hover zoom, a Copy BibTeX confirmation. Drop the duplicate "Bib" button (`REMAINING_WORK.md` item c).                                               | Publications     | `_layouts/bib.liquid`, `assets/js/pubs.js`, `assets/custom/pubs.css`     |
-| 10  | **Paper materiality and chrome clean-up.** A very faint paper grain over the page; ALL-CAPS labels, middle-dot strings and glued arrows removed site-wide; card stacks get varied rhythm instead of one radius and one shadow everywhere.                               | Chrome           | `assets/custom/site.scss`, `assets/custom/chrome.css`                    |
+| #   | Change                                                                                                                                                                                                                                                                                        | Owner agent  | Files                                                                                                                            |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Live loss-landscape hero.** Canvas contour field (marching squares over a sum of Gaussians) behind the hero. The cursor bends the surface; a click or tap drops a cinnamon dot that runs gradient descent to the nearest minimum, leaving a fading trail. One automatic descent while idle. | Home         | `assets/js/home.js`, `assets/custom/home.css`, `_layouts/about.liquid`                                                           |
+| 2   | **Kinetic name.** Per-letter mask rise, with Fraunces optical size and weight settling as the letters land. The ALL-CAPS kicker becomes a sentence-case role line.                                                                                                                            | Home         | same                                                                                                                             |
+| 3   | **Portrait reveal.** Clip-path wipe plus a slow scale settle; contour rings draw around the frame (stroke-dashoffset).                                                                                                                                                                        | Home         | same                                                                                                                             |
+| 4   | **Odometer stats ledger.** The boxed stat card becomes an open ledger with hairline rules; each digit rolls in its own column, once.                                                                                                                                                          | Home         | same                                                                                                                             |
+| 5   | **Editorial home body.** Section labels sit in a sticky left column on desktop; the four research areas become a 2×2 index with line glyphs and a hover state; closing contact finale with contours converging on the email.                                                                  | Home         | same, `_pages/about.md` (markup only)                                                                                            |
+| 6   | **Navigation that moves with you.** One indicator glides between nav items on hover/focus and rests on the current page; a scroll-progress hairline under the bar; the bar tucks away on scroll down and returns on scroll up.                                                                | Chrome       | `_includes/header.liquid`, `assets/custom/chrome.css`, `assets/js/chrome.js`                                                     |
+| 7   | **Shared-element page transitions.** Cross-document View Transitions with named elements: the page title morphs and the nav indicator slides between pages. Plain crossfade fallback.                                                                                                         | Chrome       | `assets/custom/motion.css`, `assets/custom/chrome.css`                                                                           |
+| 8   | **Leadership and Awards with structure.** Desktop sticky-stack for the leadership cards (each settles back as the next arrives). ICNDIA becomes a feature block. The milestones rail draws and each dot lights as you pass it. The ten textbooks become a shelf of spines.                    | Sections     | `_pages/leadership.md`, `_pages/awards.md`, `_includes/milestones.liquid`, `assets/custom/sections.css`, `assets/js/sections.js` |
+| 9   | **Publications that respond.** FLIP-animated topic filter (cards glide into place), a sliding active chip, thumbnail hover zoom, a Copy BibTeX confirmation. Drop the duplicate "Bib" button (`REMAINING_WORK.md` item c).                                                                    | Publications | `_layouts/bib.liquid`, `assets/js/pubs.js`, `assets/custom/pubs.css`                                                             |
+| 10  | **Paper materiality and chrome clean-up.** A very faint paper grain over the page; ALL-CAPS labels, middle-dot strings and glued arrows removed site-wide; card stacks get varied rhythm instead of one radius and one shadow everywhere.                                                     | Chrome       | `assets/custom/site.scss`, `assets/custom/chrome.css`                                                                            |
 
 Plus the copy pass (section 4), which matters as much as any of the ten.
 
@@ -74,30 +74,26 @@ Goal: read like a professional faculty profile, not a generated one. Cut over-ex
 
 ## 5. Agents and phases
 
-File ownership is strict, so parallel agents never edit the same file. Agents do not run git. The lead commits.
+Four agents in parallel, then the Editor is reused as the Reviewer, so no fifth agent is spawned. Each page-owning agent edits both the copy and the markup of its pages, so nobody waits on anyone. File ownership is strict and parallel agents never edit the same file. Agents do not run git; the lead commits.
 
-**Phase 0 (lead, done before agents start).** Baseline build and screenshots; `tools/portfolio/` harness (`build.sh`, `serve.sh`, `shots.mjs`); new CSS/JS files created and wired into `_includes/head.liquid`.
+**Phase 0 (lead, done).** Baseline build, screenshots and number snapshot; `tools/portfolio/` harness (`build.sh`, `serve.sh`, `shots.mjs`, `AGENT_RULES.md`); new CSS/JS files created and wired into `_includes/head.liquid`.
 
-**Phase 1 (parallel).**
+**Phase 1 (all in parallel).**
 
-- **Editor:** copy pass (section 4). Writes a before/after log.
-- **Chrome:** changes 6, 7, 10. Owns `_includes/header.liquid`, `assets/custom/site.scss`, `assets/custom/motion.css`, `assets/custom/chrome.css`, `assets/js/chrome.js`.
-- **Publications:** change 9. Owns `_layouts/bib.liquid`, `assets/js/pubs.js`, `assets/custom/pubs.css`, and the markup (not the prose) of `_pages/publications.md`.
+- **Agent 1, Editor:** the copy pass (section 4) on `cv`, `news`, `wishes`, `404`, the publications description, `_news/`, `_data/cv.yml`, `_data/timeline.yml`, and the labels in `stats.yml` and `pub_topics.yml`.
+- **Agent 2, Chrome + Publications:** changes 6, 7, 9, 10. Owns `_includes/header.liquid`, `assets/custom/site.scss`, `assets/custom/motion.css`, `assets/custom/chrome.css`, `assets/js/chrome.js`, `_layouts/bib.liquid`, `assets/js/pubs.js`, `assets/custom/pubs.css`, and the markup of `_pages/publications.md`.
+- **Agent 3, Home:** changes 1–5. Owns `_layouts/about.liquid`, `assets/custom/home.css`, `assets/js/home.js`, and all of `_pages/about.md`, copy included.
+- **Agent 4, Sections:** change 8. Owns all of `_pages/leadership.md` and `_pages/awards.md` (copy included), `_includes/milestones.liquid`, `assets/custom/sections.css`, `assets/js/sections.js`.
 
-**Phase 2 (parallel, after the Editor finishes, so the copy is final before the markup is restructured).**
+**Phase 2.**
 
-- **Home:** changes 1–5. Owns `_layouts/about.liquid`, `assets/custom/home.css`, `assets/js/home.js`, markup of `_pages/about.md`.
-- **Sections:** change 8. Owns `_pages/leadership.md`, `_pages/awards.md`, `_includes/milestones.liquid`, `assets/custom/sections.css`, `assets/js/sections.js`.
-
-**Phase 3.**
-
-- **Reviewer** (read-only): desktop and phone screenshots of every page, reduced-motion pass, keyboard pass, contrast checks, console errors, a grep for AI tells, a check that every number still matches the pre-change build, and Prettier. Writes a findings list.
-- **Lead:** fixes the findings, re-runs the checks, writes the `portfolio-improvement` skill, commits and pushes.
+- **Agent 1 again, as Reviewer** (read-only, reused through SendMessage): desktop and phone screenshots of every page, reduced-motion pass, keyboard pass, contrast, console errors, a grep for AI tells, a check that every number still matches the baseline.
+- **Lead:** integrates, fixes the findings, re-runs the checks, writes the `portfolio-improvement` skill, commits and pushes.
 
 ## 6. Acceptance checks (all must pass before push)
 
 1. `tools/portfolio/build.sh` builds with no Liquid errors.
-2. `npx prettier --check` passes on every changed file.
+2. `npx prettier --check` passes on every new file. Existing files are not mass-reformatted: the repo already fails Prettier on 19 files and has no Prettier CI.
 3. `node tools/portfolio/shots.mjs` shows no page errors other than blocked external CDNs, at 1440 px and 390 px.
 4. Every number on the site is the same as before (a scripted diff of digits in the built HTML).
 5. With reduced motion emulated, every page is fully visible and nothing moves.
@@ -116,6 +112,5 @@ File ownership is strict, so parallel agents never edit the same file. Agents do
 | Phase | State   |
 | ----- | ------- |
 | 0     | done    |
-| 1     | pending |
+| 1     | running |
 | 2     | pending |
-| 3     | pending |
