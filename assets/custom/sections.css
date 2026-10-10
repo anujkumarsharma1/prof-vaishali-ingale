@@ -1,1 +1,1186 @@
-/* sections.css: v5 layer, see plan.md */
+/* sections.css: v5 layer for /leadership/ and /awards/ (plan.md change 8).
+ * Loaded only on those two pages. Everything is scoped under .leadership-page, .awards-page or .ms
+ * so the global card restyle in site.scss does not reach in, and these rules do not leak out.
+ * Motion lives in assets/js/sections.js; without JS (or with reduced motion) everything here is static. */
+
+.leadership-page,
+.awards-page,
+.ms {
+  --sx-paper: #fbf4ec;
+  --sx-sheet: #fffaf4;
+  --sx-fill: #f5e6d6;
+  --sx-ink: #1f1712;
+  --sx-soft: #5e4b3f;
+  --sx-label: #7a5432;
+  --sx-cin: #a04a0d;
+  --sx-contour: #a67c52;
+  --sx-hair: rgba(31, 23, 18, 0.14);
+  --sx-hair-strong: rgba(31, 23, 18, 0.32);
+  --sx-serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --sx-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sx-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- shared bits ---------- */
+/* the theme colours p, li, span, strong, em, div directly, which breaks inheritance; restore it here */
+.leadership-page :is(p, li, span, strong, em, div, dt, dd),
+.awards-page :is(p, li, span, strong, em, div, dt, dd),
+.ms :is(p, li, span, strong, em, div, time) {
+  color: inherit;
+}
+.leadership-page .lx-kicker,
+.ms .ms-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+  font-family: var(--sx-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.005em;
+  text-transform: none;
+  color: var(--sx-label);
+}
+.leadership-page .lx-kicker::before,
+.ms .ms-kicker::before {
+  content: "";
+  flex: none;
+  width: 1.75rem;
+  height: 1px;
+  background: var(--sx-cin);
+}
+.leadership-page ul,
+.leadership-page ol,
+.leadership-page dl,
+.awards-page ul,
+.awards-page ol,
+.awards-page dl,
+.ms ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+/* doubled class: beats the theme's `article ul:not(.timeline-list) > li + li` spacing */
+.leadership-page.leadership-page li + li,
+.awards-page.awards-page li + li,
+.ms.ms li + li {
+  margin-top: 0;
+}
+.leadership-page h2,
+.awards-page h2 {
+  margin-top: 0;
+}
+/* type-scale.css adds a large top margin to any h2 that follows a paragraph; a kicker is not one */
+.leadership-page .lx-kicker + h2[id],
+.ms .ms-kicker + h2[id] {
+  margin-top: 0;
+}
+
+/* ==========================================================================
+   Leadership: ICNDIA-2026 feature block
+   ========================================================================== */
+.leadership-page .lx-feature {
+  position: relative;
+  padding: 0 0 clamp(56px, 8vw, 104px);
+  overflow: clip;
+  overflow-clip-margin: 8px;
+}
+.leadership-page .lx-contours {
+  position: absolute;
+  top: -24px;
+  right: 0;
+  width: min(62%, 600px);
+  height: 300px;
+  color: var(--sx-contour);
+  opacity: 0.42;
+  pointer-events: none;
+  /* Fade the art out at its edges and toward the title, so nothing is cut flat and "2026" stays clean. */
+  -webkit-mask-image: radial-gradient(closest-side at 62% 50%, #000 55%, transparent 100%);
+  mask-image: radial-gradient(closest-side at 62% 50%, #000 55%, transparent 100%);
+}
+.leadership-page .lx-contours path:nth-child(odd) {
+  stroke-opacity: 0.55;
+}
+.leadership-page .lx-feature > :not(svg) {
+  position: relative;
+}
+.leadership-page .lx-feature-title {
+  margin: 0;
+  font-family: var(--sx-serif);
+  font-size: clamp(3.5rem, 1.6rem + 7.4vw, 8rem);
+  font-weight: 300;
+  font-variation-settings: "opsz" 144;
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+}
+.leadership-page .lx-feature-title a.heading-link {
+  color: var(--sx-ink) !important;
+}
+.leadership-page .lx-feature-name {
+  max-width: 30ch;
+  margin: 1.25rem 0 0;
+  font-family: var(--sx-serif);
+  font-size: clamp(1.25rem, 0.95rem + 1.1vw, 1.75rem);
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--sx-ink);
+}
+.leadership-page .lx-figures {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr 1fr 0.9fr;
+  margin: clamp(40px, 5vw, 64px) 0 0;
+  border-top: 1px solid var(--sx-ink);
+  border-bottom: 1px solid var(--sx-hair);
+}
+.leadership-page .lx-figures > li {
+  padding: 1.5rem 1.25rem 1.4rem;
+  border-left: 1px solid var(--sx-hair);
+}
+.leadership-page .lx-figures > li:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+.leadership-page .lx-fig {
+  display: block;
+  font-family: var(--sx-serif);
+  font-size: clamp(2.5rem, 1.2rem + 3.6vw, 4.5rem);
+  font-weight: 300;
+  font-variation-settings: "opsz" 144;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--sx-ink);
+  white-space: nowrap;
+}
+.leadership-page .lx-fig-label {
+  display: block;
+  margin-top: 0.6rem;
+  font-family: var(--sx-sans);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--sx-soft);
+}
+.leadership-page .lx-feature-body {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(28px, 5vw, 64px);
+  margin-top: clamp(32px, 4vw, 48px);
+}
+.leadership-page .lx-feature-lead {
+  margin: 0;
+  font-family: var(--sx-serif);
+  font-size: clamp(1.1875rem, 1rem + 0.6vw, 1.4375rem);
+  font-weight: 300;
+  line-height: 1.45;
+  color: var(--sx-ink);
+}
+.leadership-page .lx-facts > div {
+  display: grid;
+  grid-template-columns: 9.5rem minmax(0, 1fr);
+  gap: 1rem;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--sx-hair);
+}
+.leadership-page .lx-facts > div:first-child {
+  padding-top: 0.2rem;
+  border-top: 0;
+}
+.leadership-page .lx-facts dt {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.6;
+  color: var(--sx-label);
+}
+.leadership-page .lx-facts dd {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--sx-ink);
+}
+
+/* ==========================================================================
+   Leadership: the card deck (sticky stack on desktop, plain flow elsewhere)
+   ========================================================================== */
+.leadership-page .lx-stack {
+  position: relative;
+}
+.leadership-page .lx-card {
+  position: relative;
+  margin: 0 0 20px;
+  padding: clamp(24px, 4vw, 48px);
+  border: 1px solid rgba(160, 74, 13, 0.14);
+  border-radius: 6px;
+  background: var(--sx-fill);
+  color: var(--sx-ink);
+  transform-origin: 50% 0;
+}
+.leadership-page .lx-card:last-child {
+  margin-bottom: 0;
+}
+.leadership-page .lx-card h2 {
+  margin: 0;
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+  line-height: 1.08;
+}
+.leadership-page .lx-card-lead {
+  max-width: 40ch;
+  margin: 1rem 0 0;
+  font-family: var(--sx-serif);
+  font-size: clamp(1.125rem, 1rem + 0.4vw, 1.3125rem);
+  font-weight: 300;
+  line-height: 1.45;
+}
+.leadership-page .lx-note {
+  max-width: 44ch;
+  margin: 1rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--sx-soft);
+}
+.leadership-page .lx-num {
+  font-family: var(--sx-serif);
+  font-weight: 400;
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--sx-ink);
+}
+
+/* OSS Club: an editions ledger, figures attached to the edition they belong to */
+.leadership-page .lx-editions > li {
+  padding: 1.1rem 0 1.2rem;
+  border-top: 1px solid var(--sx-hair);
+}
+.leadership-page .lx-editions > li:first-child {
+  border-top-color: var(--sx-ink);
+}
+.leadership-page .lx-ed-name {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0;
+}
+.leadership-page .lx-ed-name strong {
+  font-family: var(--sx-serif);
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+.leadership-page .lx-ed-date {
+  font-size: 0.875rem;
+  color: var(--sx-label);
+  white-space: nowrap;
+}
+.leadership-page .lx-ed-figs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.75rem;
+  margin-top: 0.6rem;
+  font-size: 0.875rem;
+  color: var(--sx-soft);
+}
+.leadership-page .lx-ed-figs .lx-num {
+  margin-right: 0.15em;
+  font-size: 1.625rem;
+}
+.leadership-page .lx-ed-note {
+  margin: 0.5rem 0 0;
+  font-size: 0.9375rem;
+  color: var(--sx-soft);
+}
+
+/* IEEE: compact, role-led */
+.leadership-page .lx-card--compact {
+  background: var(--sx-sheet);
+}
+.leadership-page .lx-role {
+  margin: 0 0 0.9rem;
+  font-family: var(--sx-serif);
+  font-size: clamp(1.375rem, 1.1rem + 1vw, 1.875rem);
+  font-weight: 300;
+  line-height: 1.2;
+}
+.leadership-page .lx-plain > li {
+  padding: 0.45rem 0;
+  border-top: 1px solid var(--sx-hair);
+  font-size: 0.9375rem;
+  color: var(--sx-soft);
+}
+
+/* SIH: the dark card, stats-led */
+.leadership-page .lx-card--stats {
+  --sx-hair: rgba(251, 244, 236, 0.18);
+  border-color: transparent;
+  background: #2a1f18;
+  color: var(--sx-paper);
+}
+.leadership-page .lx-card--stats h2,
+.leadership-page .lx-card--stats .lx-card-lead,
+.leadership-page .lx-card--stats strong {
+  color: var(--sx-paper);
+}
+.leadership-page .lx-card--stats h2 a.heading-link {
+  color: var(--sx-paper) !important;
+}
+.leadership-page .lx-card--stats h2 a.heading-link:hover {
+  text-decoration-color: rgba(251, 244, 236, 0.5) !important;
+}
+.leadership-page .lx-card--stats a:focus-visible {
+  outline-color: #f0b98f;
+}
+.leadership-page .lx-card--stats .lx-kicker {
+  color: #e0c3a6;
+}
+.leadership-page .lx-card--stats .lx-kicker::before {
+  background: #e08a4f;
+}
+.leadership-page .lx-bigstats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem 3rem;
+  margin: 2rem 0 0;
+}
+.leadership-page .lx-bignum {
+  display: block;
+  font-family: var(--sx-serif);
+  font-size: clamp(3rem, 1.6rem + 4.5vw, 5.5rem);
+  font-weight: 300;
+  font-variation-settings: "opsz" 144;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  font-variant-numeric: lining-nums tabular-nums;
+  white-space: nowrap;
+}
+.leadership-page .lx-bigstats > li:first-child .lx-bignum {
+  font-size: clamp(5rem, 3rem + 7vw, 9rem);
+  line-height: 0.8;
+  color: #e9a877;
+}
+.leadership-page .lx-card--stats .lx-fig-label {
+  color: rgba(251, 244, 236, 0.74);
+}
+.leadership-page .lx-teams {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 2.25rem;
+  border-top: 1px solid var(--sx-hair);
+}
+.leadership-page .lx-teams > li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 1.1rem 1.5rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: rgba(251, 244, 236, 0.78);
+}
+.leadership-page .lx-teams > li + li {
+  padding-left: 1.5rem;
+  border-left: 1px solid var(--sx-hair);
+}
+.leadership-page .lx-teams strong {
+  font-family: var(--sx-serif);
+  font-size: 1.375rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* QIP and faculty development: list-led ledgers with a date column */
+.leadership-page .lx-card--list {
+  background: var(--sx-paper);
+  border-color: var(--sx-hair-strong);
+}
+.leadership-page .lx-ledger {
+  margin-top: 2rem;
+}
+.leadership-page .lx-ledger > li {
+  display: grid;
+  grid-template-columns: 10.5rem minmax(0, 1fr);
+  gap: 1.25rem;
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--sx-hair);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+.leadership-page .lx-when {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.75;
+  font-variant-numeric: tabular-nums;
+  color: var(--sx-label);
+}
+.leadership-page .lx-ledger--titles em {
+  font-family: var(--sx-serif);
+  font-size: clamp(1.1875rem, 1rem + 0.5vw, 1.4375rem);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+/* Other roles: outside the deck, three short entries in a row */
+.leadership-page .lx-roles-block {
+  margin-top: clamp(56px, 7vw, 96px);
+}
+.leadership-page .lx-roles-block h2 {
+  margin: 0;
+  font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2rem);
+}
+.leadership-page .lx-roles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+.leadership-page .lx-roles > li {
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--sx-hair-strong);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+@media (min-width: 900px) {
+  .leadership-page .lx-card--editions .lx-card-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: 3rem;
+  }
+  .leadership-page .lx-card--compact .lx-card-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 3rem;
+    align-items: end;
+  }
+  .leadership-page .lx-card--stats .lx-card-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    column-gap: 3rem;
+  }
+  .leadership-page .lx-card--stats .lx-bigstats {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin: 0;
+    padding-left: 2.5rem;
+    border-left: 1px solid var(--sx-hair);
+  }
+  .leadership-page .lx-card--stats .lx-teams {
+    grid-column: 1 / -1;
+  }
+  .leadership-page .lx-card--list .lx-card-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+    gap: 3rem;
+  }
+  .leadership-page .lx-card--list .lx-ledger {
+    margin-top: 0;
+  }
+  .leadership-page .lx-card--list .lx-ledger > li:first-child {
+    border-top-color: var(--sx-ink);
+  }
+}
+
+/* Sticky deck: only when sections.js adds .is-stacking (>= 900px, motion allowed).
+   --stick is set per card by JS so a card taller than the viewport pins by its bottom edge. */
+.leadership-page .lx-stack.is-stacking {
+  padding-bottom: 0;
+}
+.leadership-page .lx-stack.is-stacking > .lx-card {
+  position: sticky;
+  top: var(--stick, 96px);
+  margin-bottom: 14vh;
+  box-shadow:
+    0 -1px 0 rgba(31, 23, 18, 0.04),
+    0 -14px 32px -22px rgba(31, 23, 18, 0.35);
+  will-change: transform;
+}
+.leadership-page .lx-stack.is-stacking > .lx-card:last-child {
+  margin-bottom: 0;
+}
+.leadership-page .lx-stack.is-stacking .lx-card-inner {
+  will-change: opacity;
+}
+@media (max-width: 899.98px) {
+  .leadership-page .lx-figures {
+    grid-template-columns: 1fr 1fr;
+  }
+  .leadership-page .lx-figures > li:nth-child(3) {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .leadership-page .lx-figures > li:nth-child(n + 3) {
+    border-top: 1px solid var(--sx-hair);
+  }
+  .leadership-page .lx-feature-body {
+    grid-template-columns: 1fr;
+  }
+  .leadership-page .lx-contours {
+    width: 100%;
+    opacity: 0.32;
+  }
+  .leadership-page .lx-card--stats .lx-bigstats {
+    margin-top: 1.75rem;
+  }
+  .leadership-page .lx-card--compact .lx-card-side,
+  .leadership-page .lx-card--editions .lx-editions {
+    margin-top: 1.75rem;
+  }
+}
+@media (max-width: 599.98px) {
+  .leadership-page .lx-figures > li {
+    padding: 1.1rem 0.9rem 1rem;
+  }
+  .leadership-page .lx-facts > div,
+  .leadership-page .lx-ledger > li {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+  .leadership-page .lx-teams,
+  .leadership-page .lx-roles {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .leadership-page .lx-teams > li + li {
+    margin-top: 1.1rem;
+    padding-left: 0;
+    border-left: 0;
+    border-top: 1px solid var(--sx-hair);
+  }
+  .leadership-page .lx-roles > li {
+    padding: 0.75rem 0;
+  }
+}
+
+/* ==========================================================================
+   Milestones: year column, a rail that draws, dots that light
+   ========================================================================== */
+.ms {
+  --ms-date: 6.5rem;
+  --ms-railcol: 3rem;
+  padding: clamp(80px, 10vw, 128px) 0 2rem;
+}
+.ms .ms-title {
+  margin: 0 0 2.5rem;
+  font-size: clamp(1.875rem, 1.2rem + 2.6vw, 2.75rem);
+  font-weight: 400;
+  line-height: 1.1;
+}
+.ms .ms-track {
+  position: relative;
+}
+.ms .ms-rail {
+  position: absolute;
+  top: 0.55rem;
+  bottom: 0.55rem;
+  left: calc(var(--ms-date) + var(--ms-railcol) / 2);
+  width: 1px;
+  background: var(--sx-hair);
+}
+.ms .ms-rail-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--sx-cin);
+  transform-origin: 50% 0;
+}
+.ms .ms-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--ms-date) var(--ms-railcol) minmax(0, 1fr);
+  padding-bottom: 2.5rem;
+}
+.ms .ms-item:last-child {
+  padding-bottom: 0;
+}
+.ms .ms-date {
+  display: block;
+  padding-top: 0.05rem;
+  text-align: right;
+  white-space: nowrap;
+}
+.ms .ms-year {
+  font-family: var(--sx-serif);
+  font-size: 1.1875rem;
+  font-weight: 400;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--sx-ink);
+}
+.ms .ms-month {
+  margin-right: 0.3rem;
+  font-size: 0.8125rem;
+  color: var(--sx-label);
+}
+.ms .ms-dot {
+  position: relative;
+  justify-self: center;
+  width: 11px;
+  height: 11px;
+  margin-top: 0.5rem;
+  border: 1.5px solid var(--sx-cin);
+  border-radius: 50%;
+  background: var(--sx-paper);
+}
+.ms .ms-dot::before,
+.ms .ms-dot::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+}
+.ms .ms-dot::before {
+  inset: 1.5px;
+  background: var(--sx-cin);
+}
+.ms .ms-dot::after {
+  inset: -1.5px;
+  border: 1.5px solid var(--sx-cin);
+  opacity: 0;
+}
+.ms.is-live .ms-dot::before {
+  transform: scale(0);
+  transition: transform 0.45s var(--sx-ease);
+}
+.ms.is-live .ms-item.is-lit .ms-dot::before {
+  transform: scale(1);
+}
+.ms.is-live .ms-item.is-lit .ms-dot::after {
+  animation: ms-ring 0.9s var(--sx-ease) 1 both;
+}
+@keyframes ms-ring {
+  from {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.8);
+  }
+}
+.ms .ms-heading {
+  margin: 0 0 0.35rem;
+  font-family: var(--sx-serif);
+  font-size: clamp(1.1875rem, 1.05rem + 0.5vw, 1.375rem);
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+.ms .ms-heading a {
+  color: var(--sx-ink) !important;
+  text-decoration: underline;
+  /* A faint resting underline says "link" without competing with the title. */
+  text-decoration-color: rgba(160, 74, 13, 0.35);
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+}
+.ms .ms-heading a:hover {
+  color: var(--sx-cin) !important;
+  text-decoration-color: currentColor;
+}
+.ms .ms-text {
+  max-width: 60ch;
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--sx-soft);
+}
+@media (max-width: 699.98px) {
+  .ms {
+    --ms-railcol: 1.75rem;
+  }
+  .ms .ms-rail {
+    left: calc(var(--ms-railcol) / 2);
+  }
+  .ms .ms-item {
+    grid-template-columns: var(--ms-railcol) minmax(0, 1fr);
+    grid-template-areas: "dot date" "dot body";
+    padding-bottom: 2rem;
+  }
+  .ms .ms-date {
+    grid-area: date;
+    margin-bottom: 0.2rem;
+    text-align: left;
+  }
+  .ms .ms-dot {
+    grid-area: dot;
+    margin-top: 0.4rem;
+  }
+  .ms .ms-body {
+    grid-area: body;
+  }
+  .ms .ms-year {
+    font-size: 1rem;
+  }
+}
+
+/* ==========================================================================
+   Awards
+   ========================================================================== */
+/* site.scss still lays .awards-page out as a six-column bento grid; this page uses its own sections */
+html body .awards-page {
+  display: block;
+}
+.awards-page h2 {
+  margin-bottom: 1.5rem;
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+  line-height: 1.08;
+}
+.awards-page .aw-top {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(32px, 6vw, 80px);
+  align-items: start;
+}
+.awards-page .aw-year {
+  font-family: var(--sx-serif);
+  font-weight: 400;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--sx-ink);
+}
+
+/* awards list with a year column */
+.awards-page .aw-years > li {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1.1rem 0;
+  border-top: 1px solid var(--sx-hair);
+}
+.awards-page .aw-years > li:first-child {
+  border-top-color: var(--sx-ink);
+}
+.awards-page .aw-years .aw-year {
+  font-size: 1.625rem;
+  font-weight: 300;
+  line-height: 1.1;
+}
+.awards-page .aw-what {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--sx-soft);
+}
+.awards-page .aw-what strong {
+  display: block;
+  font-family: var(--sx-serif);
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--sx-ink);
+}
+.awards-page .aw-aside {
+  margin: 1rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--sx-hair);
+  font-size: 0.9375rem;
+  color: var(--sx-soft);
+}
+
+/* patent: a document, not a card */
+.awards-page .aw-doc {
+  position: relative;
+  padding: 28px 28px 24px;
+  border: 1px solid var(--sx-hair-strong);
+  background-color: #fffdf9;
+  background-image: repeating-linear-gradient(to bottom, transparent 0 27px, rgba(166, 124, 82, 0.13) 27px 28px);
+  background-position: 0 14px;
+  box-shadow:
+    6px 6px 0 -1px var(--sx-fill),
+    6px 6px 0 0 var(--sx-hair);
+  clip-path: polygon(0 0, calc(100% - 26px) 0, 100% 26px, 100% 100%, 0 100%);
+}
+.awards-page .aw-doc::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 26px;
+  height: 26px;
+  background: linear-gradient(225deg, transparent 50%, #efdcc8 50%);
+  box-shadow: -1px 1px 0 var(--sx-hair);
+}
+.awards-page .aw-doc-kind {
+  margin: 0;
+  padding-bottom: 0.6rem;
+  border-bottom: 2px solid var(--sx-ink);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--sx-label);
+}
+.awards-page .aw-doc-no {
+  margin: 1rem 0 0;
+  font-family: var(--sx-sans);
+  font-size: clamp(1.375rem, 1.1rem + 1vw, 1.75rem);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums lining-nums slashed-zero;
+  color: var(--sx-ink);
+  white-space: nowrap;
+}
+.awards-page .aw-doc-no-label {
+  margin-right: 0.2rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--sx-label);
+}
+.awards-page .aw-doc-title {
+  margin: 1.25rem 0 0;
+  font-family: var(--sx-serif);
+  font-size: 1.375rem;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+.awards-page .aw-doc-dates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--sx-hair);
+}
+.awards-page .aw-doc-dates dt {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--sx-label);
+}
+.awards-page .aw-doc-dates dd {
+  margin: 0.15rem 0 0;
+  font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* textbooks: a shelf of spines */
+.awards-page .aw-books {
+  margin-top: clamp(72px, 9vw, 120px);
+}
+.awards-page .aw-books-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 2rem;
+  margin-bottom: 2rem;
+}
+.awards-page .aw-books-head h2 {
+  margin: 0;
+}
+.awards-page .aw-books-count {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin: 0;
+  color: var(--sx-soft);
+  font-size: 0.9375rem;
+}
+.awards-page .aw-books-num {
+  font-family: var(--sx-serif);
+  font-size: clamp(2.75rem, 2rem + 2.4vw, 4rem);
+  font-weight: 300;
+  line-height: 1;
+  color: var(--sx-ink);
+}
+.awards-page .aw-nowrap {
+  white-space: nowrap;
+}
+.awards-page .shelf {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 22px;
+  min-height: 290px;
+  padding: 24px 0 0 8px;
+  border-bottom: 7px solid #4a3a30;
+}
+.awards-page .shelf::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -19px;
+  height: 12px;
+  background: linear-gradient(180deg, rgba(31, 23, 18, 0.16), transparent);
+  pointer-events: none;
+}
+.awards-page .shelf-hint {
+  margin: 1.75rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--sx-label);
+}
+@media (hover: none) {
+  .awards-page .shelf-hint {
+    display: none;
+  }
+}
+.awards-page .book {
+  outline: none;
+  cursor: default;
+}
+.awards-page .book-spines {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  transition: transform 0.5s var(--sx-ease);
+}
+.awards-page .spine {
+  --h: 240px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 54px;
+  height: var(--h);
+  padding: 18px 0 12px;
+  border-radius: 3px 3px 1px 1px;
+  background-color: var(--spine, #2a1f18);
+  background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.22), rgba(255, 255, 255, 0.06) 22%, transparent 55%, rgba(0, 0, 0, 0.18));
+  color: var(--spine-ink, #fbf4ec);
+}
+.awards-page .spine::before,
+.awards-page .spine::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  right: 7px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.4;
+}
+.awards-page .spine::before {
+  top: 9px;
+}
+.awards-page .spine::after {
+  bottom: 38px;
+}
+.awards-page .spine--wide {
+  --h: 262px;
+  width: 74px;
+}
+.awards-page .spine--short {
+  --h: 222px;
+}
+.awards-page .spine--ink {
+  --spine: #2a1f18;
+}
+.awards-page .spine--cinnamon {
+  --spine: #8f420c;
+}
+.awards-page .spine--paper {
+  --spine: #ecdcc8;
+  --spine-ink: #1f1712;
+}
+.awards-page .spine--soft {
+  --spine: #5e4b3f;
+  --h: 248px;
+}
+.awards-page .spine-title {
+  writing-mode: vertical-rl;
+  font-family: var(--sx-serif);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  white-space: nowrap;
+}
+.awards-page .spine--wide .spine-title {
+  font-size: 1.1875rem;
+}
+.awards-page .spine-mark {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.awards-page .book-info {
+  display: block;
+  position: absolute;
+  top: 34px;
+  left: calc(8px + 74px + 2 * 54px + 2 * 54px + 2 * 4px + 2 * 22px + 56px);
+  right: 0;
+  max-width: 34ch;
+  padding-left: 1.5rem;
+  border-left: 1px solid var(--sx-cin);
+  font-family: var(--sx-serif);
+  font-size: clamp(1.125rem, 1rem + 0.4vw, 1.3125rem);
+  font-weight: 300;
+  line-height: 1.45;
+  color: var(--sx-ink);
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.35s ease,
+    transform 0.5s var(--sx-ease);
+  pointer-events: none;
+}
+.awards-page .book-info em {
+  font-style: normal;
+  font-weight: 500;
+}
+.awards-page .book:hover .book-spines,
+.awards-page .book:focus .book-spines {
+  transform: translateY(-18px);
+}
+/* the ring follows the spines as they pull out, instead of staying on the list item */
+.awards-page .book:focus-visible {
+  outline-color: transparent !important;
+}
+.awards-page .book:focus-visible .book-spines {
+  outline: 2px solid var(--sx-cin);
+  outline-offset: 5px;
+  border-radius: 3px;
+}
+.awards-page .book:hover .book-info,
+.awards-page .book:focus .book-info,
+.awards-page .shelf:not(:has(.book:hover, .book:focus)) .book:first-child .book-info {
+  opacity: 1;
+  transform: none;
+}
+
+@media (max-width: 759.98px) {
+  /* phones: the books lie flat in small stacks, details always visible underneath */
+  .awards-page .shelf {
+    display: block;
+    min-height: 0;
+    padding: 0;
+    border-bottom: 0;
+  }
+  .awards-page .shelf::after {
+    content: none;
+  }
+  .awards-page .book {
+    display: block;
+    padding: 1.25rem 0;
+    border-top: 1px solid var(--sx-hair);
+  }
+  .awards-page .book-spines {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+  }
+  .awards-page .spine {
+    flex-direction: row;
+    width: min(100%, calc(var(--h) * 1.25));
+    height: 38px;
+    padding: 0 14px 0 20px;
+    border-radius: 1px 3px 3px 1px;
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.07), transparent 45%, rgba(0, 0, 0, 0.16));
+  }
+  .awards-page .spine--wide {
+    height: 46px;
+  }
+  .awards-page .spine::before,
+  .awards-page .spine::after {
+    top: 7px;
+    bottom: 7px;
+    left: auto;
+    right: auto;
+    width: 1px;
+    height: auto;
+  }
+  .awards-page .spine::before {
+    left: 9px;
+  }
+  .awards-page .spine::after {
+    right: 54px;
+  }
+  .awards-page .spine-title,
+  .awards-page .spine--wide .spine-title {
+    writing-mode: horizontal-tb;
+    font-size: 0.9375rem;
+  }
+  .awards-page .spine-mark {
+    min-width: 30px;
+    text-align: center;
+  }
+  .awards-page .book-info {
+    position: static;
+    max-width: none;
+    margin-top: 0.9rem;
+    padding: 0;
+    border: 0;
+    font-size: 1.0625rem;
+    opacity: 1;
+    transform: none;
+  }
+  .awards-page .book:hover .book-spines,
+  .awards-page .book:focus .book-spines {
+    transform: translateX(6px);
+  }
+  .awards-page .shelf-hint {
+    display: none;
+  }
+}
+
+/* certificates and memberships */
+.awards-page .aw-bottom {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(32px, 6vw, 80px);
+  margin-top: clamp(72px, 9vw, 120px);
+}
+.awards-page .aw-issuer {
+  margin: 1.5rem 0 0.4rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--sx-label);
+}
+.awards-page .aw-certs h2 + .aw-issuer {
+  margin-top: 0;
+}
+.awards-page .aw-ledger > li {
+  display: grid;
+  grid-template-columns: 4.25rem minmax(0, 1fr);
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--sx-hair);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.awards-page .aw-ledger .aw-year {
+  font-size: 1rem;
+}
+.awards-page .aw-ledger--wide > li {
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+}
+
+@media (max-width: 899.98px) {
+  .awards-page .aw-top,
+  .awards-page .aw-bottom {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 599.98px) {
+  .awards-page .aw-years > li {
+    grid-template-columns: 4rem minmax(0, 1fr);
+  }
+  .awards-page .aw-years .aw-year {
+    font-size: 1.3125rem;
+  }
+  .awards-page .aw-doc {
+    padding: 22px 20px 20px;
+  }
+}
+
+/* ---------- reduced motion: everything static and visible ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .awards-page .book-spines,
+  .awards-page .book-info {
+    transition: none;
+  }
+  .awards-page .book:hover .book-spines,
+  .awards-page .book:focus .book-spines {
+    transform: none;
+  }
+  .ms .ms-dot::before {
+    transform: none !important;
+  }
+  .ms .ms-dot::after {
+    animation: none !important;
+  }
+}
+
+/* no flash of the contour lines before sections.js starts drawing them */
+.motion-pending .leadership-page .lx-contours {
+  opacity: 0;
+}

@@ -1,49 +1,248 @@
-/* Publications: topic chips and Copy BibTeX. Same tokens as site.scss. */
-.pub-filter[hidden], .pub-status[hidden], .pub-search[hidden] { display: none !important; }
+/* Publications: topic chips with a sliding active state, FLIP filtering, thumbnail zoom, Copy BibTeX.
+   Base entry styles (ruled list, badges, link buttons) live in site.scss; behaviour in assets/js/pubs.js. */
+.pub-filter[hidden],
+.pub-status[hidden],
+.pub-search[hidden] {
+  display: none !important;
+}
+/* With JS on, hold the controls' space (invisible) until pubs.js reveals them. Otherwise revealing them after
+   first paint pushed the whole list down (CLS 0.14 on phones). No JS: they stay display: none, as above. */
+html.has-js .pub-filter[hidden] {
+  display: flex !important;
+  visibility: hidden;
+}
+html.has-js .pub-status[hidden],
+html.has-js .pub-search[hidden] {
+  display: block !important;
+  visibility: hidden;
+}
+
+/* ---------- topic chips ---------- */
 .pub-filter {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin: 0.5rem 0 0.75rem;
+  padding: 0;
 }
 .pub-chip {
-  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  display: inline-flex;
+  align-items: center;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
   font-size: 0.875rem;
   font-weight: 500;
   line-height: 1;
+  white-space: nowrap;
   color: #1f1712;
-  background: #f8eadc;
+  background: #f5e6d6;
   border: 0;
-  border-radius: 999px;
-  padding: 0.6rem 0.95rem;
-  min-height: 40px;
+  border-radius: 4px;
+  padding: 0 0.95rem;
+  min-height: 44px;
+  margin: 0;
   cursor: pointer;
-  transition: background 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
-.pub-chip:hover { background: #f1dcc8; }
-.pub-chip[aria-pressed="true"] { background: #1f1712; color: #fffaf4; }
-.pub-chip:focus-visible { outline: 2px solid #a04a0d; outline-offset: 3px; }
+.pub-chip:hover {
+  background: #eed8c3;
+}
+.pub-chip[aria-pressed="true"] {
+  background: #1f1712;
+  color: #fbf4ec;
+}
+.pub-chip:focus-visible {
+  outline: 2px solid #a04a0d;
+  outline-offset: 3px;
+}
 .pub-chip-count {
   font-variant-numeric: tabular-nums lining-nums;
-  margin-left: 0.35em;
+  margin-left: 0.4em;
   color: #5e4b3f;
 }
-.pub-chip[aria-pressed="true"] .pub-chip-count { color: #f8eadc; }
+.pub-chip[aria-pressed="true"] .pub-chip-count {
+  color: #e9d6c4;
+}
+
+/* The glider: an ink layer over the row, cut down by clip-path to the active chip. It holds a light copy
+   of the chips laid out exactly like the real ones, so the label colour turns where the ink passes. */
+.pub-filter.has-glider .pub-chip[aria-pressed="true"] {
+  background: #f5e6d6;
+  color: #1f1712;
+}
+.pub-filter.has-glider .pub-chip[aria-pressed="true"] .pub-chip-count {
+  color: #5e4b3f;
+}
+.pub-chip-glider {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  background: #1f1712;
+  pointer-events: none;
+  clip-path: inset(0 100% 100% 0 round 4px);
+  transition: clip-path 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.pub-chip-glider .pub-chip {
+  background: transparent;
+  color: #fbf4ec;
+  cursor: default;
+}
+.pub-chip-glider .pub-chip-count {
+  color: #e9d6c4;
+}
+.pub-chip-glider.no-anim {
+  transition: none;
+}
+
 .pub-status {
   display: block;
   font-family: "Inter", system-ui, sans-serif;
   font-size: var(--step--1, 0.84375rem);
   color: #5e4b3f;
   margin: 0 0 1.25rem;
+  min-height: 1.4em;
+}
+
+/* ---------- filtering ---------- */
+.publications {
+  position: relative;
 }
 .publications .topic-off,
 .publications .search-off,
-.publications .group-off { display: none !important; }
-.publications .links .pub-copy { cursor: pointer; }
-.publications .links a.bibtex { cursor: pointer; }
+.publications .group-off {
+  display: none !important;
+}
+/* Leaving entries are pinned where they stood while they fade (pubs.js sets top, left, width). */
+.publications ol.bibliography > li.pub-leaving,
+.publications h2.bibliography.pub-leaving {
+  display: block !important;
+  position: absolute;
+  margin: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.publications ol.bibliography.pub-group-leaving {
+  display: block !important;
+  height: 0;
+  margin: 0 !important;
+  padding: 0;
+}
+
+/* ---------- entries: a quiet response to the pointer ---------- */
+.publications ol.bibliography > li .abbr figure {
+  margin: 0.75rem 0 0;
+  overflow: hidden;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(31, 23, 18, 0.1);
+}
+.publications ol.bibliography > li .abbr img.preview {
+  display: block;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  transform-origin: 50% 40%;
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (hover: hover) {
+  .publications ol.bibliography > li:hover .abbr img.preview {
+    transform: scale(1.07);
+  }
+}
+.publications ol.bibliography > li:focus-within .abbr img.preview {
+  transform: scale(1.07);
+}
+
+/* ---------- Copy BibTeX ---------- */
+.publications .links .pub-copy {
+  position: relative;
+  display: inline-grid;
+  overflow: hidden;
+  cursor: pointer;
+  vertical-align: top;
+}
+.pub-copy > span,
+.pub-copy .pub-copy-msg {
+  color: inherit !important; /* a broad span colour rule in the theme would paint the label ink */
+}
+.pub-copy > span {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35em;
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.3s ease;
+}
+.pub-copy .pub-copy-done {
+  transform: translateY(110%);
+  opacity: 0;
+}
+.pub-copy.is-copied .pub-copy-label {
+  transform: translateY(-110%);
+  opacity: 0;
+}
+.pub-copy.is-copied .pub-copy-done {
+  transform: none;
+  opacity: 1;
+}
+html body .publications .links .pub-copy.is-copied {
+  background: #a04a0d !important;
+  border-color: #a04a0d !important;
+  color: #fbf4ec !important;
+}
+.pub-copy-check path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+.pub-copy.is-copied .pub-copy-check path {
+  transition: stroke-dashoffset 0.42s cubic-bezier(0.65, 0, 0.35, 1) 0.12s;
+  stroke-dashoffset: 0;
+}
+.pub-copy.is-fallback .pub-copy-check {
+  display: none;
+}
+
 @media (max-width: 575.98px) {
-  .pub-chip { font-size: 0.8125rem; padding: 0.55rem 0.8rem; }
+  .pub-chip {
+    font-size: 0.8125rem;
+    padding: 0 0.8rem;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pub-chip { transition: none; }
+  .pub-chip,
+  .pub-chip-glider,
+  .pub-copy > span,
+  .publications ol.bibliography > li .abbr img.preview {
+    transition: none !important;
+  }
+  .publications ol.bibliography > li:hover .abbr img.preview,
+  .publications ol.bibliography > li:focus-within .abbr img.preview {
+    transform: none;
+  }
+  .pub-copy-check path {
+    stroke-dashoffset: 0;
+  }
+}
+@media print {
+  .pub-chip-glider {
+    display: none;
+  }
+}
+
+/* Phones: a display-size year over a single paper left long empty stretches. */
+@media (max-width: 599.98px) {
+  .publications h2.bibliography {
+    font-size: 1.5rem;
+    margin: 2rem 0 0.75rem;
+  }
 }
