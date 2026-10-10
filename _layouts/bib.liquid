@@ -230,9 +230,7 @@
       {% if entry.hal %}
         <a href="https://hal.science/{{ entry.hal }}" class="btn btn-sm z-depth-0" role="button">HAL</a>
       {% endif %}
-      {% if entry.bibtex_show %}
-        <a class="bibtex btn btn-sm z-depth-0" role="button">Bib</a>
-      {% endif %}
+      {%- comment -%} Local change (v5): no "Bib" toggle. assets/js/pubs.js adds one "Copy BibTeX" button per entry; the hidden .bibtex block below stays as its source and its fallback. {%- endcomment -%}
       {% if entry.html %}
         {% if entry.html contains '://' %}
           <a href="{{ entry.html }}" class="btn btn-sm z-depth-0" role="button">HTML</a>

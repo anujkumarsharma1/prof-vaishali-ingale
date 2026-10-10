@@ -1,5 +1,18 @@
-{%- comment -%} Local copy of al_folio_core 1.0.15 _includes/header.liquid; changes: the bio page lives at /about/ (the site root is the interactive office), and an Office menu item. {%- endcomment -%}
+{%- comment -%} Local copy of al_folio_core 1.0.15 _includes/header.liquid; changes: the bio page lives at /about/ (the site root is the interactive office), an Office menu item, and (v5) the .nav-mark indicator on the current item plus the .nav-progress hairline. {%- endcomment -%}
 <header>
+  {%- comment -%} v5 (plan.md change 7): a page reached by a same-origin navigation arrives through a cross-document view transition, and its title morphs (motion.css). Runs before the deferred motion.js, so the title's line-rise is dropped from MOTION_CONFIG and it is not animated twice. {%- endcomment -%}
+  <script>
+    (function () {
+      try {
+        var a = window.navigation && navigation.activation;
+        if (!window.PageRevealEvent || !a || !a.from || a.navigationType === "reload") return;
+        if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        document.documentElement.classList.add("vt-in");
+        var c = window.MOTION_CONFIG;
+        if (c && c.auto) delete c.auto[".post-header .post-title"];
+      } catch (e) {}
+    })();
+  </script>
   <!-- Nav Bar -->
   <nav id="navbar" class="navbar navbar-light navbar-expand-sm {% if site.navbar_fixed %}fixed-top{% else %}sticky-top{% endif %}" role="navigation">
     <div class="container">
@@ -52,6 +65,7 @@
               {{- about_title }}
               {% if page.permalink == '/about/' %}
                 <span class="sr-only">(current)</span>
+                <span class="nav-mark" aria-hidden="true"></span>
               {% endif %}
             </a>
           </li>
@@ -112,6 +126,9 @@
                     {% if page.url contains p.url %}
                       <span class="sr-only">(current)</span>
                     {% endif %}
+                    {% if page.url contains parent_link %}
+                      <span class="nav-mark" aria-hidden="true"></span>
+                    {% endif %}
                   </a>
                 </li>
               {% endif %}
@@ -145,13 +162,8 @@
         </ul>
       </div>
     </div>
+    {%- comment -%} v5 (plan.md change 6): reading-progress hairline on the bar's bottom edge; chrome.css/chrome.js drive it. {%- endcomment -%}
+    <span class="nav-progress" aria-hidden="true"></span>
   </nav>
-  {% if site.enable_progressbar %}
-    <!-- Scrolling Progress Bar -->
-    <progress id="progress" value="0">
-      <div class="progress-container">
-        <span class="progress-bar"></span>
-      </div>
-    </progress>
-  {% endif %}
+  {%- comment -%} v5: al-folio's <progress id="progress"> bar is replaced by .nav-progress inside the bar (progress-bar.js no-ops without it). {%- endcomment -%}
 </header>

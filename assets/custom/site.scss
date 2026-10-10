@@ -12,7 +12,7 @@
 @font-face {
   font-family: 'Fraunces';
   font-style: normal;
-  font-weight: 300 500;
+  font-weight: 100 900; /* variable file: wght 100-900, opsz 9-144 */
   font-display: swap;
   src: url("../fonts/fraunces-latin-ext.woff2") format('woff2');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
@@ -20,7 +20,7 @@
 @font-face {
   font-family: 'Fraunces';
   font-style: normal;
-  font-weight: 300 500;
+  font-weight: 100 900; /* variable file: wght 100-900, opsz 9-144 */
   font-display: swap;
   src: url("../fonts/fraunces-latin.woff2") format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
@@ -28,7 +28,7 @@
 @font-face {
   font-family: 'Inter';
   font-style: normal;
-  font-weight: 400 600;
+  font-weight: 100 900; /* variable file: wght 100-900 */
   font-display: swap;
   src: url("../fonts/inter-latin-ext.woff2") format('woff2');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
@@ -36,7 +36,7 @@
 @font-face {
   font-family: 'Inter';
   font-style: normal;
-  font-weight: 400 600;
+  font-weight: 100 900; /* variable file: wght 100-900 */
   font-display: swap;
   src: url("../fonts/inter-latin.woff2") format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
@@ -99,6 +99,7 @@ body {
   overflow-x: hidden;
 }
 a:focus-visible, button:focus-visible, .btn:focus-visible, input:focus-visible { outline: 2px solid $accent; outline-offset: 3px; border-radius: 4px; }
+strong, b { font-weight: 600; } /* weights stay where they were before the @font-face range widened */
 ::selection { background: rgba($yellow, 0.5); color: $ink; }
 
 $measure: 64ch;
@@ -186,6 +187,7 @@ article a:not(.btn):not(.badge):not(.stat-link):not(.hero-cta):not(.hero-link):f
 body.fixed-top-nav { padding-top: 56px !important; }
 #navbar.is-scrolled { box-shadow: 0 1px 0 rgba($ink, 0.06) !important; }
 .navbar-brand.title { font-family: $serif; font-size: 1.15rem; color: $ink !important; }
+.navbar-brand.title .font-weight-bold { font-weight: 500 !important; } /* the wider wght range would make it 700 */
 .navbar .nav-link {
   position: relative;
   font-size: 0.875rem;
@@ -195,21 +197,8 @@ body.fixed-top-nav { padding-top: 56px !important; }
   padding-right: 0.9rem !important;
   transition: color 0.3s ease;
 }
-.navbar .nav-link::after {
-  content: "";
-  position: absolute;
-  left: 0.9rem;
-  right: 0.9rem;
-  bottom: 0.3rem;
-  height: 1.5px;
-  background: $accent;
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 0.6s $ease;
-}
-.navbar .nav-link:hover { color: $ink !important; }
-.navbar .nav-link:hover::after,
-.navbar .nav-item.active > .nav-link::after { transform: scaleX(1); }
+.navbar .nav-link:hover, .navbar .nav-link:focus-visible { color: $ink !important; }
+/* The current-page underline is one .nav-mark element that glides between items (chrome.css, chrome.js). */
 .navbar .nav-item.active > .nav-link { color: $ink !important; }
 .navbar-toggler .icon-bar { background-color: $ink !important; }
 progress#progress { height: 2px; background: transparent; color: $accent; }
@@ -234,11 +223,9 @@ progress#progress::-moz-progress-bar { background: $accent; }
   font-size: clamp(0.75rem, 0.7rem + 0.15vw, 0.8125rem);
   font-weight: 500;
   line-height: 1.4;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
   color: $label;
   margin-bottom: 0.5rem;
-}
+} /* sentence case, no tracking: final kicker style lives in chrome.css */
 .card-source { font-size: 0.875rem; line-height: 1.5; letter-spacing: 0.01em; color: $ink-soft; margin: 1.5rem 0 0; }
 .card-grid {
   display: grid;
@@ -329,8 +316,6 @@ progress#progress::-moz-progress-bar { background: $accent; }
 .hero-kicker {
   font-size: clamp(0.75rem, 0.7rem + 0.15vw, 0.8125rem);
   font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
   color: $label;
   margin: 0 0 1rem;
 }
@@ -425,18 +410,16 @@ progress#progress::-moz-progress-bar { background: $accent; }
   letter-spacing: -0.015em;
   line-height: 1.1;
   margin-bottom: 2rem;
-  a { color: $ink !important; text-decoration: none !important; }
-  a::after {
-    content: "\2192";
-    display: inline-block;
-    font-family: $sans;
-    font-size: 0.5em;
-    color: $accent;
-    margin-left: 0.4em;
-    transform: translateY(-0.15em);
-    transition: transform 0.5s $ease;
+  /* linked section headings: no glued arrow; a hairline underline answers hover and focus */
+  a {
+    color: $ink !important;
+    text-decoration: underline !important;
+    text-decoration-thickness: 1px !important;
+    text-underline-offset: 0.16em;
+    text-decoration-color: rgba($ink, 0.18) !important;
+    transition: text-decoration-color 0.3s ease, color 0.3s ease;
   }
-  a:hover::after { transform: translate(6px, -0.15em); }
+  a:hover, a:focus-visible { color: $accent !important; text-decoration-color: currentColor !important; }
   a:empty { display: none; }
 }
 .profile { display: none; } /* portrait lives in the hero */
@@ -506,13 +489,15 @@ article a.heading-link:focus-visible, .news a.news-title:focus-visible { color: 
 .publications ol.bibliography { padding-left: 0; }
 .publications ol.bibliography > li {
   list-style: none;
-  background: $card;
-  border-radius: $radius;
-  padding: 1.5rem 1.6rem;
-  margin-bottom: 1rem;
+  position: relative;
+  background: transparent;
+  border-top: 1px solid rgba($ink, 0.12);
+  padding: 1.75rem 0;
+  margin: 0;
   max-width: none;
 }
-.publications .title { font-family: $serif; font-size: 1.2rem; font-weight: 450; color: $ink; line-height: 1.35; }
+.publications ol.bibliography > li:first-child { border-top-color: rgba($ink, 0.28); }
+.publications .title { font-family: $serif; font-size: 1.25rem; font-weight: 450; color: $ink; line-height: 1.32; letter-spacing: -0.008em; }
 .publications .title a.pub-title-link,
 article .publications .title a.pub-title-link {
   color: $ink !important;
@@ -524,39 +509,51 @@ article .publications .title a.pub-title-link {
 }
 .publications .title a.pub-title-link:hover { text-decoration-color: rgba($ink, 0.45) !important; }
 .publications .title a.pub-title-link:focus-visible { color: $accent !important; text-decoration-color: currentColor !important; }
-.publications .author { color: $ink-soft; font-size: 0.9375rem; }
+.publications .author { color: $ink-soft; font-size: 0.9375rem; margin-top: 0.35rem; }
 .publications .author em,
 .publications .author strong,
 .publications .author .highlight { color: $ink; font-weight: 600; font-style: normal; }
 .publications .periodical { font-size: 0.9375rem; color: $ink-soft; }
+.publications .periodical:empty { display: none; }
 .publications ol.bibliography li .abbr abbr.badge,
 .publications .abbr .badge, abbr.badge {
-  background: $cream !important;
-  color: $accent-dark !important; // 7.6:1 on cream (QA P1-1)
-  border-radius: 999px !important;
+  background: transparent !important;
+  color: $accent-dark !important; // 8.1:1 on paper
+  border: 1px solid rgba($accent, 0.35) !important;
+  border-radius: 4px !important;
   font-family: $sans;
   font-weight: 600;
   font-size: 0.6875rem;
-  letter-spacing: 0.04em;
-  padding: 0.4em 0.75em;
+  letter-spacing: 0.02em;
+  padding: 0.35em 0.6em;
+  max-width: max-content; /* w-100 is a layered !important utility; max-width still wins */
 }
+.publications .links { margin-top: 0.85rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .publications .links .btn {
-  border: 0 !important;
-  background: $cream !important;
+  border: 1px solid rgba($ink, 0.14) !important;
+  background: transparent !important;
   color: $ink !important;
-  border-radius: 999px !important;
-  font-size: 0.75rem;
-  padding: 0.2rem 0.8rem;
-  transition: background 0.3s ease, color 0.3s ease;
+  border-radius: 4px !important;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.2;
+  margin: 0 !important;
+  padding: 0.45rem 0.75rem;
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
 }
-.publications .links .btn:hover { background: $ink !important; color: $card !important; }
-.publications .preview { border-radius: 12px; }
+.publications .links .btn:hover, .publications .links .btn:focus-visible { background: $ink !important; border-color: $ink !important; color: $paper !important; }
+.publications .preview { border-radius: 4px; box-shadow: none !important; }
+@media (max-width: 575.98px) {
+  .publications ol.bibliography .row { margin-left: 0; margin-right: 0; }
+  .publications ol.bibliography .row > [class*="col"] { padding-left: 0; padding-right: 0; }
+  .publications ol.bibliography .abbr { margin-bottom: 0.75rem; }
+}
 #bibsearch, input.search {
-  border-radius: 999px !important;
-  border: 0 !important;
+  border-radius: 6px !important;
+  border: 1px solid rgba($ink, 0.14) !important;
   background: $card !important;
-  box-shadow: $shadow;
-  padding: 0.7rem 1.2rem !important;
+  box-shadow: none;
+  padding: 0.7rem 1rem !important;
 }
 
 /* ---------- leadership: stacked flat cards + milestones timeline ---------- */
@@ -600,9 +597,7 @@ article .publications .title a.pub-title-link {
 .milestone-date {
   display: block;
   font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-weight: 500;
   color: $label;
   margin-bottom: 0.35rem;
 }
@@ -625,19 +620,6 @@ ul.timeline-list {
     color: $ink;
     font-variant-numeric: tabular-nums lining-nums;
   }
-}
-
-/* ---------- awards: bento grid ---------- */
-.awards-page {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 1.5rem;
-  grid-auto-flow: dense;
-  > .card-soft { grid-column: span 3; margin-bottom: 0; }
-  > .card-soft:first-child { grid-column: span 6; }
-  > .span-2 { grid-column: span 2; }
-  > .span-4 { grid-column: span 4; }
-  > .span-6 { grid-column: span 6; }
 }
 
 /* ---------- wishes page ---------- */
@@ -686,8 +668,6 @@ ul.timeline-list {
     font-size: 0.75rem;
     font-weight: 500;
     line-height: 1.4;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
     color: $label;
     margin: 0;
   }
@@ -756,8 +736,6 @@ footer a:hover { text-decoration-color: currentColor; }
   .news table tr { display: block; padding: 1rem 0; }
   .news table th, .news table td { display: block; width: auto; padding: 0 !important; }
   .news table th { margin-bottom: 0.35rem; }
-  .awards-page { grid-template-columns: 1fr; }
-  .awards-page > * { grid-column: 1 / -1 !important; }
   ul.timeline-list li { padding-left: 4.6rem; }
   .stat-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.75rem 1rem; }
 }
@@ -770,83 +748,103 @@ footer a:hover { text-decoration-color: currentColor; }
 }
 
 /* ==========================================================================
-   Cards: one consistent, medium-weight style for every card on the site
-   (leadership sections, awards, CV entries, news, the about-page stats,
-   publication entries). The room windows use the same values in
-   room/css/cards.css. Flat fill + faint cinnamon hairline + soft shadow;
-   no glass, no gradients. Hover lift only on cards that are links.
+   Surfaces (v5, plan.md change 10). No longer one radius and one shadow on
+   every box. Three tiers, no shadows anywhere:
+   - feature blocks (.card-soft): flat warm fill, cinnamon-tinted hairline, 10px radius;
+   - documents and lists (CV sections, news, publications): no fill, ruled by hairlines;
+   - inner pieces (badges, chips, link buttons, thumbnails): 4px radius.
+   The about-page counters (.hero-stats) keep their box until the home redesign replaces it.
    ========================================================================== */
-$card-fill: #f5e6d6;   // deeper, warmer than the #fbf4ec page (chosen over #fffaf4 by screenshot; all text >= 4.5:1)
-$card-border: rgba(160, 74, 13, 0.10);
-$card-radius: 16px;
-$card-shadow: 0 1px 2px rgba(60, 30, 10, 0.04), 0 8px 24px rgba(60, 30, 10, 0.06);
-$card-shadow-hover: 0 2px 4px rgba(60, 30, 10, 0.05), 0 14px 32px rgba(60, 30, 10, 0.09);
+$card-fill: #f5e6d6;   // deeper, warmer than the #fbf4ec page (all text >= 4.5:1)
+$card-border: rgba(160, 74, 13, 0.12);
+$rule: rgba(31, 23, 18, 0.12);
+$card-radius: 10px;
+$inner-radius: 4px;
 $card-pad: 32px;
 $card-pad-sm: 20px;
 
 html body {
   .card-soft,
-  .news-card,
   .leadership-page > .card-soft,
-  .awards-page > .card-soft,
-  .cv .card,
-  .cv .card.mt-3,
-  .publications ol.bibliography > li,
-  .hero-stats {
+  .awards-page > .card-soft {
     background: $card-fill !important;
     border: 1px solid $card-border !important;
     border-radius: $card-radius !important;
-    box-shadow: $card-shadow !important;
+    box-shadow: none !important;
     padding: $card-pad !important;
   }
+  .hero-stats {
+    background: $card-fill !important;
+    border: 1px solid $card-border !important;
+    border-radius: 16px !important;
+    box-shadow: 0 1px 2px rgba(60, 30, 10, 0.04), 0 8px 24px rgba(60, 30, 10, 0.06) !important;
+    padding: $card-pad !important;
+  }
+  /* documents: CV sections sit on the page, separated by a rule */
+  .cv .card,
+  .cv .card.mt-3 {
+    background: transparent !important;
+    position: relative;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  /* the card keeps al-folio's p-3 (a layered !important utility we cannot outrank), so the rule is drawn
+     inside it, aligned with the text */
+  .cv .card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 1rem;
+    right: 1rem;
+    height: 1px;
+    background: $rule;
+  }
+  /* news: a ruled list, the first rule heavier like a table head */
+  .news-card {
+    background: transparent !important;
+    border: 0 !important;
+    border-top: 1px solid rgba($ink, 0.28) !important;
+    border-bottom: 1px solid $rule !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 4px 0 !important;
+  }
+  .news-card .news table td:first-child, .news-card .news table th:first-child { padding-left: 0; }
   .cv .card-body { background: transparent !important; padding: 0 !important; border: 0 !important; box-shadow: none !important; }
   .leadership-page > .card-soft { margin: 0 0 24px; }
   .leadership-page > .card-soft:first-child { padding-top: $card-pad !important; }
   .leadership-page .milestones { padding-top: calc(#{$section-pad} - 24px); }
   .card-soft, .news-card { margin-bottom: 24px; }
   .awards-page > .card-soft, .card-grid .card-soft { margin-bottom: 0; }
-  .publications ol.bibliography > li { margin-bottom: 16px; }
-  .news-card { padding-top: 12px !important; padding-bottom: 12px !important; }
-  .news-card .news table tr + tr td, .news-card .news table tr + tr th { border-top: 1px solid $card-border !important; }
+  .news-card .news table tr + tr td, .news-card .news table tr + tr th { border-top: 1px solid $rule !important; }
   /* about page: the counters sit in one card instead of a full-bleed band */
   .hero-stats { margin: 0 0 8px; }
   .hero-stats::before { content: none; }
   /* stat strips inside a card stay flat */
   .card-soft .stat-strip { background: none; border: 0; box-shadow: none; padding: 0; }
-  /* hover only when the whole card is a link */
-  a.card-soft, .card-soft.is-clickable, a.news-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  a.card-soft:hover, .card-soft.is-clickable:hover, a.news-card:hover {
-    transform: translateY(-2px);
-    box-shadow: $card-shadow-hover !important;
-  }
+  /* link cards answer hover with their hairline, not a lift */
+  a.card-soft, .card-soft.is-clickable, a.news-card { transition: border-color 0.3s ease; }
+  a.card-soft:hover, .card-soft.is-clickable:hover, a.news-card:hover { border-color: rgba($accent, 0.45) !important; }
 }
 @media (max-width: 575.98px) {
   html body {
     .card-soft,
-    .news-card,
     .leadership-page > .card-soft,
     .leadership-page > .card-soft:first-child,
     .awards-page > .card-soft,
-    .cv .card,
-    .cv .card.mt-3,
-    .publications ol.bibliography > li,
     .hero-stats { padding: $card-pad-sm !important; }
-    .news-card { padding-top: 8px !important; padding-bottom: 8px !important; }
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  html body a.card-soft:hover, html body .card-soft.is-clickable:hover, html body a.news-card:hover { transform: none; }
-}
 
-/* chips inside the deeper cards use the light surface so they still read as chips */
+/* inner pieces: tight radius, light surface so they still read on the warm fill */
 html body {
   .publications ol.bibliography li .abbr abbr.badge,
   .publications .abbr .badge,
+  abbr.badge,
   .publications .links .btn,
-  .cv .badge, .cv .card .badge.danger-color-dark { background: #fffaf4 !important; background-color: #fffaf4 !important; }
-  .publications .links .btn:hover { background: $ink !important; background-color: $ink !important; color: #fffaf4 !important; }
+  .cv .badge, .cv .card .badge.danger-color-dark { border-radius: $inner-radius !important; }
+  .cv .badge, .cv .card .badge.danger-color-dark { background: $cream !important; background-color: $cream !important; }
 }
 
 /* persona review fixes 2 and 8 */
