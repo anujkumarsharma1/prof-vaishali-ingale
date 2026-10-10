@@ -1,1 +1,218 @@
-/* chrome.css: v5 layer, see plan.md */
+/*
+ * chrome.css: v5 "loss landscape" chrome layer (plan.md changes 6 and 10).
+ * Loads on every page after site.css, motion.css and type-scale.css, so it can settle shared chrome
+ * without !important wars. Page files (home.css, sections.css, pubs.css) load later and may refine it.
+ *
+ *  1. Navigation: one cinnamon hairline (.nav-mark) rests under the current item and glides to the
+ *     hovered or focused item (chrome.js); a 2px reading-progress hairline on the bar's bottom edge;
+ *     the bar tucks away on scroll down and returns on scroll up (.is-tucked, chrome.js).
+ *  2. Paper grain: one fixed, pre-rasterised noise layer over the page.
+ *  3. Labels: no tracked ALL-CAPS anywhere; kickers become Fraunces italic, dates small Inter 500.
+ *
+ * Without JS: the mark rests under the current item, hover only changes colour, the bar never tucks,
+ * and the progress line uses a CSS scroll timeline where supported (hidden otherwise).
+ */
+
+:root {
+  --c-paper: #fbf4ec;
+  --c-ink: #1f1712;
+  --c-ink-soft: #5e4b3f;
+  --c-accent: #a04a0d;
+  --c-label: #86613c;
+  --c-rule: rgba(31, 23, 18, 0.1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- 1. navigation ---------- */
+#navbar {
+  opacity: 1; /* al-folio sets 0.95, which lets the page show through the open phone menu */
+  transition:
+    transform 0.5s var(--ease-out-quint),
+    box-shadow 0.4s ease;
+  will-change: transform;
+}
+/* Tucked: the bar slides up but leaves its 2px progress hairline on screen. */
+#navbar.is-tucked {
+  transform: translateY(calc(-100% + 2px));
+}
+#navbar.is-tucked .navbar-brand,
+#navbar.is-tucked .navbar-nav,
+#navbar.is-tucked .navbar-toggler {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+#navbar .navbar-brand,
+#navbar .navbar-nav,
+#navbar .navbar-toggler {
+  transition: opacity 0.35s ease 0.08s;
+}
+
+.navbar .nav-link {
+  transition: color 0.35s ease;
+}
+.nav-mark {
+  position: absolute;
+  left: 0.9rem;
+  right: 0.9rem;
+  bottom: 0.3rem;
+  height: 1.5px;
+  border-radius: 1px;
+  background: var(--c-accent);
+  transform-origin: 0 50%;
+  pointer-events: none;
+  transition:
+    transform 0.55s var(--ease-out-quint),
+    opacity 0.3s ease;
+}
+.nav-mark.is-ghost {
+  opacity: 0;
+}
+.nav-mark.is-ghost.is-on {
+  opacity: 1;
+}
+.nav-mark.no-anim {
+  transition: none;
+}
+/* While the mark visits another item, that item reads as current and the resting one dims back. */
+.navbar.mark-away .nav-item.active > .nav-link {
+  color: var(--c-ink-soft) !important;
+}
+.navbar .nav-link.is-marked {
+  color: var(--c-ink) !important;
+}
+
+/* Reading progress: 2px cinnamon hairline along the bar's bottom edge. */
+.nav-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--c-accent);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  opacity: 0;
+  pointer-events: none;
+}
+@supports (animation-timeline: scroll()) {
+  .nav-progress {
+    opacity: 1;
+    animation: nav-progress linear both;
+    animation-timeline: scroll(root block);
+  }
+}
+@keyframes nav-progress {
+  to {
+    transform: scaleX(1);
+  }
+}
+.nav-progress.js-driven {
+  animation: none;
+  opacity: 1;
+}
+/* Pages too short to need it (chrome.js decides) */
+#navbar.no-progress .nav-progress {
+  opacity: 0 !important;
+}
+
+/* Phones: the collapsed menu lists items vertically; keep the mark under the words, not the full row. */
+@media (max-width: 575.98px) {
+  .navbar .navbar-collapse .nav-link {
+    display: inline-block;
+  }
+  /* the open menu sits on solid paper so the page title does not show through it */
+  #navbar:has(.navbar-collapse.show) {
+    background: var(--c-paper) !important;
+    box-shadow: 0 1px 0 var(--c-rule) !important;
+  }
+}
+
+/* ---------- 2. paper grain ---------- */
+/* A 180px feTurbulence tile cut to sparse specks (alpha = 6a - 3.3), so the paper shifts by about one
+   level of 255 while the texture reads; rasterised once; fixed and on its own layer, so scrolling never repaints it. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.24 0 0 0 0 0.15 0 0 0 0 0.08 0 0 0 6 -3.3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  transform: translateZ(0);
+}
+@media print {
+  body::after {
+    content: none;
+    display: none;
+  }
+}
+
+/* ---------- 3. labels: sentence case, no tracking ---------- */
+.hero-kicker,
+.card-kicker,
+.awards-page .card-kicker,
+.leadership-page .card-kicker {
+  font-family: "Fraunces", Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.0625rem;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--c-label);
+  font-variation-settings: "opsz" 18;
+}
+.milestone-date,
+.wish-card .wish-sign,
+.wish-card .wish-from {
+  font-family: "Inter", system-ui, sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 0.875rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--c-label);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* ---------- reduced motion: static chrome ---------- */
+@media (prefers-reduced-motion: reduce) {
+  #navbar,
+  #navbar.is-tucked {
+    transform: none;
+    transition: none;
+  }
+  #navbar.is-tucked .navbar-brand,
+  #navbar.is-tucked .navbar-nav,
+  #navbar.is-tucked .navbar-toggler {
+    opacity: 1;
+  }
+  .nav-mark {
+    transition: none;
+  }
+  .nav-progress {
+    display: none;
+  }
+}
+
+/* CV dates come from the al_folio_cv gem with a .text-uppercase utility ("2005 - PRESENT"); keep them in normal case. */
+.table-cv .badge.text-uppercase {
+  text-transform: capitalize !important;
+  letter-spacing: 0 !important;
+}
+
+/* Home: the hero already shows the name, so the bar's brand appears only once the hero has scrolled away
+   (chrome.js sets html.hero-passed). Without JS the brand is always visible. */
+html.has-js .brand-after-hero {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+html.has-js.hero-passed .brand-after-hero {
+  opacity: 1;
+  pointer-events: auto;
+}
+#navbar.is-tucked .brand-after-hero {
+  opacity: 0;
+}

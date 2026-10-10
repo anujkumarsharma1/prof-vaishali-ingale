@@ -1,34 +1,48 @@
 {%- comment -%}
   Vertical milestones timeline, rendered from _data/timeline.yml (newest first).
   Add a milestone by adding an entry there: date ("YYYY-MM" or "YYYY"), title, text, optional link.
+  Layout: years in a quiet left column, a rail with one dot per entry, content on the right.
+  Motion (assets/js/sections.js): the rail draws as you scroll and each dot lights at the reading line.
+  data-motion-skip keeps motion.js from also fading the items and drawing its own rail.
 {%- endcomment -%}
 {% if site.data.timeline %}
-  <section class="milestones" aria-labelledby="milestones-title">
-    <p class="card-kicker">2002 – today</p>
-    <h2 id="milestones-title" class="section-display" data-reveal="lines">Milestones</h2>
-    <ol class="milestones-list">
-      {% for m in site.data.timeline %}
-        {% assign d = m.date | append: '' %}
-        {% if d.size == 7 %}
-          {% assign shown = d | append: '-01' | date: '%b %Y' %}
-        {% else %}
-          {% assign shown = d %}
-        {% endif %}
-        <li class="milestone" data-reveal="fade-up">
-          <span class="milestone-dot" aria-hidden="true"></span>
-          <time class="milestone-date" datetime="{{ d }}">{{ shown }}</time>
-          <h3 class="milestone-title">
-            {% if m.link %}
-              {% assign ml = m.link %}
-              {% unless ml contains '://' %}{% assign ml = ml | relative_url %}{% endunless %}
-              <a href="{{ ml }}">{{ m.title }}</a>
-            {% else %}
-              {{ m.title }}
-            {% endif %}
-          </h3>
-          <p class="milestone-text">{{ m.text }}</p>
-        </li>
-      {% endfor %}
-    </ol>
+  <section class="ms" aria-labelledby="milestones-title" data-motion-skip>
+    <p class="ms-kicker">2002 to today</p>
+    <h2 id="milestones-title" class="ms-title">Milestones</h2>
+    <div class="ms-track">
+      <div class="ms-rail" aria-hidden="true"><span class="ms-rail-fill"></span></div>
+      <ol class="ms-list">
+        {% for m in site.data.timeline %}
+          {% assign d = m.date | append: '' %}
+          {% assign year = d | slice: 0, 4 %}
+          {% if d.size == 7 %}
+            {% assign month = d | append: '-01' | date: '%b' %}
+          {% else %}
+            {% assign month = '' %}
+          {% endif %}
+          <li class="ms-item">
+            <time class="ms-date" datetime="{{ d }}">
+              {%- if month != '' -%}
+                <span class="ms-month">{{ month }}</span>
+              {% endif -%}
+              <span class="ms-year">{{ year }}</span>
+            </time>
+            <span class="ms-dot" aria-hidden="true"></span>
+            <div class="ms-body">
+              <h3 class="ms-heading">
+                {% if m.link %}
+                  {% assign ml = m.link %}
+                  {% unless ml contains '://' %}{% assign ml = ml | relative_url %}{% endunless %}
+                  <a href="{{ ml }}">{{ m.title }}</a>
+                {% else %}
+                  {{ m.title }}
+                {% endif %}
+              </h3>
+              <p class="ms-text">{{ m.text }}</p>
+            </div>
+          </li>
+        {% endfor %}
+      </ol>
+    </div>
   </section>
 {% endif %}

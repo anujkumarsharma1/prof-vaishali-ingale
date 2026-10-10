@@ -2,33 +2,66 @@
 layout: default
 ---
 {%- comment -%}
-  Local override of al_folio_core's about layout (see README_UPDATE.md).
-  Professional hero: kicker, serif name, tagline, two calls to action, portrait.
-  Content keys come from the front matter of _pages/about.md (kicker, name_prefix, hero_tagline, subtitle, profile).
-  The primary button opens the interactive office at /room/ (a self-contained static folder, see README_UPDATE.md).
+  Local override of al_folio_core's about layout (see README_UPDATE.md). v5 "loss landscape" home (plan.md §2, changes 1–5).
+  Content keys come from the front matter of _pages/about.md (kicker = role line, name_prefix, hero_tagline, research_areas, profile).
+  Motion lives in assets/js/home.js + assets/custom/home.css (loaded only on this layout), not in motion.js:
+  the whole page carries data-motion-skip and no data-reveal / data-count attributes, so nothing is animated twice.
+    - hero: home.js adds a live contour field (canvas) over the watercolour .hero-art; click or tap drops a descent dot.
+    - name: [data-kinetic] is split into letters by home.js (desktop only; phones paint it at once for LCP).
+    - stats: [data-odo] digits roll like an odometer; the plain number stays in the markup (no JS, print, screen readers).
+    - [data-since-date] on "Years at AIT" is recomputed by home.js so it never goes stale (build-time value is the fallback).
+  The primary button opens the interactive office (root index.html or room/index.html, see office_url.liquid).
 {%- endcomment -%}
-<div class="post about-page">
-  <section class="about-hero" data-hero>
+<div class="post about-page" data-motion-skip>
+  {%- comment -%} Hide the hero items until home.js runs, only on desktop with motion allowed (same guard as motion.css, 3 s failsafe). {%- endcomment -%}
+  <script>
+    !(function (d) {
+      try {
+        if (d.classList.contains('motion-pending') && matchMedia('(min-width: 900px)').matches) {
+          d.classList.add('home-pending');
+          setTimeout(function () {
+            d.classList.remove('home-pending');
+          }, 3000);
+        }
+      } catch (e) {}
+    })(document.documentElement);
+  </script>
+  <section class="about-hero" data-hero data-home-hero>
     <div class="hero-art" data-parallax="80" aria-hidden="true"></div>
     <div class="hero-step hero-step-1">
       <div class="hero-text">
-        {% if page.kicker %}<p class="hero-kicker" data-hero-item data-reveal="fade-up" data-start="load" data-delay="0.5">{{ page.kicker }}</p>{% endif %}
-        <h1 class="post-title hero-title" data-hero-item data-reveal="lines" data-start="load" data-delay="0.15">
-          {% if page.name_prefix %}<span class="name-prefix">{{ page.name_prefix }}</span>{% endif %}
-          <span class="name-main">{{ site.first_name }} {{ site.middle_name }} {{ site.last_name }}</span>
+        {% if page.kicker %}
+          <p class="hero-role" data-home-in>{{ page.kicker }}</p>
+        {% endif %}
+        <h1 class="post-title hero-title">
+          {% if page.name_prefix -%}
+            <span class="name-prefix" data-home-in>{{ page.name_prefix }}</span>
+          {%- endif %}
+          <span class="name-main" data-kinetic>
+            {{- site.first_name }}
+            {{ site.middle_name }}
+            {{ site.last_name -}}
+          </span>
         </h1>
         {% assign hero_tagline = page.hero_tagline | default: page.tagline %}
-        {% if hero_tagline %}<p class="hero-tagline" data-hero-item data-reveal="lines" data-start="load" data-delay="0.35">{{ hero_tagline }}</p>{% endif %}
-        {%- comment -%} The office button appears only when the office is deployed (root index.html or room/index.html, see office_url.liquid). {%- endcomment -%}
+        {% if hero_tagline %}
+          <p class="hero-tagline" data-home-in>{{ hero_tagline }}</p>
+        {% endif %}
         {% include office_url.liquid %}
-        <div class="hero-actions" data-hero-item data-reveal="fade-up" data-start="load" data-delay="0.75">
-          {% if office_url %}<a class="hero-cta" href="{{ office_url }}">{{ page.hero_cta_text | default: 'Explore the office' }} <span aria-hidden="true">&rarr;</span></a>{% endif %}
-          <a class="hero-link" href="{{ '/publications/' | relative_url }}">Publications <span aria-hidden="true">&rarr;</span></a>
+        <div class="hero-actions" data-home-in>
+          {% if office_url -%}
+            <a class="hero-cta" href="{{ office_url }}">
+              {{- page.hero_cta_text | default: 'Explore the office' }}
+              <span aria-hidden="true">&rarr;</span></a
+            >
+          {%- endif %}
+          <a class="hero-link" href="{{ '/publications/' | relative_url }}">Publications</a>
         </div>
+        <p class="hero-hint" aria-hidden="true">Click the contours to run gradient descent</p>
       </div>
       {% if page.profile and page.profile.image %}
         <div class="hero-portrait" data-parallax="24">
-          <div class="portrait-frame">
+          <div class="portrait-frame" data-portrait>
             {% assign profile_image_path = page.profile.image | prepend: 'assets/img/' %}
             {%
               include figure.liquid loading="eager" path=profile_image_path class="img-fluid portrait-img" sizes="(min-width: 768px) 380px, 300px"
@@ -40,10 +73,13 @@ layout: default
     </div>
   </section>
 
-  {%- comment -%} Counters come from _data/stats.yml. "since" (YYYY-MM-DD) turns into whole years at build time; site.js recomputes it in the browser so it never goes stale. {%- endcomment -%}
+  {%- comment -%}
+    Stats ledger from _data/stats.yml. "since" (YYYY-MM-DD) turns into whole years at build time; home.js recomputes it in the
+    browser. Each number is printed as plain text inside .ledger-odo; home.js turns its digits into odometer columns.
+  {%- endcomment -%}
   {% assign stats = site.data.stats %}
   {% if stats %}
-    <section class="hero-stats stat-strip" aria-label="At a glance" data-reveal="fade-up">
+    <section class="home-ledger" aria-label="At a glance">
       {% assign now_y = 'now' | date: '%Y' | plus: 0 %}
       {% assign now_md = 'now' | date: '%m%d' | plus: 0 %}
       {% for s in stats %}
@@ -60,94 +96,180 @@ layout: default
         {% if stat_url and stat_url != '' %}
           {% unless stat_url contains '://' %}{% assign stat_url = stat_url | relative_url %}{% endunless %}
         {% endif %}
-        <div class="stat">
-          {% if stat_url and stat_url != '' %}<a class="stat-link" href="{{ stat_url }}">{% endif %}
-          {% if value >= 1000 %}
-            {% assign th = value | divided_by: 1000 %}{% assign rest = value | modulo: 1000 | prepend: '00' | slice: -3, 3 %}
-            {% capture shown %}{{ th }},{{ rest }}{% endcapture %}
-          {% else %}
-            {% assign shown = value %}
-          {% endif %}
-          <span class="stat-number"><span data-count="{{ value }}"{% if s.since %} data-since="{{ s.since | date: '%Y-%m-%d' }}"{% endif %}>{{ shown }}</span>{% if s.suffix and s.suffix != '' %}<span class="stat-suffix">{{ s.suffix }}</span>{% endif %}</span>
-          <span class="stat-label">{{ s.label }}</span>
+        {% if value >= 1000 %}
+          {% assign th = value | divided_by: 1000 -%}
+          {%- assign rest = value | modulo: 1000 | prepend: '00' | slice: -3, 3 %}
+          {% capture shown %}{{ th }},{{ rest }}{% endcapture %}
+        {% else %}
+          {% capture shown %}{{ value }}{% endcapture %}
+        {% endif %}
+        <div class="ledger-item{% if stat_url and stat_url != '' %} has-link{% endif %}">
+          {% if stat_url and stat_url != '' %}<a class="ledger-link" href="{{ stat_url }}">{% endif %}
+          <span class="ledger-num"
+            ><span
+              class="ledger-odo"
+              data-odo
+              {% if s.since %}
+                data-since-date="{{ s.since | date: '%Y-%m-%d' }}"
+              {% endif %}
+            >
+              {{- shown -}}
+            </span>
+            {%- if s.suffix and s.suffix != '' -%}
+              <span class="ledger-suffix">{{ s.suffix }}</span>
+            {%- endif -%}
+          </span>
+          <span class="ledger-label">{{ s.label }}</span>
+          {% if s.since -%}
+            <span class="ledger-note">since {{ s.since | date: '%B %Y' }}</span>
+          {%- endif %}
           {% if stat_url and stat_url != '' %}</a>{% endif %}
         </div>
       {% endfor %}
     </section>
   {% endif %}
 
-  <article>
-    <h2 class="sr-only">About</h2>
-    <div class="clearfix about-bio">{{ content }}</div>
+  <article class="home-body">
+    {%- comment -%} The research index is inserted where _pages/about.md has the <!--research-index--> marker. {%- endcomment -%}
+    {% capture research_index %}
+      <ul class="research-index">
+        {% for area in page.research_areas %}
+          <li class="ri-item">
+            <svg class="ri-glyph" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true" focusable="false">
+              {% case area.glyph %}
+                {% when 'satellite' %}
+                  <rect class="g-b" x="6" y="6" width="36" height="36" rx="3" />
+                  <path class="g-d" pathLength="1" d="M6 31c6-3 10 3 16 0s9-8 14-6 4 2 6 1" />
+                  <path class="g-d" pathLength="1" d="M6 21c5-3 9 2 15-1s8-7 13-6c3 1 5 0 8-2" />
+                  <path class="g-d" pathLength="1" d="M29 35c1-3 6-4 8-2s0 5-3 5-6-1-5-3z" />
+                  <path class="g-b g-faint" d="M6 13c4-2 8 1 13-1s7-5 12-4" />
+                {% when 'medical' %}
+                  <circle class="g-b" cx="24" cy="24" r="18" />
+                  <circle class="g-b" cx="31" cy="22" r="3.5" />
+                  <path class="g-d" pathLength="1" d="M28 20c-4-4-9-6-16-5" />
+                  <path class="g-d" pathLength="1" d="M28 24c-4 4-9 7-16 7" />
+                  <path class="g-d" pathLength="1" d="M33 19c1-4 0-7-2-10" />
+                  <path class="g-d" pathLength="1" d="M33 25c1 4 0 8-3 11" />
+                  <circle class="g-b g-faint" cx="18" cy="24" r="2" />
+                {% when 'language' %}
+                  <path class="g-b" d="M8 13h32M8 21h22M8 29h9M8 37h26" />
+                  <path class="g-d" pathLength="1" d="M23 29h15" />
+                  <rect class="g-d" pathLength="1" x="20" y="24.5" width="21" height="9" rx="4.5" />
+                {% when 'security' %}
+                  <rect class="g-b" x="10" y="22" width="28" height="20" rx="4" />
+                  <path class="g-b" d="M16 22v-5a8 8 0 0 1 16 0v5" />
+                  <circle class="g-d" pathLength="1" cx="24" cy="30.5" r="2.6" />
+                  <path class="g-d" pathLength="1" d="M24 33v4.5" />
+                  <path class="g-b g-faint" d="M5 30a19 19 0 0 0 4 10M43 30a19 19 0 0 1-4 10" />
+              {% endcase %}
+            </svg>
+            <h3 class="ri-title">{{ area.title }}</h3>
+            <p class="ri-text">{{ area.text }}</p>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endcapture %}
+    {{ content | replace: '<!--research-index-->', research_index }}
 
     {% if page.selected_papers %}
-      <section class="about-section">
-        <h2 class="section-heading" data-reveal="lines">
-          <a href="{{ '/publications/' | relative_url }}">Selected publications</a>
-        </h2>
-        {% include selected_papers.liquid %}
-        <p class="image-credit">Figure thumbnails: V. Ingale, R. Singh, P. Patwal, <a href="https://arxiv.org/abs/2105.09253">arXiv:2105.09253</a> (CC BY-NC-SA 4.0).</p>
+      <section class="home-section about-section" aria-labelledby="selected-publications">
+        <h2 class="home-heading" id="selected-publications">Selected publications</h2>
+        <div class="home-section-body">
+          {% include selected_papers.liquid %}
+          <p class="home-more"><a href="{{ '/publications/' | relative_url }}">All publications</a></p>
+          <p class="image-credit">
+            Figure thumbnails: V. Ingale, R. Singh, P. Patwal, <a href="https://arxiv.org/abs/2105.09253">arXiv:2105.09253</a> (<span style="white-space: nowrap">CC BY-NC-SA 4.0</span>).
+          </p>
+        </div>
       </section>
     {% endif %}
 
     {% if page.announcements and page.announcements.enabled %}
-      <section class="about-section">
-        <h2 class="section-heading" data-reveal="lines">
-          <a href="{{ '/news/' | relative_url }}">Recent news</a>
-        </h2>
-        <div class="card-soft news-card">{% include news.liquid limit=true %}</div>
-        <p class="news-all"><a href="{{ '/news/' | relative_url }}">All news &rarr;</a></p>
+      <section class="home-section about-section home-news-section" aria-labelledby="recent-news">
+        <h2 class="home-heading" id="recent-news">Recent news</h2>
+        <div class="home-section-body">
+          <div class="home-news">{% include news.liquid limit=true %}</div>
+          <p class="home-more"><a href="{{ '/news/' | relative_url }}">All news</a></p>
+        </div>
       </section>
     {% endif %}
 
     {% if page.social %}
-      <div class="social">
-        {% assign so = site.data.socials %}
-        <ul class="contact-links">
-          {% if so.email %}<li><a href="mailto:{{ so.email }}">{{ so.email }}</a></li>{% endif %}
-          {% if so.scholar_userid %}<li><a href="https://scholar.google.com/citations?user={{ so.scholar_userid }}" rel="external noopener">Google Scholar</a></li>{% endif %}
-          {% if so.orcid_id %}<li><a href="https://orcid.org/{{ so.orcid_id }}" rel="external noopener">ORCID</a></li>{% endif %}
-          {% if so.linkedin_username %}<li><a href="https://www.linkedin.com/in/{{ so.linkedin_username }}" rel="external noopener">LinkedIn</a></li>{% endif %}
-        </ul>
-        <div class="contact-note">{{ site.contact_note }}</div>
-        {% if page.profile.more_info %}<address class="contact-address">{{ page.profile.more_info }}</address>{% endif %}
-        {%- comment -%}
-          Contact kit (role S, v3): Save contact (vCard), Copy email (mailto when JS or the clipboard is unavailable),
-          one-page profile PDF and a QR code to the site root. Files: assets/contact/vaishali-ingale.vcf, assets/img/site-qr.svg,
-          assets/pdf/vaishali-ingale-profile.pdf (regenerate with /workspace/site_build/v3/tools/make_contact_kit.py and make_profile_pdf.py).
-        {%- endcomment -%}
-        {% assign kit_email = so.email | default: 'vingale@aitpune.edu.in' %}
-        <section class="contact-kit card-soft" id="contact-kit" aria-labelledby="contact-kit-title">
-          <div class="kit-main">
-            <h2 class="kit-title" id="contact-kit-title">Invite or get in touch</h2>
-            <div class="kit-actions">
-              <a class="kit-btn kit-btn-primary" href="{{ '/assets/contact/vaishali-ingale.vcf' | relative_url }}" download="vaishali-ingale.vcf" type="text/vcard">Save contact</a>
-              <a class="kit-btn" href="mailto:{{ kit_email }}" data-copy-email="{{ kit_email }}"><span data-copy-label>Email {{ kit_email }}</span></a>
-              <a class="kit-btn" href="{{ '/assets/pdf/vaishali-ingale-profile.pdf' | relative_url }}" download="vaishali-ingale-profile.pdf" type="application/pdf">One-page profile (PDF)</a>
+      {% assign so = site.data.socials %}
+      {% assign kit_email = so.email | default: 'vingale@aitpune.edu.in' %}
+      <section class="social home-finale" aria-labelledby="contact-title" data-finale>
+        <div class="finale-head">
+          {%- comment -%} Contour lines converging on the email (a minimum). Static SVG; home.js draws it once on scroll. {%- endcomment -%}
+          <svg class="finale-contours" viewBox="0 0 1200 520" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+            <path pathLength="1" d="M986 262C987 276 984 294 980 304C975 315 968 319 959 325C949 332 937 336 924 341C911 345 895 348 878 352C861 355 842 357 820 359C798 361 781 363 744 364C708 365 648 365 600 365C552 365 492 364 456 363C420 362 404 360 383 358C362 356 345 353 329 349C313 346 301 342 289 337C278 333 268 328 260 322C251 316 245 312 239 302C234 292 229 276 227 262C225 248 224 231 225 220C227 210 231 204 237 198C244 191 253 186 265 181C278 176 293 172 311 169C329 166 350 164 374 162C398 161 417 160 455 160C493 160 553 160 600 161C647 162 703 163 738 165C773 166 788 168 809 170C830 172 848 174 865 177C882 179 898 182 912 186C926 190 939 194 950 200C960 206 969 210 975 220C981 231 985 248 986 262Z" />
+            <path pathLength="1" d="M1035 261C1036 277 1034 298 1028 310C1023 323 1013 329 1001 336C990 343 975 349 959 354C942 359 924 363 904 367C884 371 863 374 838 377C813 379 794 381 754 383C715 384 652 385 601 385C550 385 487 384 448 383C409 381 390 379 366 376C342 373 322 369 304 365C286 361 270 356 257 351C243 345 232 339 222 332C212 325 204 319 198 307C192 295 187 277 184 261C182 245 181 226 183 213C184 201 188 194 195 186C203 178 213 171 227 166C241 160 259 155 279 151C300 148 325 146 352 144C380 142 403 142 445 142C486 142 549 143 599 145C649 146 707 147 745 149C782 151 800 152 824 155C848 157 868 159 888 162C908 165 926 169 943 173C960 177 976 182 988 189C1001 196 1013 201 1020 213C1028 225 1033 245 1035 261Z" />
+            <path pathLength="1" d="M1095 260C1096 278 1094 302 1087 316C1080 331 1068 338 1053 347C1038 355 1019 362 1000 368C980 374 958 379 934 383C911 388 887 391 859 395C831 398 808 400 765 402C723 404 657 405 602 405C548 406 481 405 438 403C395 401 372 398 345 395C317 392 294 387 273 382C251 377 233 371 217 365C200 358 186 351 175 342C163 333 154 326 147 312C140 299 135 278 132 260C130 242 129 221 131 206C133 192 137 184 146 174C154 165 165 157 181 150C198 143 218 137 243 133C267 129 296 126 327 125C359 123 388 123 433 124C478 124 544 126 598 127C651 129 712 130 753 132C793 134 815 136 842 138C869 141 893 143 916 147C940 150 961 154 981 159C1001 164 1020 170 1036 178C1052 185 1066 192 1076 205C1086 219 1093 242 1095 260Z" />
+            <path pathLength="1" d="M1161 259C1163 280 1160 305 1151 322C1143 338 1127 347 1109 357C1090 367 1066 375 1042 382C1018 389 992 394 965 399C937 404 910 408 879 412C847 416 822 419 776 422C730 424 661 426 604 426C546 426 476 426 429 424C382 422 355 419 323 415C291 411 264 406 239 400C214 394 192 387 172 379C153 371 136 362 122 352C109 342 98 333 91 317C83 302 78 279 76 259C74 239 74 216 76 200C79 184 84 174 93 163C103 152 116 142 134 134C153 126 176 119 204 115C232 110 266 107 302 105C339 104 372 104 421 105C470 106 540 108 596 110C653 111 716 113 760 115C804 118 830 119 861 122C892 125 919 127 946 131C973 135 999 139 1022 145C1046 151 1069 157 1088 166C1107 175 1124 183 1137 198C1149 214 1158 238 1161 259Z" />
+            <path class="is-index" pathLength="1" d="M1231 258C1234 281 1230 309 1220 327C1209 345 1189 356 1167 368C1144 379 1115 387 1086 395C1057 403 1026 408 994 414C963 420 932 424 897 429C862 433 833 438 784 441C736 443 665 446 605 447C544 447 471 447 421 445C370 443 338 439 301 434C265 430 234 424 204 418C175 411 148 403 125 394C101 385 81 374 65 362C50 350 38 339 30 321C22 304 18 279 16 258C15 237 16 212 20 194C23 177 29 165 40 153C51 140 65 129 86 119C107 110 135 102 167 96C199 91 237 88 278 86C319 85 359 86 411 87C464 88 536 90 595 92C654 94 720 96 767 99C814 101 844 103 879 106C914 108 946 111 977 115C1009 120 1038 125 1066 131C1093 138 1120 145 1142 155C1165 165 1187 175 1202 192C1216 209 1228 235 1231 258Z" />
+            <path pathLength="1" d="M1306 257C1309 281 1305 311 1292 331C1278 351 1253 364 1226 377C1199 390 1163 399 1129 407C1095 416 1058 422 1022 428C986 434 952 440 913 445C875 450 842 455 791 459C740 462 669 466 606 467C543 468 468 468 414 466C360 464 321 460 280 455C239 450 202 444 168 436C133 428 101 419 74 409C47 398 22 386 4 372C-13 358 -26 344 -34 325C-43 306 -45 280 -46 257C-46 234 -43 209 -38 190C-33 171 -26 157 -13 143C0 129 15 116 39 105C63 95 94 85 130 79C166 73 210 69 256 67C301 66 347 67 403 68C459 69 532 72 594 75C656 77 722 79 773 82C823 84 858 86 897 89C937 92 974 95 1009 100C1045 104 1079 110 1111 117C1143 125 1173 133 1200 145C1227 156 1253 167 1270 186C1288 205 1302 233 1306 257Z" />
+            <path pathLength="1" d="M1384 256C1388 282 1382 313 1366 335C1350 356 1319 371 1287 386C1254 400 1211 410 1171 419C1131 428 1088 434 1047 441C1007 448 969 454 927 460C885 466 849 472 796 476C742 481 672 485 607 487C543 489 467 489 409 487C351 485 306 481 260 476C213 470 170 464 130 455C90 446 52 436 20 424C-12 412 -40 398 -60 382C-81 366 -94 349 -102 328C-110 307 -110 280 -109 256C-108 232 -103 206 -96 186C-88 166 -80 151 -65 135C-50 119 -33 105 -6 92C21 80 55 70 96 62C136 55 185 51 235 49C286 47 337 48 396 50C456 51 529 55 593 57C656 59 723 62 777 64C830 67 871 68 915 72C959 75 1001 78 1041 84C1082 89 1121 95 1157 104C1193 112 1229 122 1260 135C1290 148 1321 161 1342 181C1362 201 1380 230 1384 256Z" />
+            <path pathLength="1" d="M1464 255C1468 282 1461 314 1442 337C1422 360 1386 378 1347 393C1309 408 1257 419 1211 429C1165 439 1116 446 1070 453C1025 460 983 467 938 474C893 480 853 488 798 493C743 499 674 504 608 507C543 509 467 510 405 508C344 507 292 503 240 497C188 491 138 484 92 474C46 465 0 453 -36 439C-73 425 -106 409 -129 391C-151 373 -165 353 -173 330C-180 308 -178 280 -174 255C-171 230 -162 204 -152 183C-143 162 -132 145 -115 128C-98 111 -78 95 -49 81C-19 67 19 55 64 47C108 38 163 33 218 31C272 28 329 30 392 32C454 33 527 37 592 39C656 41 723 44 780 46C836 49 882 50 931 54C980 57 1028 61 1073 67C1119 73 1163 81 1204 91C1245 100 1286 112 1321 126C1356 140 1391 155 1415 177C1439 198 1459 228 1464 255Z" />
+            <path pathLength="1" d="M1545 254C1550 281 1541 314 1518 338C1495 362 1452 382 1407 399C1362 416 1302 428 1249 438C1196 449 1140 456 1090 464C1039 472 995 479 946 486C898 494 855 503 799 510C743 516 675 523 610 526C544 530 469 531 404 530C339 529 281 525 222 519C164 513 106 505 53 494C0 484 -53 471 -95 455C-137 439 -175 420 -200 399C-226 379 -240 356 -246 332C-253 308 -246 279 -240 254C-233 229 -220 204 -207 182C-194 160 -182 142 -162 123C-142 105 -121 86 -88 71C-55 56 -13 42 35 32C84 23 144 17 203 14C262 10 325 12 389 13C454 14 525 18 590 20C656 23 722 25 781 27C841 30 893 31 947 35C1001 39 1055 44 1106 51C1156 58 1206 67 1252 78C1298 89 1343 102 1383 118C1423 134 1463 151 1490 174C1517 196 1541 227 1545 254Z" />
+            <path class="is-index" pathLength="1" d="M1627 253C1632 281 1622 313 1595 338C1568 363 1518 386 1466 404C1414 422 1344 435 1284 446C1224 458 1162 465 1106 473C1051 482 1003 490 951 498C900 507 854 517 797 525C740 533 676 542 611 546C545 551 472 553 405 552C337 552 271 548 206 542C141 535 75 526 14 514C-46 503 -107 488 -156 470C-204 452 -247 430 -275 407C-303 384 -317 358 -322 332C-327 306 -315 278 -305 253C-295 228 -277 204 -260 182C-243 159 -228 140 -205 120C-182 100 -159 80 -123 63C-87 46 -42 30 11 19C63 8 128 1 191 -3C254 -7 322 -6 389 -5C455 -5 524 -1 589 1C655 3 719 5 781 7C843 10 902 12 962 16C1021 20 1081 26 1137 34C1194 43 1248 53 1300 66C1351 79 1401 93 1446 111C1490 129 1535 148 1565 172C1596 196 1622 225 1627 253Z" />
+            <path pathLength="1" d="M1709 252C1714 279 1702 311 1671 336C1640 362 1582 387 1523 407C1464 426 1384 440 1317 452C1250 465 1180 472 1120 482C1059 491 1008 500 953 510C899 520 850 532 793 541C736 551 676 561 612 567C548 572 478 576 408 576C338 575 264 571 192 565C120 558 45 548 -23 535C-91 522 -162 505 -217 484C-272 464 -322 439 -352 413C-382 388 -396 358 -399 331C-402 304 -385 277 -370 252C-355 227 -330 205 -309 182C-288 160 -269 139 -243 118C-217 97 -192 76 -153 57C-114 39 -66 20 -10 7C46 -5 116 -14 183 -19C250 -25 323 -24 390 -24C458 -24 523 -21 588 -19C653 -18 715 -16 780 -14C844 -11 910 -10 975 -4C1040 1 1106 8 1168 17C1230 27 1291 40 1347 55C1404 69 1459 86 1508 106C1556 125 1606 147 1640 172C1674 196 1704 225 1709 252Z" />
+          </svg>
+          <h2 class="finale-title" id="contact-title">Contact</h2>
+          <p class="finale-email">
+            <a href="mailto:{{ kit_email }}">{{ kit_email | replace: '@', '<wbr>@' }}</a>
+          </p>
+          <p class="contact-note">{{ site.contact_note }}</p>
+        </div>
+        <div class="finale-grid">
+          <ul class="contact-links">
+            {% if so.scholar_userid %}
+              <li><a href="https://scholar.google.com/citations?user={{ so.scholar_userid }}" rel="external noopener">Google Scholar</a></li>
+            {% endif %}
+            {% if so.orcid_id %}
+              <li><a href="https://orcid.org/{{ so.orcid_id }}" rel="external noopener">ORCID</a></li>
+            {% endif %}
+            {% if so.linkedin_username %}
+              <li><a href="https://www.linkedin.com/in/{{ so.linkedin_username }}" rel="external noopener">LinkedIn</a></li>
+            {% endif %}
+          </ul>
+          {% if page.profile.more_info %}
+            <address class="contact-address">{{ page.profile.more_info }}</address>
+          {% endif %}
+          {%- comment -%}
+            Contact kit (role S, v3): Save contact (vCard), Copy email (mailto when JS or the clipboard is unavailable),
+            one-page profile PDF and a QR code to the site root. Files: assets/contact/vaishali-ingale.vcf, assets/img/site-qr.svg,
+            assets/pdf/vaishali-ingale-profile.pdf (regenerate with /workspace/site_build/v3/tools/make_contact_kit.py and make_profile_pdf.py).
+            Styles live in assets/custom/home.css.
+          {%- endcomment -%}
+          <section class="contact-kit" id="contact-kit" aria-labelledby="contact-kit-title">
+            <div class="kit-main">
+              <h3 class="kit-title" id="contact-kit-title">Invite or get in touch</h3>
+              <div class="kit-actions">
+                <a
+                  class="kit-btn kit-btn-primary"
+                  href="{{ '/assets/contact/vaishali-ingale.vcf' | relative_url }}"
+                  download="vaishali-ingale.vcf"
+                  type="text/vcard"
+                  >Save contact</a
+                >
+                <a class="kit-btn" href="mailto:{{ kit_email }}" data-copy-email="{{ kit_email }}"
+                  ><span data-copy-label>Email {{ kit_email }}</span></a
+                >
+                <a
+                  class="kit-btn"
+                  href="{{ '/assets/pdf/vaishali-ingale-profile.pdf' | relative_url }}"
+                  download="vaishali-ingale-profile.pdf"
+                  type="application/pdf"
+                  >One-page profile (PDF)</a
+                >
+              </div>
+              <p class="kit-status" data-copy-status role="status" aria-live="polite"></p>
             </div>
-            <p class="kit-status" data-copy-status role="status" aria-live="polite"></p>
-          </div>
-          <figure class="kit-qr">
-            <img src="{{ '/assets/img/site-qr.svg' | relative_url }}" width="112" height="112" alt="QR code that opens this website" loading="lazy">
-            <figcaption>Scan to open this site</figcaption>
-          </figure>
-        </section>
-        <style>
-          .contact-kit { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem 2rem; margin: 2rem 0 0; }
-          .contact-kit .kit-main { flex: 1 1 320px; min-width: 0; }
-          .contact-kit .kit-title { font-family: "Fraunces", Georgia, serif; font-size: var(--fs-h4, 1.5rem); font-weight: 400; line-height: 1.25; margin: 0 0 1rem; color: #1f1712; }
-          .contact-kit .kit-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
-          #contact-kit a.kit-btn { display: inline-flex; align-items: center; min-height: 44px; padding: 0.6rem 1.25rem; border-radius: 999px; border: 1px solid rgba(160, 74, 13, 0.45); background: transparent; color: #7a3609 !important; font-family: "Inter", system-ui, sans-serif; font-size: 0.9375rem; font-weight: 500; line-height: 1.3; text-decoration: none !important; transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; overflow-wrap: anywhere; }
-          #contact-kit a.kit-btn span { color: inherit; }
-          #contact-kit a.kit-btn:hover { background: rgba(160, 74, 13, 0.08); border-color: #a04a0d; }
-          #contact-kit a.kit-btn.kit-btn-primary { background: #a04a0d; border-color: #a04a0d; color: #fbf4ec !important; }
-          #contact-kit a.kit-btn.kit-btn-primary:hover, #contact-kit a.kit-btn.kit-btn-primary:focus-visible { background: #7a3609; border-color: #7a3609; }
-          .contact-kit .kit-status { min-height: 1.4em; margin: 0.6rem 0 0; font-size: 0.875rem; color: #5e4b3f; }
-          .contact-kit .kit-qr { flex: 0 0 auto; margin: 0; text-align: center; }
-          .contact-kit .kit-qr img { display: block; width: 112px; height: 112px; margin: 0 auto; background: #fffaf4; border-radius: 8px; padding: 4px; }
-          .contact-kit .kit-qr figcaption { margin-top: 0.4rem; font-size: 0.8125rem; color: #5e4b3f; }
-          @media (max-width: 575.98px) { .contact-kit .kit-actions { flex-direction: column; align-items: stretch; } #contact-kit a.kit-btn { justify-content: center; } .contact-kit .kit-qr { display: none; } }
-        </style>
+            <figure class="kit-qr">
+              <img src="{{ '/assets/img/site-qr.svg' | relative_url }}" width="112" height="112" alt="QR code that opens this website" loading="lazy">
+              <figcaption>Scan to open this site</figcaption>
+            </figure>
+          </section>
+        </div>
         <script>
           (function () {
             var a = document.querySelector('[data-copy-email]');
@@ -160,16 +282,24 @@ layout: default
             a.setAttribute('aria-label', 'Copy email address ' + email);
             a.addEventListener('click', function (e) {
               e.preventDefault();
-              navigator.clipboard.writeText(email).then(function () {
-                label.textContent = 'Copied';
-                status.textContent = email + ' copied to the clipboard.';
-                clearTimeout(timer);
-                timer = setTimeout(function () { label.textContent = 'Copy email'; status.textContent = ''; }, 2500);
-              }, function () { window.location.href = 'mailto:' + email; });
+              navigator.clipboard.writeText(email).then(
+                function () {
+                  label.textContent = 'Copied';
+                  status.textContent = email + ' copied to the clipboard.';
+                  clearTimeout(timer);
+                  timer = setTimeout(function () {
+                    label.textContent = 'Copy email';
+                    status.textContent = '';
+                  }, 2500);
+                },
+                function () {
+                  window.location.href = 'mailto:' + email;
+                }
+              );
             });
           })();
         </script>
-      </div>
+      </section>
     {% endif %}
   </article>
 </div>

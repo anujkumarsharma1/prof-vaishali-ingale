@@ -7,104 +7,154 @@ nav: true
 nav_order: 2
 ---
 
-<div class="leadership-page">
-
-<section class="card-soft" id="icndia-2026">
-  <p class="card-kicker">September 2026 · Conference Chair</p>
-  <h2><a class="heading-link" href="{{ '/news/2026-09-19-icndia-2026/' | relative_url }}">ICNDIA-2026</a></h2>
-  <p class="lead">Conference Chair, with Dr. Ashwini Sapkal, of the first edition of ICNDIA, an IEEE international conference hosted at AIT.</p>
-  <div class="stat-strip">
-    <div class="stat"><span class="stat-number">1,500+</span><span class="stat-label">submissions</span></div>
-    <div class="stat"><span class="stat-number">237</span><span class="stat-label">accepted</span></div>
-    <div class="stat"><span class="stat-number">217</span><span class="stat-label">presented</span></div>
-    <div class="stat"><span class="stat-number">6</span><span class="stat-label">parallel tracks</span></div>
+<div class="leadership-page" data-motion-skip>
+<section class="lx-feature" id="icndia-2026" aria-labelledby="icndia-title">
+  <svg class="lx-contours" viewBox="0 0 660 300" preserveAspectRatio="xMaxYMin slice" aria-hidden="true" focusable="false">
+    <g fill="none" stroke="currentColor" stroke-width="1">
+      <path d="M378.7 150.0C379.8 155.1 374.2 162.5 368.4 167.0C362.7 171.4 352.7 175.5 344.2 176.5C335.7 177.6 327.0 174.6 317.5 173.4C308.0 172.1 292.2 172.8 287.1 168.9C282.0 165.0 285.7 155.8 286.9 150.0C288.0 144.2 289.3 138.6 294.2 134.2C299.0 129.8 307.2 125.8 315.8 123.5C324.4 121.2 338.3 118.2 345.9 120.3C353.5 122.4 355.9 131.2 361.4 136.2C366.8 141.1 377.5 144.9 378.7 150.0Z"/>
+      <path d="M425.5 150.0C427.4 159.5 412.3 173.2 400.7 181.2C389.1 189.2 371.7 195.7 355.8 198.3C339.9 200.8 322.9 198.5 305.2 196.4C287.4 194.3 258.0 193.4 249.2 185.6C240.5 177.9 250.8 161.0 252.7 150.0C254.6 139.0 252.6 128.1 260.9 119.5C269.2 110.9 286.1 102.3 302.4 98.4C318.7 94.6 344.1 92.3 358.6 96.6C373.0 100.8 377.9 115.1 389.0 124.0C400.2 132.9 423.6 140.5 425.5 150.0Z"/>
+      <path d="M473.9 150.0C475.6 164.0 448.0 182.6 430.2 194.2C412.4 205.8 390.4 214.9 367.2 219.6C344.1 224.3 316.8 225.4 291.3 222.3C265.8 219.2 226.2 213.1 214.3 201.1C202.4 189.0 218.3 166.2 220.1 150.0C221.8 133.8 213.4 116.4 224.9 103.6C236.3 90.8 264.7 77.7 288.8 73.0C313.0 68.4 347.9 69.5 369.7 75.7C391.5 82.0 402.3 98.1 419.6 110.4C437.0 122.8 472.1 136.0 473.9 150.0Z"/>
+      <path d="M520.3 150.0C520.6 168.6 480.6 190.7 457.1 206.1C433.6 221.4 409.4 234.7 379.3 242.1C349.1 249.5 308.7 255.1 276.2 250.5C243.8 245.9 199.6 231.0 184.4 214.2C169.3 197.5 185.2 171.3 185.5 150.0C185.8 128.7 171.2 103.4 186.3 86.6C201.3 69.7 243.6 53.6 275.8 48.7C308.1 43.8 349.8 49.4 379.7 57.1C409.6 64.8 431.9 79.2 455.3 94.7C478.7 110.2 520.0 131.4 520.3 150.0Z"/>
+      <path d="M561.3 150.0C559.1 173.5 511.3 198.1 483.2 217.6C455.0 237.1 429.5 256.5 392.5 266.8C355.4 277.1 299.6 286.2 260.9 279.3C222.1 272.3 179.3 246.5 160.1 225.0C140.9 203.4 147.7 176.0 145.5 150.0C143.3 124.0 127.0 89.7 146.8 69.1C166.5 48.6 223.6 31.6 264.0 26.6C304.4 21.6 350.6 30.7 389.3 39.1C428.1 47.4 467.8 58.0 496.5 76.5C525.1 95.0 563.5 126.5 561.3 150.0Z"/>
+      <path d="M594.3 150.0C589.2 178.9 542.3 205.9 511.1 229.9C479.9 253.9 451.1 281.1 407.0 293.9C362.8 306.7 290.8 316.6 246.2 306.6C201.7 296.6 164.6 260.0 139.8 233.9C115.0 207.8 102.6 180.2 97.5 150.0C92.4 119.8 83.2 76.4 109.2 52.5C135.1 28.7 205.0 12.4 253.5 6.9C301.9 1.4 351.7 11.3 399.8 19.6C447.8 27.9 509.3 34.8 541.7 56.6C574.1 78.3 599.4 121.1 594.3 150.0Z"/>
+      <path d="M619.0 150.0C611.7 184.7 576.7 215.7 543.9 244.4C511.1 273.1 474.0 308.0 422.2 322.4C370.5 336.8 283.6 344.1 233.3 330.8C183.0 317.5 152.5 272.6 120.4 242.5C88.4 212.3 48.6 184.1 41.2 150.0C33.9 115.9 42.7 65.0 76.4 38.1C110.2 11.2 187.8 -4.5 243.7 -11.4C299.6 -18.2 354.5 -10.9 411.8 -3.0C469.2 4.9 553.4 10.7 587.9 36.2C622.4 61.7 626.4 115.3 619.0 150.0Z"/>
+    </g>
+  </svg>
+  <p class="lx-kicker">September 2026</p>
+  <h2 class="lx-feature-title" id="icndia-title"><a class="heading-link" href="{{ '/news/2026-09-19-icndia-2026/' | relative_url }}">ICNDIA-2026</a></h2>
+  <p class="lx-feature-name">IEEE International Conference on Nexus of Digitalization, Intelligence and Applications</p>
+  <ul class="lx-figures">
+    <li><span class="lx-fig">1,500+</span><span class="lx-fig-label">submissions</span></li>
+    <li><span class="lx-fig">237</span><span class="lx-fig-label">accepted</span></li>
+    <li><span class="lx-fig">217</span><span class="lx-fig-label">presented</span></li>
+    <li><span class="lx-fig">6</span><span class="lx-fig-label">parallel tracks</span></li>
+  </ul>
+  <div class="lx-feature-body">
+    <p class="lx-feature-lead">Conference Chair, with Dr. Ashwini Sapkal, of the first edition of ICNDIA, an IEEE international conference hosted at AIT.</p>
+    <dl class="lx-facts">
+      <div><dt>Dates</dt><dd>18–19 September 2026, hybrid</dd></div>
+      <div><dt>Organiser</dt><dd>Department of Information Technology, AIT</dd></div>
+      <div><dt>Review</dt><dd>Double-blind peer review; accepted and presented papers to be included in IEEE Xplore</dd></div>
+      <div><dt>Inauguration</dt><dd>Lt Gen Vipul Shinghal, Deputy Chief of Army Staff (IS&amp;T)</dd></div>
+      <div><dt>Keynotes</dt><dd>IIIT Allahabad, COAI and DRDO</dd></div>
+      <div><dt>Technical co-sponsor</dt><dd>IEEE Consumer Technology Society, Pune Section</dd></div>
+    </dl>
   </div>
-  <ul>
-    <li>IEEE International Conference on Nexus of Digitalization, Intelligence and Applications</li>
-    <li>18–19 September 2026, hybrid; organised by the Department of Information Technology, AIT</li>
-    <li>Double-blind peer review; accepted and presented papers to be included in IEEE Xplore</li>
-    <li>Inaugurated by Lt Gen Vipul Shinghal, Deputy Chief of Army Staff (IS&amp;T); keynotes from IIIT Allahabad, COAI and DRDO</li>
-    <li>Technical co-sponsor: IEEE Consumer Technology Society, Pune Section</li>
-  </ul>
-  <p class="card-source">Source: ICNDIA-2026 brochure; AIT Pune official posts, September 2026.</p>
+  <!-- Source: ICNDIA-2026 brochure; AIT Pune official posts, September 2026. -->
 </section>
 
-<section class="card-soft" id="oss-club">
-  <p class="card-kicker">Since 2016 · Innerve</p>
-  <h2>Open Source Software Club</h2>
-  <p class="lead">Faculty In-Charge of AIT's OSS Club and its national hackathon, Innerve.</p>
-  <div class="stat-strip">
-    <div class="stat"><span class="stat-number">9,500+</span><span class="stat-label">students, Innerve 9.0</span></div>
-    <div class="stat"><span class="stat-number">2,500+</span><span class="stat-label">teams, Innerve 9.0</span></div>
-    <div class="stat"><span class="stat-number">₹12 lakh</span><span class="stat-label">prize pool, Innerve 9.0</span></div>
-    <div class="stat"><span class="stat-number">10,000+</span><span class="stat-label">registrations, Innerve X</span></div>
+<div class="lx-stack">
+<section class="lx-card lx-card--editions" id="oss-club" aria-labelledby="oss-title">
+  <div class="lx-card-inner">
+    <div class="lx-card-head">
+      <p class="lx-kicker">Since 2016</p>
+      <h2 id="oss-title">Open Source Software Club</h2>
+      <p class="lx-card-lead">Faculty in-charge of AIT's OSS Club and its national hackathon, Innerve, with Prof. Kuldeep Hule as co-in-charge.</p>
+      <p class="lx-note">Staff in-charge for 2018–19 to 2022–23. The club, founded in 2014, also runs GRAPHICA, a first-year hackathon.</p>
+      <!-- Staff in-charge years as listed on AIT's clubs page. -->
+    </div>
+    <ol class="lx-editions">
+      <li>
+        <p class="lx-ed-name"><strong>Innerve X</strong> <span class="lx-ed-date">January 2026</span></p>
+        <ul class="lx-ed-figs">
+          <li><span class="lx-num">10,000+</span> registrations</li>
+          <li><span class="lx-num">45</span> finalist teams</li>
+        </ul>
+        <p class="lx-ed-note">MLH partner; guided by the OSS Club faculty</p>
+      </li>
+      <li>
+        <p class="lx-ed-name"><strong>Innerve 9.0</strong> <span class="lx-ed-date">February 2025</span></p>
+        <ul class="lx-ed-figs">
+          <li><span class="lx-num">9,500+</span> students</li>
+          <li><span class="lx-num">2,500+</span> teams</li>
+          <li><span class="lx-num">₹12 lakh</span> prize pool</li>
+          <li><span class="lx-num">31</span> finalist teams</li>
+        </ul>
+        <p class="lx-ed-note">Guided with Prof. Hule</p>
+      </li>
+      <li>
+        <p class="lx-ed-name"><strong>Innerve 7</strong> <span class="lx-ed-date">2023</span></p>
+        <p class="lx-ed-note">Judge</p>
+      </li>
+    </ol>
   </div>
-  <ul>
-    <li>Co-in-charge: Prof. Kuldeep Hule</li>
-    <li>Listed as staff in-charge on AIT's clubs page, 2018–19 to 2022–23</li>
-    <li>Club founded 2014; also runs GRAPHICA, a first-year hackathon</li>
-    <li><strong>Innerve 7</strong> (2023): judge</li>
-    <li><strong>Innerve 9.0</strong> (February 2025): 31 finalist teams; guided with Prof. Hule</li>
-    <li><strong>Innerve X</strong> (January 2026): 45 finalist teams, MLH partner; guided by the OSS Club faculty</li>
-  </ul>
-  <p class="card-source">Sources: Punekar News, 2025; Free Press Journal, 2026; Devpost.</p>
+  <!-- Sources: Punekar News, 2025; Free Press Journal, 2026; Devpost. -->
 </section>
 
-<section class="card-soft" id="ieee">
-  <p class="card-kicker">Current · IEEE</p>
-  <h2>IEEE AIT Student Branch</h2>
-  <p class="lead">Vice Branch Counsellor.</p>
-  <ul>
-    <li>Branch founded 16 July 2015; IEEE Pune Section, Region 10</li>
-    <li>Collaborator on ICNDIA-2026</li>
-  </ul>
-</section>
-
-<section class="card-soft" id="sih-2024">
-  <p class="card-kicker">December 2024 · Mentor</p>
-  <h2><a class="heading-link" href="{{ '/news/2024-12-17-sih-2024/' | relative_url }}">Smart India Hackathon 2024</a></h2>
-  <p class="lead">Mentor, with Prof. Kuldeep Hule, of both AIT teams that won first prize at the grand finale.</p>
-  <div class="stat-strip">
-    <div class="stat"><span class="stat-number">2</span><span class="stat-label">first prizes</span></div>
-    <div class="stat"><span class="stat-number">₹1,00,000</span><span class="stat-label">per team</span></div>
+<section class="lx-card lx-card--compact" id="ieee" aria-labelledby="ieee-title">
+  <div class="lx-card-inner">
+    <div class="lx-card-head">
+      <p class="lx-kicker">Current</p>
+      <h2 id="ieee-title">IEEE AIT Student Branch</h2>
+    </div>
+    <div class="lx-card-side">
+      <p class="lx-role">Vice Branch Counsellor</p>
+      <ul class="lx-plain">
+        <li>Branch founded 16 July 2015; IEEE Pune Section, Region 10</li>
+        <li>Collaborator on <a href="#icndia-2026">ICNDIA-2026</a></li>
+      </ul>
+    </div>
   </div>
-  <ul>
-    <li><strong>Black Syndicate</strong> (NIET, Greater Noida): cyber-triage tool, National Investigation Agency problem</li>
-    <li><strong>Carbon Daters</strong> (IIT Tirupati): innovation-indicators portal, Ministry of AYUSH and AIIA</li>
-  </ul>
-  <p class="card-source">Sources: Free Press Journal, Hindustan Times, The Times of India, December 2024.</p>
 </section>
 
-<section class="card-soft" id="sppu-qip">
-  <p class="card-kicker">2017–2018 · Co-Investigator</p>
-  <h2>SPPU QIP grants</h2>
-  <p class="lead">Two SPPU Quality Improvement Programme grants, ₹1,00,000 each, for faculty programmes at AIT.</p>
-  <ul>
-    <li><em>Probability and Statistics for Machine Learning and Deep Learning</em>, 5–9 December 2017</li>
-    <li><em>Practical Approaches of Artificial Neural Network and Deep Learning</em>, 17–19 December 2018</li>
-  </ul>
+<section class="lx-card lx-card--stats" id="sih-2024" aria-labelledby="sih-title">
+  <div class="lx-card-inner">
+    <div class="lx-card-head">
+      <p class="lx-kicker">December 2024</p>
+      <h2 id="sih-title"><a class="heading-link" href="{{ '/news/2024-12-17-sih-2024/' | relative_url }}">Smart India Hackathon 2024</a></h2>
+      <p class="lx-card-lead">Mentor, with Prof. Kuldeep Hule, of both AIT teams that won first prize at the grand finale.</p>
+    </div>
+    <ul class="lx-bigstats">
+      <li><span class="lx-bignum">2</span><span class="lx-fig-label">first prizes</span></li>
+      <li><span class="lx-bignum">₹1,00,000</span><span class="lx-fig-label">per team</span></li>
+    </ul>
+    <ul class="lx-teams">
+      <li><strong>Black Syndicate</strong> <span>NIET, Greater Noida</span> <span>Cyber-triage tool, National Investigation Agency problem</span></li>
+      <li><strong>Carbon Daters</strong> <span>IIT Tirupati</span> <span>Innovation-indicators portal, Ministry of AYUSH and AIIA</span></li>
+    </ul>
+  </div>
+  <!-- Sources: Free Press Journal, Hindustan Times, The Times of India, December 2024. -->
 </section>
 
-<section class="card-soft" id="resource-person">
-  <p class="card-kicker">2015–2022</p>
-  <h2>Faculty development</h2>
-  <ul>
-    <li>SPPU resource person: <em>Machine Learning &amp; Laboratory Practices</em> (TE IT, 2019 course), 26 July 2021</li>
-    <li>SPPU resource person: <em>Deep Learning and Lab Practices</em>, 30 July 2022</li>
-    <li>Paper setter, <em>Machine Learning</em> (2019 pattern, Sem I), October 2021</li>
-    <li>Organised five faculty programmes at AIT, 2015–2022: cloud computing, ML and image processing, outcome-based education, deep learning on HPC, project management</li>
-  </ul>
+<section class="lx-card lx-card--list" id="sppu-qip" aria-labelledby="qip-title">
+  <div class="lx-card-inner">
+    <div class="lx-card-head">
+      <p class="lx-kicker">Co-Investigator, 2017–2018</p>
+      <h2 id="qip-title">SPPU QIP grants</h2>
+      <p class="lx-card-lead">Two SPPU Quality Improvement Programme grants, ₹1,00,000 each, for faculty programmes at AIT.</p>
+    </div>
+    <ul class="lx-ledger lx-ledger--titles">
+      <li><span class="lx-when">5–9 December 2017</span><em>Probability and Statistics for Machine Learning and Deep Learning</em></li>
+      <li><span class="lx-when">17–19 December 2018</span><em>Practical Approaches of Artificial Neural Network and Deep Learning</em></li>
+    </ul>
+  </div>
 </section>
 
-<section class="card-soft" id="other-roles">
-  <h2>Other roles</h2>
-  <ul>
+<section class="lx-card lx-card--list" id="resource-person" aria-labelledby="fdp-title">
+  <div class="lx-card-inner">
+    <div class="lx-card-head">
+      <p class="lx-kicker">Resource person and organiser</p>
+      <h2 id="fdp-title">Faculty development</h2>
+    </div>
+    <ul class="lx-ledger">
+      <li><span class="lx-when">26 July 2021</span><span>SPPU resource person, <em>Machine Learning &amp; Laboratory Practices</em> (TE IT, 2019 course)</span></li>
+      <li><span class="lx-when">October 2021</span><span>Paper setter, <em>Machine Learning</em> (2019 pattern, Sem I)</span></li>
+      <li><span class="lx-when">30 July 2022</span><span>SPPU resource person, <em>Deep Learning and Lab Practices</em></span></li>
+      <li><span class="lx-when">2015–2022</span><span>Organised five faculty programmes at AIT: cloud computing, ML and image processing, outcome-based education, deep learning on HPC, project management</span></li>
+    </ul>
+  </div>
+</section>
+
+</div>
+
+<section class="lx-roles-block" id="other-roles" aria-labelledby="roles-title">
+  <h2 id="roles-title">Other roles</h2>
+  <ul class="lx-roles">
     <li>Member, Institution's Innovation Council (IIC), AIT</li>
     <li>Faculty team, ACM AIT Student Chapter</li>
     <li>Student counsellor, IT department</li>
   </ul>
 </section>
-
 </div>
 
 {% include milestones.liquid %}

@@ -19,7 +19,7 @@ OWNERS = {
     "home": ["_layouts/about.liquid", "_pages/about.md", "assets/custom/home.css", "assets/js/home.js"],
     "sections": ["_pages/leadership.md", "_pages/awards.md", "_includes/milestones.liquid", "assets/custom/sections.css",
                  "assets/js/sections.js"],
-    "lead": ["plan.md", "tools/", "_includes/head.liquid", ".agents/skills/", ".claude/"],
+    "lead": ["plan.md", "tools/", "_includes/head.liquid", "_bibliography/papers.bib", "AGENTS.md", ".agents/skills/", ".claude/"],
 }
 CONTENT = re.compile(r"\.(md|yml|liquid|bib|html)$")
 NUM = re.compile(r"(?<![\w#.-])\d[\d,]*(?:\.\d+)?\+?(?![\w%])")

@@ -1,7 +1,7 @@
 <!-- Metadata, OpenGraph and Schema.org -->
 {% include metadata.liquid %}
-<!-- Motion guard (MOTION_SPEC §2): must run BEFORE any CSS. Hides reveal targets only when motion is allowed; 3.5 s failsafe. -->
-<script>!function(d){try{if(!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("motion-pending");setTimeout(function(){d.classList.remove("motion-pending")},3500)}}catch(e){}}(document.documentElement)</script>
+<!-- Motion guard (MOTION_SPEC §2): must run BEFORE any CSS. Also marks <html class="has-js"> so JS-only controls can reserve their space from the first paint. Hides reveal targets only when motion is allowed; 3.5 s failsafe. -->
+<script>!function(d){try{d.classList.add("has-js");if(!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("motion-pending");setTimeout(function(){d.classList.remove("motion-pending")},3500)}}catch(e){}}(document.documentElement)</script>
 <!-- Launch kit: icons, theme colour, indexing -->
 <link rel="icon" type="image/png" sizes="32x32" href="{{ '/assets/img/favicon-32.png' | relative_url }}">
 <link rel="manifest" href="{{ '/assets/img/site.webmanifest' | relative_url }}">
@@ -59,9 +59,10 @@
   <noscript>{{ icon_css }}</noscript>
 {% endif %}
 <!-- Fonts: self-hosted Fraunces + Inter (OFL, see assets/fonts/FONTS_LICENSE.txt); @font-face rules live in site.css -->
-{% if page.layout == 'about' %}{%- comment -%} Preload only on the home page (the usual landing page); on later pages the fonts are already cached. {%- endcomment -%}
+{%- comment -%} Fonts preload on every page: visitors also land directly on inner pages, where a late font swap shifted the layout (CLS 0.14 on /publications/ at 390 px). {%- endcomment -%}
 <link rel="preload" as="font" type="font/woff2" href="{{ '/assets/fonts/fraunces-latin.woff2' | relative_url }}" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="{{ '/assets/fonts/inter-latin.woff2' | relative_url }}" crossorigin>
+{% if page.layout == 'about' %}
 <link rel="preload" as="image" type="image/webp" href="{{ '/assets/img/hero_watercolor-800.webp' | relative_url }}" media="(max-width: 767px)" fetchpriority="high">
 <link rel="preload" as="image" type="image/webp" href="{{ '/assets/img/hero_watercolor.webp' | relative_url }}" media="(min-width: 768px)" fetchpriority="high">{% endif %}
 
@@ -231,12 +232,9 @@
       "p.lead": { reveal: "lines" },
       ".post-header .post-title": { reveal: "lines", start: "load", delay: "0.1" },
       ".stat-strip": { reveal: "fade-up" },
-      ".awards-page > .card-soft": { reveal: "fade-up" },
       ".wish-card": { reveal: "fade-up", stagger: "0.06" },
       "figure.memory-frame": { reveal: "image" },
-      "figure.memory-frame > img": { "reveal-media": "" },
-      "ol.milestones-list > li.milestone": { reveal: "fade-up" },
-      "ol.milestones-list": { rail: "" }
+      "figure.memory-frame > img": { "reveal-media": "" }
     }
   };
 </script>

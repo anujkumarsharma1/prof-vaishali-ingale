@@ -87,6 +87,37 @@ html.lenis body { height: auto; }
 @keyframes m-vt-out { to { opacity: 0; } }
 @keyframes m-vt-in { from { opacity: 0; transform: translateY(12px); } }
 
+/* Shared elements (v5, plan.md change 7). Each name exists at most once per page: the bar, the one
+   .nav-mark (header.liquid renders it only on the current item; chrome.js adds a ghost only when there
+   is none) and the inner-page title (.post-header holds one .post-title). The home hero is not named. */
+@media (prefers-reduced-motion: no-preference) {
+  #navbar { view-transition-name: site-nav; }
+  .nav-mark { view-transition-name: nav-indicator; }
+  .post-header .post-title { view-transition-name: page-title; }
+}
+/* The bar holds still while the page changes underneath it. */
+::view-transition-group(site-nav) { animation-duration: 420ms; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+::view-transition-old(site-nav) { animation: 160ms ease both m-vt-out; }
+::view-transition-new(site-nav) { animation: none; }
+/* The indicator slides from the old item to the new one: one line, no crossfade. */
+::view-transition-group(nav-indicator) { animation-duration: 620ms; animation-timing-function: cubic-bezier(0.65, 0, 0.25, 1); }
+::view-transition-old(nav-indicator) { animation: none; opacity: 0; }
+::view-transition-new(nav-indicator) { animation: none; }
+::view-transition-image-pair(nav-indicator) { isolation: auto; }
+/* The title: the old words lift away as the new ones rise into the same place. */
+::view-transition-group(page-title) { animation-duration: 560ms; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+::view-transition-old(page-title) { animation: 240ms cubic-bezier(0.4, 0, 1, 1) both m-vt-title-out; }
+::view-transition-new(page-title) {
+  animation: 620ms cubic-bezier(0.16, 1, 0.3, 1) 90ms both m-vt-title-in;
+  height: 100%;
+  width: auto;
+  object-fit: none;
+  object-position: left top;
+}
+::view-transition-old(page-title) { height: 100%; width: auto; object-fit: none; object-position: left top; }
+@keyframes m-vt-title-out { to { opacity: 0; transform: translateY(-0.35em); } }
+@keyframes m-vt-title-in { from { opacity: 0; transform: translateY(0.45em); } }
+
 /* ---------- Reduced motion: everything visible, nothing moves ---------- */
 @media (prefers-reduced-motion: reduce) {
   [data-reveal], article h2, p.lead, .stat-strip, .wish-card, .memory-frame,

@@ -88,4 +88,5 @@ All seven `test/integration_*.sh` scripts are gated by `unit-tests.yml`; run the
 - [`docs/README.md`](docs/README.md) — index of all user and maintainer guides.
 - `.agents/skills/al-folio-bootstrap/SKILL.md` — new-site setup workflow.
 - `.agents/skills/al-folio-v1-migration/SKILL.md` — customized-fork migration and override drift auditing.
+- `.agents/skills/portfolio-improvement/SKILL.md` — design and copy passes on this portfolio with parallel agents (plan, file ownership, watchdog, integration, review).
 - `.codex/skills` and `.claude/skills` are symlinks to `.agents/skills` for agent-specific discovery.
