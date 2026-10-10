@@ -248,9 +248,14 @@
   white-space: nowrap;
 }
 .about-page .ledger-suffix {
-  font-size: 0.55em;
-  margin-left: 0.04em;
-  vertical-align: 0.62em;
+  font-size: 0.7em;
+  font-weight: 500;
+  /* At display optical size Fraunces draws "+" as a hairline; a text optical size keeps it legible. */
+  font-variation-settings:
+    "opsz" 24,
+    "wght" 500;
+  margin-left: 0.06em;
+  vertical-align: 0.38em;
   color: var(--h-accent);
 }
 .about-page .ledger-label {

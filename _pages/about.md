@@ -83,8 +83,8 @@ Applied machine learning and deep learning for satellite and medical images, nat
 <h2 class="home-heading" id="leadership-and-service">Leadership and service</h2>
 <div class="home-section-body" markdown="1">
 
-- Conference Chair, ICNDIA-2026, the first edition of this IEEE international conference, hosted at AIT; 217 papers presented
-- Faculty In-Charge, AIT Open Source Software Club (current), and the Innerve hackathon (9,500+ students, 2025)
+- Conference Chair, ICNDIA-2026, the first edition of an IEEE international conference hosted at AIT; 217 papers presented
+- Faculty in-charge, AIT Open Source Software Club (current), and the Innerve hackathon (9,500+ students, 2025)
 - Vice Branch Counsellor, IEEE AIT Student Branch (current)
 - Mentor of both AIT first-prize teams, Smart India Hackathon 2024
 

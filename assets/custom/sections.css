@@ -665,7 +665,8 @@
 .ms .ms-heading a {
   color: var(--sx-ink) !important;
   text-decoration: underline;
-  text-decoration-color: transparent;
+  /* A faint resting underline says "link" without competing with the title. */
+  text-decoration-color: rgba(160, 74, 13, 0.35);
   text-underline-offset: 0.18em;
   text-decoration-thickness: 1px;
 }

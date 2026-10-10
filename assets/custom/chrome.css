@@ -195,3 +195,9 @@ body::after {
     display: none;
   }
 }
+
+/* CV dates come from the al_folio_cv gem with a .text-uppercase utility ("2005 - PRESENT"); keep them in normal case. */
+.table-cv .badge.text-uppercase {
+  text-transform: capitalize !important;
+  letter-spacing: 0 !important;
+}

@@ -5,6 +5,17 @@
 .pub-search[hidden] {
   display: none !important;
 }
+/* With JS on, hold the controls' space (invisible) until pubs.js reveals them. Otherwise revealing them after
+   first paint pushed the whole list down (CLS 0.14 on phones). No JS: they stay display: none, as above. */
+html.has-js .pub-filter[hidden] {
+  display: flex !important;
+  visibility: hidden;
+}
+html.has-js .pub-status[hidden],
+html.has-js .pub-search[hidden] {
+  display: block !important;
+  visibility: hidden;
+}
 
 /* ---------- topic chips ---------- */
 .pub-filter {

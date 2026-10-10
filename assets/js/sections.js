@@ -79,7 +79,10 @@
           defaults: { ease: "none" },
           scrollTrigger: {
             trigger: next,
-            start: "top bottom",
+            /* Begin when the next card reaches the bottom of this pinned card, i.e. when it starts to cover it. */
+            start: function () {
+              return "top " + Math.min(window.innerHeight, stickTop(i) + card.offsetHeight) + "px";
+            },
             end: function () {
               return "top " + stickTop(i + 1) + "px";
             },
@@ -87,7 +90,7 @@
             invalidateOnRefresh: true,
           },
         });
-        tl.to(card, { scale: 0.94 }, 0).to(inner, { opacity: 0.35 }, 0);
+        tl.to(card, { scale: 0.95 }, 0).to(inner, { opacity: 0.8 }, 0);
       });
 
       /* Cards differ in height. Once the next card slides over, clip the covered card just below the
