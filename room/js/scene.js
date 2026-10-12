@@ -777,7 +777,7 @@ export async function createScene(container, o) {
       const m = await import('./intro-game.js');
       if (!gameWanted || !active && state !== 'loading') return null;   // skipped (or 2D) while the module loaded
       game = m.createGame({
-        THREE, renderer, gsap, phone, touch: g.touch, ui: g.ui, labels: g.labels, title: g.title, tagline: g.tagline,
+        THREE, renderer, gsap, phone, touch: g.touch, ui: g.ui, labels: g.labels, title: g.title,
         onStep: g.onStep, onPlay: g.onPlay, onDone: g.onDone
       });
       state = 'game';

@@ -220,14 +220,13 @@ export function createGame(o) {
   el.className = 'g-ui';
   const promptText = touch ? 'Watch the model learn. Tap to speed it up.' : 'Watch the model learn. Click or press Space to speed it up.';
   el.innerHTML =
-    '<div class="g-title"><p class="g-name"></p><p class="g-tag"></p></div>' +
+    '<div class="g-title"><p class="g-name"></p></div>' +
     '<p class="g-label" aria-hidden="true"></p>' +
     '<p class="g-learned" aria-hidden="true">Learned.</p>' +
     '<div class="g-bar"><p class="g-prompt"></p>' +
     '<ol class="g-dots" aria-hidden="true">' + '<li></li>'.repeat(N) + '</ol></div>' +
     '<p class="sr-only g-live" aria-live="polite"></p>';
   el.querySelector('.g-name').textContent = o.title || '';
-  el.querySelector('.g-tag').textContent = o.tagline || '';
   const promptEl = el.querySelector('.g-prompt'), bar = el.querySelector('.g-bar'), title = el.querySelector('.g-title');
   const labelEl = el.querySelector('.g-label'), learned = el.querySelector('.g-learned'), live = el.querySelector('.g-live');
   const dotEls = el.querySelectorAll('.g-dots li');

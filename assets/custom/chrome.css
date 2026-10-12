@@ -216,3 +216,8 @@ html.has-js.hero-passed .brand-after-hero {
 #navbar.is-tucked .brand-after-hero {
   opacity: 0;
 }
+
+/* The footer line is gone; keep its breathing room under the last element on every page. */
+.container[role="main"] {
+  padding-bottom: clamp(2.5rem, 6vw, 4.5rem);
+}
