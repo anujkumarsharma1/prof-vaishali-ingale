@@ -184,18 +184,13 @@
     for (var i = 0; i < n - 1; i++) out.push(items[i] || null);
     return out;
   }
-  function tagline() {
-    // "Machine learning, image analysis and information security. …" -> "Machine learning · Image analysis · Information security"
-    var first = String(C.tagline || C.subtitle || '').split('. ')[0].replace(/\.$/, '');
-    return first.split(/,\s*|\s+and\s+/).map(function (t) { t = t.trim(); return t.charAt(0).toUpperCase() + t.slice(1); }).filter(Boolean).join(' \u00b7 ');
-  }
   function restoreSkip() { if (skipIntroBtn.parentNode !== skipHome) skipHome.insertBefore(skipIntroBtn, skipNext); skipIntroBtn.classList.remove('in-game'); }
   function startGame() {
     if (!INTRO_GAME) { state = 'intro'; return scene.intro(phone, function () { toDesk(); }); }
     state = 'game';
     var g0 = window.gsap ? window.gsap.ticker.time : 0;
     return scene.playGame({
-      ui: gameUI, touch: touch, labels: researchLabels(), tagline: tagline(),
+      ui: gameUI, touch: touch, labels: researchLabels(),
       title: (nameEl && nameEl.textContent) || C.name,
       onPlay: function (prompt) {
         // Skip intro sits beside the prompt, and Tab reaches it
