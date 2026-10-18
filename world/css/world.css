@@ -228,3 +228,4 @@ a{color:var(--plum)}
 .joy{border-radius:6px;background:rgba(251,250,247,.85);backdrop-filter:none;-webkit-backdrop-filter:none}
 .joy-knob{border-radius:4px;background:var(--plum)}
 .static .brand,.static .brand span{color:var(--plum);text-shadow:none}
+.brand,.brand span{color:var(--plum);text-shadow:0 0 8px rgba(255,255,255,.7)}
