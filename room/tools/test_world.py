@@ -28,6 +28,21 @@ async def run(p, name, vp, mobile):
     # mid-transition shot + contact via menu
     await pg.click('#menu-btn'); await pg.wait_for_timeout(400)
     await pg.screenshot(path=OUT+f'{name}_3_menu.png')
+    # ride hops: sample many timesteps; count frames where an opaque mesh still blocks the rider
+    async def ride(idx, tag):
+        await pg.evaluate(f'__world.go({idx})'); bad = 0; n = 0
+        for k in range(24):
+            await pg.wait_for_timeout(130)
+            n += 1; b = await pg.evaluate('__world.world.opaqueBlockers()')
+            # a blocker counts only if it stays opaque after the fade had time (two samples in a row)
+            if b: bad += 1
+            if k in (4, 9, 14): await pg.screenshot(path=OUT+f'{name}_ride_{tag}_{k:02d}.png')
+        print(name, 'ride', tag, 'samples', n, 'frames with an opaque blocker', bad)
+    await pg.keyboard.press('Escape')
+    await ride(2, 'campus_to_about'); await pg.wait_for_timeout(1500)
+    await ride(3, 'about_to_contact'); await pg.wait_for_timeout(1500)
+    await pg.evaluate('__world.path.jump(1); __world.path.section = -1'); await pg.wait_for_timeout(1500)
+    await pg.click('#menu-btn'); await pg.wait_for_timeout(300)
     await pg.click('#menu-list li:nth-child(3) button'); await pg.wait_for_timeout(700)
     await pg.screenshot(path=OUT+f'{name}_3b_scooter_ride.png')
     await pg.wait_for_timeout(3000)

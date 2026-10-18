@@ -17,6 +17,11 @@ export class Hilltop extends Location {
     this.add(new THREE.Mesh(new THREE.CylinderGeometry(7, 8, 1, 32), clay(P.leaf)), X, Y - 0.48, Z + 2);
     // little fort wall hint (Pune hill-fort mood)
     for (let i = -3; i <= 3; i++) this.add(new THREE.Mesh(new RoundedBoxGeometry(1.2, 1 + (i % 2 ? 0.4 : 0), 0.8, 2, 0.15), clay(P.stone)), X + i * 1.5, Y + 0.5, Z - 4.4);
+    // Dighi hills backdrop, in frame behind the tiles (low-poly, soft mauve haze)
+    [[-26, -38, 16, 11], [-6, -46, 22, 16], [14, -40, 15, 10], [32, -50, 20, 13], [-44, -52, 18, 9]].forEach(([dx, dz, r, h], i) => {
+      const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, 7), clay(i % 2 ? '#b9a3b5' : '#c7aebd', { flatShading: true }));
+      m.position.set(X + dx, h / 2 - 0.5, Z + dz); m.rotation.y = i; this.group.add(m);
+    });
     this.tiles = [];
     const n = this.links.length, gap = 2.9, ox = -((n - 1) * gap) / 2;
     this.links.forEach((l, i) => {

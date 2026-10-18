@@ -25,7 +25,7 @@ export class AitCampus extends Location {
   rb(w, h, d, r = 0.12, s = 2) { return new RoundedBoxGeometry(w, h, d, s, Math.min(r, w / 2 - 0.01, h / 2 - 0.01, d / 2 - 0.01)); }
   build() {
     // lawn
-    const lawn = this.add(new THREE.Mesh(this.rb(46, 1.2, 74, 0.5), clay(P.leaf)), 0, -0.6, -20); lawn.castShadow = false;
+    const lawn = this.add(new THREE.Mesh(this.rb(46, 1.2, 74, 0.5), clay(P.leaf)), 0, -0.6, -20); lawn.castShadow = false; lawn.userData.noOcclude = true;
     this._walkway();
     this._wings(); this._tower(); this._grounds();
     this._gate();
@@ -96,8 +96,9 @@ export class AitCampus extends Location {
     this.add(new THREE.Mesh(this.rb(1.2, 0.9, len - 2, 0.35), clay('#7fae5e')), 4.6, 0.45, cz);
     // palms and round trees lining both sides
     this.lanePalms = [];
-    for (let z = -6, k = 0; z > -29; z -= 4.5, k++) { this.lanePalms.push(this._palm((z > -16 ? -9 : -6.2) - (k % 2) * 1.2, z, k)); if (z > -20) this.lanePalms.push(this._palm(6.6 + (k % 2), z - 2, k + 1)); }   // right side stops early: the camera leaves that way   // left palms clear of the shelter roof
+    for (let z = -6, k = 0; z > -29; z -= 4.5, k++) { this.lanePalms.push(this._palm((z > -16 ? -9 : -6.2) - (k % 2) * 1.2, z, k)); if (z > -12) this.lanePalms.push(this._palm(6.6 + (k % 2), z - 2, k + 1)); }   // right side stops early: the camera leaves that way   // left palms clear of the shelter roof
     for (let z = -4; z > -29; z -= 5) [-11, 11.5].forEach((x, j) => {
+      if (j && z < -10) return;   // keep the right side open: the ride to About leaves that way
       const tr = this.add(new THREE.Mesh(new THREE.IcosahedronGeometry(1.8 + ((z + j) % 3) * 0.2, 1), clay(j ? P.leafDark : P.leaf, { flatShading: true })), x, 3.4, z);
       this.add(new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.26, 2.2, 8), clay(C.trunk)), x, 1.1, z); void tr;
     });
