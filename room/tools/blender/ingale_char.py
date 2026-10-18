@@ -42,7 +42,7 @@ def add_face_shading(m):
         return mr.outputs['Result'], color
     return nt, bs, blob
 SKIN_SHADE = []   # filled after the head centre is known
-LIPS = M('lips', srgb('#a1303a'), 0.4, coat=0.2)
+LIPS = M('lips', srgb('#9a1c28'), 0.4, coat=0.2)
 BLACK = M('saree_black', srgb('#1c191d'), 0.6)
 PALLU = bpy.data.materials.new('pallu_body'); PALLU.use_nodes = True
 nt = PALLU.node_tree; b = nt.nodes['Principled BSDF']; b.inputs['Roughness'].default_value = 0.42; b.inputs['Sheen Weight'].default_value = 0.6
@@ -137,32 +137,56 @@ def gauss(d, s): return math.exp(-(d / s) ** 2)
 
 # ---------------- head (sculpted by analytic deformation of a dense sphere, then subdivided) ----------------
 HC = Vector((0, 0, 1.495))           # head centre
+# ---------------- golden-ratio face proportions (all easy to tweak) ----------------
+PHI = 1.618
+FACE_L = 0.200                        # hairline -> chin
+FACE_W = FACE_L / PHI                 # face length : width = phi  (~0.124 m cheek to cheek)
+THIRD = FACE_L / 3                    # equal vertical thirds
+Z_CHIN = HC.z - 0.115
+Z_NOSE = Z_CHIN + THIRD               # nose base
+Z_BROW = Z_CHIN + 2 * THIRD           # brow line
+Z_HAIR = Z_CHIN + 3 * THIRD           # hairline
+MOUTH_FRAC = 1 / PHI ** 2             # golden split of the lower third: (nose->mouth):(mouth->chin) = 1:phi,
+                                      # i.e. mouth->chin = 1/phi of nose->chin. Set to 1/PHI to put the mouth at 0.618 instead.
+Z_MOUTH = Z_NOSE - MOUTH_FRAC * THIRD
+EYE_W = FACE_W / 5                    # horizontal fifths: face = 5 eye widths
+EYE_GAP = EYE_W                       # gap between the eyes = one eye width
+EYE_X = (EYE_GAP + EYE_W) / 2         # eye centre offset from the midline
+EYE_H = EYE_W / PHI                   # almond: height = width / phi
+Z_EYE = Z_BROW - 0.42 * EYE_W - EYE_H / 2
+NOSE_W = EYE_GAP                      # nose width = inter-eye distance
+MOUTH_W = PHI * NOSE_W                # mouth width = phi x nose width (~ pupil to pupil)
+LIP_UP = 0.0042                       # upper lip height
+LIP_LO = PHI * LIP_UP                 # lower lip = phi x upper
+BROW_PEAK = 1 / PHI                   # brow arch peak at 1/phi along the brow (inner -> outer)
+def hz(zw): return (zw - HC.z) / 0.11  # world z -> normalised head-sphere z (for the sculpt)
 bm = bmesh.new(); bmesh.ops.create_uvsphere(bm, u_segments=26, v_segments=16, radius=1)
 for v in bm.verts:
     x, y, z = v.co
     # base skull: width 0.152, depth 0.19, height 0.23
     X, Y, Z = x * 0.08, y * 0.094, z * 0.11
     lower = max(0.0, -z)                                    # 0 at mid, 1 at chin
+    if z < 0: Z = z * (0.11 + 0.02 * lower ** 1.5)            # lower face reaches Z_CHIN at the front
     X *= 1 - 0.27 * lower ** 1.9                            # soft, rounded jaw
     Y *= 1 - 0.12 * lower
     if y < 0: Y *= 1.0 - 0.1 * max(0, z)                    # slightly flatter forehead
-    if z < -0.55 and y < 0: Y -= 0.012 * (lower - 0.55)     # chin forward
+    if z < -0.7 and y < 0: Y -= 0.03 * (lower - 0.7)        # chin forward (front of the chin sits on Z_CHIN)
     # cheekbones
     Xs = X + math.copysign(0.009, x) * gauss(z + 0.22, 0.3) * (1 if y < 0 else 0.4)   # full cheeks
     X = Xs
     # eye sockets: gentle inset
     for sx in (-1, 1):
-        d = math.hypot(x - 0.36 * sx, z - 0.12)
+        d = math.hypot(x - EYE_X / 0.08 * sx, z - hz(Z_EYE))
         if y < 0: Y += 0.007 * gauss(d, 0.16) * (-y)
     # nose bridge + tip
     if y < 0:
         nz = gauss(x, 0.10) * gauss(z + 0.05, 0.22)
-        Y -= 0.011 * gauss(x, 0.075) * gauss(z + 0.08, 0.2) * (-y) ** 4          # bridge
-        Y -= 0.011 * gauss(x, 0.11) * gauss(z + 0.25, 0.08) * (-y) ** 4           # soft tip
-        Y += 0.003 * gauss(abs(x) - 0.12, 0.04) * gauss(z + 0.3, 0.05) * (-y) ** 3  # alar creases
+        Y -= 0.010 * gauss(x, 0.075) * gauss(z - (hz(Z_BROW) + hz(Z_NOSE)) / 2, 0.22) * (-y) ** 4          # bridge
+        Y -= 0.011 * gauss(x, 0.11) * gauss(z - hz(Z_NOSE) - 0.06, 0.08) * (-y) ** 4           # soft tip
+        Y += 0.0035 * gauss(x, 0.05) * gauss(z - (hz(Z_NOSE) + hz(Z_MOUTH)) / 2, 0.1) * (-y) ** 3  # philtrum groove
         Y -= 0.005 * gauss(abs(x) - 0.35, 0.18) * gauss(z + 0.22, 0.15) * (-y) ** 2  # cheek apples
         # lip mound and mouth line
-        Y -= 0.006 * gauss(x, 0.28) * gauss(z + 0.45, 0.12) * (-y) ** 2
+        Y -= 0.006 * gauss(x, 0.28) * gauss(z - hz(Z_MOUTH), 0.12) * (-y) ** 2
     v.co = Vector((X, Y, Z)) + HC
 head = obj_from(bm, 'head', [SKIN])
 head.modifiers.new('sub', 'SUBSURF').levels = 1
@@ -171,7 +195,7 @@ FYc = HC.y - 0.094
 nt, bs, blob = add_face_shading(SKIN)
 base = nt.nodes.new('ShaderNodeRGB'); base.outputs[0].default_value = (*srgb(SKIN_HEX), 1); col_out = base.outputs[0]
 for pt, rad, c, st in [((-0.045, FYc + 0.02, HC.z - 0.03), 0.035, '#a8574f', 0.45), ((0.045, FYc + 0.02, HC.z - 0.03), 0.035, '#a8574f', 0.45),
-                       ((0, FYc + 0.012, HC.z - 0.062), 0.03, '#8e3e3a', 0.5), ((0, FYc + 0.02, HC.z + 0.0), 0.02, '#87573f', 0.25), ((0, FYc + 0.01, HC.z - 0.04), 0.012, '#6e4433', 0.5)]:
+                       ((0, FYc + 0.03, Z_MOUTH), 0.026, '#8e3e3a', 0.5), ((0, FYc + 0.02, HC.z + 0.0), 0.02, '#87573f', 0.25), ((0, FYc + 0.03, Z_NOSE - 0.002), 0.011, '#6e4433', 0.5)]:
     fac, colr = blob(pt, rad, c, st)
     mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'; mx.inputs[7].default_value = (*srgb(colr), 1)
     nt.links.new(fac, mx.inputs[0]); nt.links.new(col_out, mx.inputs[6]); col_out = mx.outputs[2]
@@ -180,47 +204,68 @@ nt.links.new(col_out, bs.inputs['Base Color'])
 # neck
 neck = rings_mesh('neck', [(1.34, 0.056, 0.055, 0, 0.004, None), (1.40, 0.047, 0.05, 0, 0.006, None), (1.46, 0.046, 0.05, 0, 0.01, None)], 16, [SKIN])
 
-# ---------------- face details ----------------
-FY = HC.y - 0.094      # front surface y at centre
+# ---------------- face details (placed on the sculpted surface by raycast) ----------------
+from mathutils.bvhtree import BVHTree
+dg0 = bpy.context.evaluated_depsgraph_get(); BVH = BVHTree.FromObject(head, dg0)
+def surf_y(x, z):
+    hit = BVH.ray_cast(Vector((x, -1.0, z)), Vector((0, 1, 0)))
+    return hit[0].y if hit[0] else HC.y - 0.09
+FY = HC.y - 0.094
 for sx in (-1, 1):
-    ex, ez = 0.031 * sx, HC.z + 0.012
-    ey = FY + 0.017
-    uvsphere('eye_w%d' % sx, (ex, ey + 0.003, ez), (0.0155, 0.008, 0.0095), EYEW, 16, 10)
-    uvsphere('iris%d' % sx, (ex, ey - 0.0042, ez), (0.0085, 0.003, 0.0085), IRIS, 12, 8)
-    uvsphere('glint%d' % sx, (ex - 0.003, ey - 0.0072, ez + 0.003), (0.0018, 0.001, 0.0018), EYEW, 8, 6)
+    ex, ez = EYE_X * sx, Z_EYE
+    ey = surf_y(ex, ez) + 0.0085                      # eyeball centre, set slightly into the socket
+    uvsphere('eye_w%d' % sx, (ex, ey, ez), (EYE_W / 2, 0.0085, EYE_H / 2), EYEW, 16, 10)
+    front = ey - 0.0085
+    uvsphere('iris%d' % sx, (ex, front - 0.0003, ez - 0.0004), (0.0062, 0.0022, 0.0062), IRIS, 12, 8)
+    uvsphere('glint%d' % sx, (ex - 0.0022 * sx, front - 0.0022, ez + 0.0022), (0.0014, 0.0008, 0.0014), EYEW, 8, 6)
+    # light upper lid: covers only the top sliver so the eyes read open
     bml = bmesh.new(); bmesh.ops.create_uvsphere(bml, u_segments=16, v_segments=8, radius=1)
-    bmesh.ops.delete(bml, geom=[v for v in bml.verts if v.co.z < 0.42], context='VERTS')
-    for v in bml.verts: v.co = Vector((v.co.x * 0.0172 + ex, v.co.y * 0.0095 + ey + 0.002, v.co.z * 0.0105 + ez - 0.001))
+    bmesh.ops.delete(bml, geom=[v for v in bml.verts if v.co.z < 0.72], context='VERTS')
+    for v in bml.verts: v.co = Vector((v.co.x * (EYE_W / 2 + 0.0012) + ex, v.co.y * 0.0092 + ey + 0.0005, v.co.z * (EYE_H / 2 + 0.0012) + ez))
     obj_from(bml, 'lidskin%d' % sx, [SKIN]).modifiers.new('sol', 'SOLIDIFY').thickness = 0.001
-    # upper lid line (thick lash line) and soft lower line
-    lid = [Vector((ex + 0.0178 * math.cos(a) , ey - 0.0058 - 0.003 * math.sin(a), ez + 0.0015 + 0.0058 * math.sin(a))) for a in [math.pi * k / 10 for k in range(11)]]
-    tube('lid%d' % sx, lid, [0.0012 + 0.0011 * math.sin(math.pi * k / 10) for k in range(11)], 6, INK)
-    # brows: arched, thicker toward the inner end
-    br = [Vector((sx * (0.012 + 0.032 * u), FY + 0.012 + 0.006 * u, ez + 0.024 + 0.008 * math.sin(math.pi * min(1, u * 1.25)) - 0.004 * u)) for u in [k / 10 for k in range(11)]]
-    tube('brow%d' % sx, br, [0.0026 - 0.0014 * (k / 10) for k in range(11)], 6, INK, flat=1.8)
-    # earrings: gold stud + small red drop
+    # almond lash line (thicker at the outer end) and a faint lower line
+    lid = [Vector((ex + (EYE_W / 2 + 0.0008) * math.cos(a), front - 0.0012 - 0.002 * math.sin(a), ez + (EYE_H / 2 + 0.0004) * math.sin(a))) for a in [math.pi * k / 12 for k in range(13)]]
+    tube('lid%d' % sx, lid, [0.0009 + 0.0012 * math.sin(math.pi * k / 12) * (0.6 + 0.4 * ((k / 12) if sx > 0 else 1 - k / 12)) for k in range(13)], 6, INK)
+    low = [Vector((ex + (EYE_W / 2) * math.cos(a), front - 0.0006, ez - (EYE_H / 2 + 0.0002) * math.sin(a) * 0.9)) for a in [math.pi * (0.15 + 0.7 * k / 8) for k in range(9)]]
+    tube('lidlo%d' % sx, low, [0.0005] * 9, 5, M('lowerlid', srgb('#5a3a30'), 0.6) if sx < 0 else bpy.data.materials['lowerlid'])
+    # brow: inner end above the inner eye corner, peak at 1/phi along, tapering to the outer end
+    xi, xo = EYE_X - EYE_W / 2 - 0.001, EYE_X + EYE_W / 2 + 0.008
+    def arch(u): return math.sin(math.pi / 2 * u / BROW_PEAK) if u < BROW_PEAK else math.cos(math.pi / 2 * (u - BROW_PEAK) / (1 - BROW_PEAK))
+    br = []
+    for k in range(13):
+        u = k / 12; bx = sx * (xi + (xo - xi) * u); bz = Z_BROW + 0.0055 * arch(u) - 0.003 * u
+        br.append(Vector((bx, surf_y(bx, bz) - 0.0012, bz)))
+    tube('brow%d' % sx, br, [0.0028 - 0.0016 * (k / 12) for k in range(13)], 6, INK, flat=1.9)
+    # earrings: gold stud + small red drop; ears mostly under hair
     uvsphere('stud%d' % sx, (0.079 * sx, HC.y + 0.006, HC.z - 0.03), (0.006, 0.006, 0.006), GOLDM, 10, 6)
     uvsphere('drop%d' % sx, (0.08 * sx, HC.y + 0.006, HC.z - 0.047), (0.0055, 0.0055, 0.008), RED, 10, 6)
-    # ears (simple smooth shells, mostly under hair)
     uvsphere('ear%d' % sx, (0.075 * sx, HC.y + 0.008, HC.z - 0.008), (0.009, 0.016, 0.024), SKIN, 12, 8)
-# nose: one tapered form, narrow at the bridge, fuller and slightly forward at the tip, set into the face
-NC = Vector((0, FY + 0.0062, HC.z - 0.016))
+# nose: tapered form from just below the brow to the nose base; alae span = NOSE_W
+ntop, nbot = Z_BROW - 0.018, Z_NOSE + 0.003
+NC = Vector((0, surf_y(0, (ntop + nbot) / 2) + 0.005, (ntop + nbot) / 2)); NH = (ntop - nbot) / 2
 bmn = bmesh.new(); bmesh.ops.create_uvsphere(bmn, u_segments=14, v_segments=10, radius=1)
 for v in bmn.verts:
-    x, y, z = v.co; t = (1 - z) / 2                         # 0 at the bridge top, 1 at the tip
-    v.co = NC + Vector((x * 0.0072 * (0.55 + 0.6 * t), y * 0.0075 - 0.0042 * t ** 1.5, z * 0.021))
+    x, y, z = v.co; t = (1 - z) / 2                         # 0 at the bridge, 1 at the tip
+    v.co = NC + Vector((x * 0.0074 * (0.55 + 0.6 * t), y * 0.0068 - 0.0036 * t ** 1.3, z * NH))
 obj_from(bmn, 'nose', [SKIN])
-for sx in (-1, 1): uvsphere('ala%d' % sx, (0.0078 * sx, FY + 0.0092, HC.z - 0.033), (0.0048, 0.005, 0.0042), SKIN, 10, 6)
-# lips: full, cupid's bow, red
-def lip(name, zc, h, w, bow, yoff):
-    bm = bmesh.new(); bmesh.ops.create_uvsphere(bm, u_segments=20, v_segments=10, radius=1)
-    for v in bm.verts:
-        x, y, z = v.co
-        X = x * w; Z = z * h + bow * gauss(x, 0.25) * (1 if z > 0 else 0) * h; Y = y * 0.0034 - 0.0025 * (1 - x * x)
-        v.co = Vector((X, Y + yoff, Z + zc))
-    return obj_from(bm, name, [LIPS])
-lip('lip_up', HC.z - 0.059, 0.0034, 0.0145, -0.4, FY + 0.0195)
-lip('lip_lo', HC.z - 0.0655, 0.0042, 0.013, 0.0, FY + 0.0205)
+for sx in (-1, 1):
+    ax = sx * (NOSE_W / 2 - 0.0058); az = Z_NOSE + 0.0048
+    uvsphere('ala%d' % sx, (ax, surf_y(ax, az) + 0.0036, az), (0.0058, 0.0052, 0.0046), SKIN, 10, 6)
+# mouth: ONE form (upper + lower lip with a cupid's bow), corners tucked back, a soft parting line; philtrum ridges
+bmm = bmesh.new(); bmesh.ops.create_uvsphere(bmm, u_segments=24, v_segments=14, radius=1)
+my = surf_y(0, Z_MOUTH)
+for v in bmm.verts:
+    x, y, z = v.co
+    X = x * MOUTH_W / 2
+    if z >= 0: Z = z * LIP_UP * (1 - 0.45 * gauss(x, 0.12) * z) + 0.0012 * gauss(abs(x) - 0.22, 0.12) * z   # cupid's bow
+    else: Z = z * LIP_LO * (1 - 0.25 * x * x)
+    Y = y * 0.0034 + 0.0105 * x * x - 0.0004            # corners wrap back around the face
+    v.co = Vector((X, my + Y, Z_MOUTH + Z))
+obj_from(bmm, 'mouth', [LIPS])
+mline = [Vector((MOUTH_W / 2 * 0.98 * (2 * k / 12 - 1), 0, 0)) for k in range(13)]
+mline = [Vector((p.x, my - 0.0004 + 0.0105 * (p.x / (MOUTH_W / 2)) ** 2 - 0.0004 - 0.0034 * math.sqrt(max(0, 1 - (p.x / (MOUTH_W / 2)) ** 2)), Z_MOUTH + 0.0003)) for p in mline]
+tube('mouth_line', mline, [0.00045] * 13, 5, M('mouth_line', srgb('#4a1a1e'), 0.5))
+# philtrum: carried by the sculpt groove + shading only (separate ridges read as teeth in 3/4)
 
 # ---------------- hair: cap + many wavy locks (curves -> mesh) ----------------
 # cap: shell over the skull, open over the face; parting slightly to her right (-X)
@@ -228,8 +273,9 @@ bm = bmesh.new(); bmesh.ops.create_uvsphere(bm, u_segments=30, v_segments=16, ra
 kill = []
 for v in bm.verts:
     x, y, z = v.co
-    if z < -0.15 or (y < -0.2 and z < 0.55 - 0.0 * abs(x)): kill.append(v); continue
-    groove = 0.009 * gauss(x + 0.16, 0.045) * (1 if z > 0.25 and y < 0.3 else 0)
+    hl = hz(Z_HAIR) * 0.11 / 0.12 - 0.55 * x * x           # smooth hairline arc, lower at the temples
+    if z < -0.15 or (y < -0.2 and z < hl): kill.append(v); continue
+    groove = 0.007 * gauss(x + 0.16, 0.045) * (1 if z > 0.3 else 0) * min(1, max(0, (y + 0.45) / 0.35))   # parting groove fades out before the hairline
     v.co = Vector((x * 0.084, y * 0.101, z * 0.12 - groove)) + HC + Vector((0, 0.004, 0.006))
 bmesh.ops.delete(bm, geom=kill, context='VERTS')
 cap = obj_from(bm, 'hair_cap', [HAIR]); cap.modifiers.new('sol', 'SOLIDIFY').thickness = 0.006
@@ -248,7 +294,7 @@ def lock(name, pts, r0, r1):
 locks = []
 import random
 random.seed(7)
-N = 38
+N = 34
 for i in range(N):
     # angle around the head, from the parting (front, slightly right) going round the back; skip the face
     side = -1 if i < N // 2 else 1
@@ -265,12 +311,19 @@ for i in range(N):
         z = root.z - u * L
         bulge = 0.09 + 0.085 + 0.012 * random.random() - 0.006 + 0 * 0.075 - 0.085 + 0.085 * math.sin(min(1, u * 1.6) * math.pi * 0.5) + 0.01 * u     # volume grows down to the jaw
         wave = 0.022 * math.sin(u * math.pi * 4.6 + i * 1.7) * min(1, u * 2.2)
+        bulge *= 0.84 + 0.16 * min(1, k * 2.5)                                # side locks hug the face
         p = HC + out * (bulge + wave) + Vector((0, 0, z - HC.z))
         if u == 0: p = root
         if k < 0.25 and u > 0: p += Vector((0, 0.025 * u + 0.012, 0))      # front locks sit behind the cheek line
         if u > 0.6: p += Vector((0, 0.03 * (u - 0.6), 0))                   # ends fall onto the shoulders, slightly back
         pts.append(p)
     locks.append(lock('lock%02d' % i, pts, 0.021, 0.017))
+# hairline sweep: locks from the parting lying over the hairline toward the temples (no notch or ledge)
+for j, (side, off) in enumerate([(-1, 0.0), (-1, 0.012), (1, 0.0), (1, 0.012), (1, 0.024)]):
+    P0 = Vector((-0.012 + side * 0.004, HC.y - 0.07 + off, Z_HAIR + 0.016 - off * 0.3))
+    pts = [P0 + Vector((side * 0.026 * u + side * 0.045 * u * u, 0.03 * u * u + off * u, -0.018 * u - 0.06 * u * u)) for u in [k / 6 for k in range(7)]]
+    pts = [Vector((p.x, min(p.y, surf_y(p.x, p.z) + 0.0) if abs(p.x) < 0.07 else p.y, p.z)) for p in pts]
+    locks.append(lock('sweep%d' % j, pts, 0.019, 0.016))
 # convert locks to meshes and join
 bpy.ops.object.select_all(action='DESELECT')
 for o in locks: o.select_set(True)
@@ -431,6 +484,17 @@ def shot(fname, loc, target, lens):
     scn.render.filepath = OUT + '/' + fname; bpy.ops.render.render(write_still=True)
 import os; os.makedirs(OUT, exist_ok=True)
 shot(PFX + 'front.png', (0, -1.15, 1.47), (0, 0, 1.42), 85)
+from bpy_extras.object_utils import world_to_camera_view
+import json
+def px(p):
+    c = world_to_camera_view(scn, cam, Vector(p)); return [c.x * scn.render.resolution_x, (1 - c.y) * scn.render.resolution_y]
+yfront = surf_y(0, Z_EYE) + 0.004       # project guides at the face surface depth
+guides = {'h': {n: [px((-FACE_W / 2 - 0.02, yfront, z)), px((FACE_W / 2 + 0.02, yfront, z))] for n, z in
+                [('hairline', Z_HAIR), ('brow', Z_BROW), ('nose base', Z_NOSE), ('mouth (golden split)', Z_MOUTH), ('chin', Z_CHIN), ('eyes', Z_EYE)]},
+          'v': {('%+.1f eye' % (x / EYE_W)): [px((x, yfront, Z_HAIR + 0.01)), px((x, yfront, Z_CHIN - 0.01))] for x in [EYE_W * k / 2 for k in (-5, -3, -1, 1, 3, 5)]},
+          'box': [px((-FACE_W / 2, yfront, Z_HAIR)), px((FACE_W / 2, yfront, Z_CHIN))],
+          'consts': {'PHI': PHI, 'FACE_L': FACE_L, 'FACE_W': round(FACE_W, 4), 'THIRD': round(THIRD, 4), 'EYE_W': round(EYE_W, 4), 'EYE_H': round(EYE_H, 4), 'NOSE_W': round(NOSE_W, 4), 'MOUTH_W': round(MOUTH_W, 4), 'LIP_UP': LIP_UP, 'LIP_LO': round(LIP_LO, 4)}}
+json.dump(guides, open(OUT + '/' + PFX + 'front_guides.json', 'w'), indent=1)
 shot(PFX + 'three_quarter.png', (-0.75, -0.9, 1.5), (0, 0, 1.41), 85)
 scn.render.resolution_x, scn.render.resolution_y = 800, 1400
 shot(PFX + 'full_body.png', (0.35, -3.6, 1.0), (0, 0, 0.83), 50)
