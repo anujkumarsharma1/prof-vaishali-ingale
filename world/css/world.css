@@ -1,4 +1,4 @@
-/* 3D world UI: warm pastel palette; clean glassy panels with soft shadows, a hint of neumorphism on icon buttons. Clay lives on the 3D objects. */
+/* 3D world UI: clean, flat, minimal. Neutral palette, hairline borders, small radii, no soft/puffy shadows. */
 :root{
   --bg:#efe9ec; --pink:#f4a7b9; --peach:#ffc9a8; --coral:#f2797a; --mauve:#a8738f; --plum:#5b3a4f; --cream:#fff6ee;
   --soft: 0 10px 30px -14px rgba(91,58,79,.28);
@@ -169,3 +169,62 @@ a{color:var(--plum)}
 
 /* static page: keep the last card clear of the fixed icon bar */
 .static .panels{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
+
+/* ---------- realism pass: flat minimal UI (overrides the earlier soft styling) ---------- */
+:root{
+  --bg:#f4f2ee; --pink:#9a3b3b; --peach:#c98e6c; --coral:#9a3b2f; --mauve:#5f5a55; --plum:#1d1b19; --cream:#fbfaf7;
+  --line:rgba(29,27,25,.14); --soft:none; --neu:none; --neu-in:none; --display:"Fraunces", Georgia, serif;
+}
+.frame{display:none}
+.glass{background:rgba(251,250,247,.94);-webkit-backdrop-filter:none;backdrop-filter:none;border:1px solid var(--line);border-radius:6px;box-shadow:none}
+.neu{background:rgba(251,250,247,.94);box-shadow:none;border:1px solid var(--line);border-radius:6px}
+.neu-in{background:transparent;border-radius:4px}
+.btn{border-radius:4px}
+.solid{background:var(--plum);color:#fff;box-shadow:none;transition:background .15s}
+.solid:hover{transform:none;background:#3a3631}
+.btn.ghost{box-shadow:inset 0 0 0 1px var(--line)}
+.linkish{color:var(--mauve)}
+.gate{background:#1b1a18 linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.25) 100%)}
+.gate-card{padding:34px 36px 26px;max-width:min(440px,90vw)}
+.gate-sub{letter-spacing:.14em;color:var(--mauve)}
+.gate-ring{box-shadow:inset 0 0 0 1px var(--line);background:conic-gradient(var(--plum) calc(var(--p)*360deg), transparent 0) border-box}
+.start{letter-spacing:.24em;padding:16px 40px}
+.gate-help{margin:18px 0 0;font-size:13.5px;line-height:1.5;color:var(--mauve);text-align:left;border-top:1px solid var(--line);padding-top:14px}
+.gate-help p{margin:0 0 6px;display:flex;gap:10px;align-items:flex-start}
+.gate-help p.first{color:var(--plum);font-weight:600}
+.gate-help svg{flex:none;width:18px;height:18px;margin-top:1px;fill:none;stroke:currentColor;stroke-width:1.6}
+.brand{text-shadow:0 1px 2px rgba(0,0,0,.25);color:#fff}
+.brand span{color:#fff;opacity:.85}
+.burger{border-radius:6px;background:rgba(251,250,247,.94);box-shadow:none;border:1px solid var(--line)}
+.burger span{border-radius:0;height:2px}
+.menu-item{border-radius:4px}
+.menu-item:hover,.menu-item[aria-current]{box-shadow:none;background:rgba(29,27,25,.06)}
+.iconbar{background:rgba(251,250,247,.94);-webkit-backdrop-filter:none;backdrop-filter:none;gap:2px;padding:4px}
+.iconbar>*{border-radius:4px;background:transparent;box-shadow:none}
+.iconbar>*:hover{background:rgba(29,27,25,.06)}
+.iconbar [aria-pressed=true]{box-shadow:none;background:rgba(29,27,25,.1);color:var(--plum)}
+.photo-frame{border-radius:4px;border:0;box-shadow:none}
+.stats li{border:1px solid var(--line);border-radius:4px}
+.stats b{color:var(--plum)}
+.link{border-radius:4px;background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+.link:hover{background:rgba(29,27,25,.04)}
+.eyebrow{color:var(--coral)}
+.h2 .count{border-radius:3px;background:var(--plum)}
+.yr{color:var(--coral)}
+.pubs a{text-decoration-color:rgba(154,59,47,.45)}
+.panel-toggle{border-radius:4px!important;background:transparent!important;box-shadow:inset 0 0 0 1px var(--line)!important}
+.static{background:var(--bg)}
+.joy,.joy-knob{box-shadow:none!important}
+/* scroll hint after START: a mouse with a moving wheel (or a swiping finger on touch), fades on first scroll */
+.scroll-hint{position:fixed;left:50%;bottom:120px;transform:translateX(-50%);z-index:18;display:flex;flex-direction:column;align-items:center;gap:8px;color:#fff;font:500 13px var(--font);letter-spacing:.04em;text-shadow:0 1px 3px rgba(0,0,0,.45);pointer-events:none;opacity:0;transition:opacity .6s}
+.scroll-hint.in{opacity:1}
+.scroll-hint svg{width:30px;height:46px;fill:none;stroke:#fff;stroke-width:2;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
+.scroll-hint .wheel{animation:wheel 1.4s ease-in-out infinite}
+.scroll-hint .finger{animation:swipe 1.6s ease-in-out infinite}
+@keyframes wheel{0%{transform:translateY(0);opacity:1}70%{transform:translateY(9px);opacity:0}100%{transform:translateY(0);opacity:0}}
+@keyframes swipe{0%{transform:translateY(10px);opacity:0}25%{opacity:1}80%{transform:translateY(-12px);opacity:0}100%{opacity:0}}
+@media (max-width:760px){.scroll-hint{bottom:46vh}}
+.reduced .scroll-hint .wheel,.reduced .scroll-hint .finger{animation:none}
+.joy{border-radius:6px;background:rgba(251,250,247,.85);backdrop-filter:none;-webkit-backdrop-filter:none}
+.joy-knob{border-radius:4px;background:var(--plum)}
+.static .brand,.static .brand span{color:var(--plum);text-shadow:none}

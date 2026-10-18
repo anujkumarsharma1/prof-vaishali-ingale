@@ -7,7 +7,7 @@
    curves and bounces softly. Swap build() for a modelled GLB in M3; the API stays:
    group, setMotion(speed, yawRate), update(ctx). */
 import * as THREE from 'three';
-import { mat, PALETTE as P } from './materials.js';
+import { mat, REAL, PALETTE as P } from './materials.js';
 
 /* gold/mustard embroidered border: repeating paisley-ish motifs on black */
 function borderTexture() {
@@ -25,7 +25,7 @@ function lanyardTexture() {
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
 }
 
-const SCOOT = { body: '#8fcfc4', dark: '#4f6f7a', seat: '#5b3a4f', chrome: '#e9e4e6', tyre: '#3b2f36', light: '#fff4c7' };
+const SCOOT = { body: '#6e1a1f', dark: '#1d1e20', seat: '#231c1a', chrome: '#d4d7da', tyre: '#151515', light: '#fff4c7' };
 
 /* Rigged likeness (GLB, Draco) made by room/tools/blender/ingale_rig.py. Clips: Idle, Walk, Sit, StandToSit,
    SitToStand. The procedural figure below stays as the fallback (no WASM, load error, ?proc). */
@@ -65,7 +65,7 @@ export class Character {
       const gltf = await loader.loadAsync(MODEL_URL);
       draco.dispose();
       const root = gltf.scene; root.scale.setScalar(MODEL_SCALE);
-      root.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; if (o.material) o.material.envMapIntensity = 0.6; } });
+      root.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; if (o.material) o.material = this._realMat(o.material); } });
       this.holder = new THREE.Group(); this.holder.add(root); this.rig.add(this.holder);
       this.mixer = new THREE.AnimationMixer(root); this.clips = {};
       for (const c of gltf.animations) { const a = this.mixer.clipAction(c); a.play(); a.setEffectiveWeight(0); this.clips[c.name] = a; }
@@ -73,6 +73,24 @@ export class Character {
       this.body.visible = false; this.model = root;
       return true;
     } catch (e) { console.info('character: using the procedural figure (' + (e && e.message) + ')'); return false; }
+  }
+  /* Realism pass on the baked GLB materials, by name: skin gets a soft reddish grazing sheen (cheap
+     subsurface hint), hair an anisotropic highlight, saree/blouse a silk sheen, gold a metal response;
+     the eye whites are dimmed and the glossy iris toned down so the eyes read less cartoon-like. */
+  _realMat(m) {
+    const n = m.name || '', lite = REAL.lite;
+    const phys = (extra) => { if (lite) { Object.assign(m, { roughness: extra.roughness ?? m.roughness }); return m; }
+      const p = new THREE.MeshPhysicalMaterial({ name: n, map: m.map, normalMap: m.normalMap, color: m.color, roughness: m.roughness, metalness: m.metalness, side: m.side, transparent: m.transparent, alphaTest: m.alphaTest });
+      Object.assign(p, extra); if (extra.sheenColor) p.sheenColor = new THREE.Color(extra.sheenColor); m.dispose(); return p; };
+    let out = m;
+    if (/skin|lips/.test(n)) { if (/skin/.test(n)) m.color.multiplyScalar(0.88); out = phys({ roughness: 0.5, sheen: 0.3, sheenColor: '#c0604a', sheenRoughness: 0.55 }); }
+    else if (n === 'hair') { m.color.multiplyScalar(0.55); out = phys({ roughness: 0.45, sheen: 0.3, sheenColor: '#4a3a32', sheenRoughness: 0.3, specularIntensity: 0.5 }); }
+    else if (/saree|blouse|pallu/.test(n)) out = phys({ roughness: 0.66, sheen: 0.5, sheenColor: '#6e5f58', sheenRoughness: 0.3 });
+    else if (/gold/.test(n)) out = phys({ roughness: 0.32, metalness: 0.85 });
+    else if (n === 'eye_white') { m.color.multiplyScalar(0.8); m.roughness = 0.2; }
+    else if (n === 'iris') { m.roughness = 0.12; m.color.multiplyScalar(0.85); }
+    out.envMapIntensity = 0.7;
+    return out;
   }
   /* Drive the clip weights from the same walk / ride blend the procedural figure uses. */
   _animateModel(dt, r) {
@@ -206,20 +224,22 @@ export class Character {
   buildScooter() {
     const s = (this.scooter = new THREE.Group()); this.rig.add(s);
     const m = (g, mat, x, y, z, p = s) => this._m(g, mat, x, y, z, p);
-    const B = mat(SCOOT.body);
-    m(new THREE.BoxGeometry(0.42, 0.1, 0.9), mat(SCOOT.dark), 0, 0.32, 0.05);           // floorboard
+    // metallic paint with clearcoat, textured black plastic, chrome, rubber
+    const B = REAL.lite ? mat(SCOOT.body, { roughness: 0.35, metalness: 0.4 }) : new THREE.MeshPhysicalMaterial({ color: SCOOT.body, metalness: 0.6, roughness: 0.38, clearcoat: 1, clearcoatRoughness: 0.06 });
+    const PL = mat(SCOOT.dark, { roughness: 0.75 }), CH = mat(SCOOT.chrome, { metalness: 1, roughness: 0.12 }), TY = mat(SCOOT.tyre, { roughness: 0.95 });
+    m(new THREE.BoxGeometry(0.42, 0.1, 0.9), PL, 0, 0.32, 0.05);           // floorboard
     const rear = m(new THREE.CapsuleGeometry(0.26, 0.5, 6, 16), B, 0, 0.6, -0.42); rear.rotation.x = Math.PI / 2; rear.scale.set(1, 1, 0.9);
-    m(new THREE.BoxGeometry(0.36, 0.1, 0.62), mat(SCOOT.seat), 0, 0.88, -0.4);             // seat
+    m(new THREE.BoxGeometry(0.36, 0.1, 0.62), mat(SCOOT.seat, { roughness: 0.55 }), 0, 0.88, -0.4);             // seat
     const shield = m(new THREE.CapsuleGeometry(0.2, 0.55, 6, 14), B, 0, 0.75, 0.5); shield.rotation.x = -0.25; shield.scale.z = 0.55;
-    const stem = m(new THREE.CylinderGeometry(0.04, 0.04, 0.5, 8), mat(SCOOT.chrome), 0, 1.08, 0.45); stem.rotation.x = -0.45;
-    const bar = m(new THREE.CapsuleGeometry(0.035, 0.6, 4, 8), mat(SCOOT.dark), 0, 1.28, 0.34); bar.rotation.z = Math.PI / 2;
+    const stem = m(new THREE.CylinderGeometry(0.04, 0.04, 0.5, 8), CH, 0, 1.08, 0.45); stem.rotation.x = -0.45;
+    const bar = m(new THREE.CapsuleGeometry(0.035, 0.6, 4, 8), PL, 0, 1.28, 0.34); bar.rotation.z = Math.PI / 2;
     m(new THREE.SphereGeometry(0.09, 14, 10), mat(SCOOT.light, { emissive: '#fff1b0', emissiveIntensity: 0.4 }), 0, 1.18, 0.62);
     const fender = m(new THREE.SphereGeometry(0.26, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), B, 0, 0.26, 0.62); fender.scale.set(0.7, 0.8, 1);
     this.wheels = [0.62, -0.55].map((z) => {
       const w = new THREE.Group(); w.position.set(0, 0.22, z); s.add(w);
-      const tyre = m(new THREE.TorusGeometry(0.17, 0.065, 10, 20), mat(SCOOT.tyre), 0, 0, 0, w); tyre.rotation.y = Math.PI / 2;
-      const hub = m(new THREE.CylinderGeometry(0.09, 0.09, 0.1, 10), mat(SCOOT.chrome), 0, 0, 0, w); hub.rotation.z = Math.PI / 2;
-      m(new THREE.BoxGeometry(0.11, 0.2, 0.03), mat(SCOOT.chrome), 0, 0, 0, w);          // spoke marker, shows the spin
+      const tyre = m(new THREE.TorusGeometry(0.17, 0.065, 10, 20), TY, 0, 0, 0, w); tyre.rotation.y = Math.PI / 2;
+      const hub = m(new THREE.CylinderGeometry(0.09, 0.09, 0.1, 10), CH, 0, 0, 0, w); hub.rotation.z = Math.PI / 2;
+      m(new THREE.BoxGeometry(0.11, 0.2, 0.03), CH, 0, 0, 0, w);          // spoke marker, shows the spin
       return w;
     });
   }

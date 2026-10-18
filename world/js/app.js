@@ -45,9 +45,13 @@ export class App {
       import('./gfx/Stage.js'), import('./gfx/World.js'), import('./gfx/Character.js'), import('./gfx/CameraPath.js'),
       import('./gfx/locations/AitMainBuilding.js'), import('./gfx/locations/HiTerrace.js'), import('./gfx/locations/Hilltop.js')]);
     const J = await import('./gfx/locations/Journey.js');
+    const MAT = await import('./gfx/materials.js');
+    MAT.REAL.lite = this.quality.tier < 2;   // Lite: plain realistic colours, no texture sets, no HDRI
+    this.root.classList.toggle('lite', MAT.REAL.lite);
     this._progress(0.25); await nextFrame();
     const bus = this.bus, store = this.store, F = Object.fromEntries(this.content.folders.map((f) => [f.id, f]));
     this.stage = new Stage(bus, this.$('stage'), this.quality);
+    const skyP = this.stage.loadSky();
     this.world = new World(bus, this.stage, this.quality); this.world.lights();
     const locs = [new GateView(), new AitCampus(this.content), new HiTerrace(),
       new J.Skyline(F.publications.pubs), new J.WaterfallValley(), new J.TechPark(F.research.sections[0].items),
@@ -63,6 +67,7 @@ export class App {
     this.path.apply(this.stage.camera, this.character);
     this.modelLoaded = await Promise.race([modelP, new Promise((r) => setTimeout(() => r(false), 9000))]);
     this.character.group.traverse((o) => { if (o.isMesh) o.castShadow = this.quality.tier >= 2; });
+    await skyP;
     await this._prewarm(locs);
     this._progress(0.95); await nextFrame();
 
@@ -160,14 +165,34 @@ export class App {
     });
   }
   _progress(v) { const r = this.$('gate-ring'); if (r) r.style.setProperty('--p', v); }
+  /* touch vs pointer: the matching instruction line goes first and is emphasised */
+  _helpOrder() {
+    const h = this.$('gate-help'); if (!h) return;
+    this.touch = matchMedia('(pointer: coarse)').matches || ('ontouchstart' in window && !matchMedia('(pointer: fine)').matches);
+    const first = h.querySelector(`[data-k="${this.touch ? 'touch' : 'pointer'}"]`); first.classList.add('first'); h.prepend(first);
+  }
+  /* brief animated hint after START (mouse wheel or swipe), fades on the first scroll / swipe / key, or after 7 s */
+  _scrollHint() {
+    if (this.mode !== '3d') return;
+    const el = document.createElement('div'); el.className = 'scroll-hint'; el.setAttribute('aria-hidden', 'true');
+    el.innerHTML = this.touch
+      ? '<svg viewBox="0 0 30 46"><rect x="9" y="10" width="12" height="26" rx="6" opacity=".35"/><circle class="finger" cx="15" cy="23" r="5" fill="#fff" stroke="none"/></svg><span>Swipe up to travel</span>'
+      : '<svg viewBox="0 0 30 46"><rect x="3" y="3" width="24" height="40" rx="12"/><line class="wheel" x1="15" y1="11" x2="15" y2="17" stroke-linecap="round"/></svg><span>Scroll to travel</span>';
+    document.body.appendChild(el); requestAnimationFrame(() => el.classList.add('in'));
+    const off = () => { el.classList.remove('in'); setTimeout(() => el.remove(), 700); ['wheel', 'touchmove', 'keydown'].forEach((t) => removeEventListener(t, off)); this.joyPad && this.joyPad.removeEventListener('pointerdown', off); };
+    ['wheel', 'touchmove', 'keydown'].forEach((t) => addEventListener(t, off, { passive: true }));
+    setTimeout(() => { this.joyPad = document.querySelector('.joy'); this.joyPad && this.joyPad.addEventListener('pointerdown', off); }, 0);
+    setTimeout(off, 7000);
+  }
   _gateReady() {
     const gate = this.$('gate'), btn = this.$('start');
+    this._helpOrder();
     gate.classList.add('ready'); btn.disabled = false; btn.focus({ preventScroll: true });
     const go = (withSound) => {
       if (this.started) return; this.started = true; this._joystick();
       if (withSound) this.store.set('sound', true);
       document.body.classList.remove('is-loading');
-      const done = () => { gate.remove(); this.$('chrome').hidden = false; };
+      const done = () => { gate.remove(); this.$('chrome').hidden = false; this._scrollHint(); };
       if (this._onStart) { this._onStart(); done(); return; }
       const hash = location.hash.slice(1), idx = Math.max(0, SECTIONS.findIndex((s) => s.id === hash));
       this.brush.run(() => { done(); this.path.jump(idx); this.path.section = -1; if (idx === 0) this._estT = 0; });
