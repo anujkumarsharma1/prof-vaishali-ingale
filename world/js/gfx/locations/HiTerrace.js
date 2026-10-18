@@ -6,10 +6,10 @@ import { clay, PALETTE as P } from '../materials.js';
 
 const GLYPHS = {
   H: ['10001', '10001', '10001', '11111', '10001', '10001', '10001'],
-  I: ['111', '010', '010', '010', '010', '010', '111'],
+  I: ['1', '1', '1', '1', '1', '1', '1'],
   '!': ['1', '1', '1', '1', '1', '0', '1']
 };
-const X = 26, Y = 6, Z = -26;
+const X = 30, Y = 6, Z = -16;
 
 export class HiTerrace extends Location {
   constructor() { super('about', 'About', { charPos: [X, Y, Z + 6], camPos: [X - 1.5, Y + 2.6, Z + 14], look: [X, Y + 3.2, Z - 4] }); }
@@ -33,7 +33,7 @@ export class HiTerrace extends Location {
     this.voxels = [];
     const s = 0.62, geo = new RoundedBoxGeometry(s * 0.92, s * 0.92, s * 0.92, 2, 0.1);
     const mats = [clay(P.coral), clay(P.pink), clay(P.peach)];
-    let ox = -((5 + 1 + 3 + 1 + 1) * s) / 2, gi = 0;
+    let ox = -((5 + 1.6 + 1 + 1.6 + 1) * s) / 2, gi = 0;
     for (const ch of ['H', 'I', '!']) {
       const rows = GLYPHS[ch];
       rows.forEach((row, r) => [...row].forEach((bit, c) => {
@@ -43,7 +43,7 @@ export class HiTerrace extends Location {
         m.position.copy(home); m.castShadow = true; m.userData.home = home; m.userData.d = Math.random() * 0.6 + (c + r) * 0.03;
         this.group.add(m); this.voxels.push(m);
       }));
-      ox += (rows[0].length + 1) * s; gi++;
+      ox += (rows[0].length + 1.6) * s; gi++;
     }
     this._pop = 1;
   }

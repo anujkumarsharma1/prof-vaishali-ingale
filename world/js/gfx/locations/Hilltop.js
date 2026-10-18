@@ -4,7 +4,7 @@ import { RoundedBoxGeometry } from '../../../../room/vendor/RoundedBoxGeometry.j
 import { Location } from '../Location.js';
 import { clay, textTexture, PALETTE as P } from '../materials.js';
 
-const X = -6, Y = 12, Z = -60;
+const X = -34, Y = 12, Z = -62;
 const GLYPH = { Email: '@', 'Google Scholar': 'Sc', ORCID: 'iD', LinkedIn: 'in' };
 const TINT = [P.coral, P.pink, P.peach, P.mauve];
 

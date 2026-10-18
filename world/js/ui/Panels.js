@@ -15,6 +15,9 @@ export class Panels {
         <p class="sub">${esc(content.subtitle)}</p>
         <p class="lede">${esc(content.tagline)}</p>
         <p class="hint" data-hint>Scroll or swipe to walk with me</p>`,
+      campus: `<p class="eyebrow">Army Institute of Technology · Dighi Hills, Pune</p>
+        <p class="lede">${esc((F.research && F.research.lead) || content.tagline)}</p>
+        <p class="row"><a class="btn puffy" href="${site}publications/">Publications</a><a class="btn puffy ghost" href="${site}leadership/">Leadership</a></p>`,
       about: `<p class="eyebrow">About</p>
         <div class="about-head"><img class="portrait clay-frame" src="../room/assets/portrait.webp" alt="Portrait of ${esc(content.name)}" width="88" height="88" loading="lazy">
         <p class="lede">I'm ${esc(content.name.replace(/^Prof\.\s*/, ''))}. ${esc(a.lead.replace(/^Assistant Professor/, 'I am an Assistant Professor'))}</p></div>
@@ -29,10 +32,17 @@ export class Panels {
     for (const id of Object.keys(tpl)) {
       const s = document.createElement('section');
       s.className = 'panel clay'; s.id = 'panel-' + id; s.setAttribute('aria-labelledby', 'panel-' + id + '-h');
-      s.innerHTML = tpl[id]; s.hidden = true;
+      s.innerHTML = `<button class="panel-toggle" type="button" aria-expanded="true" aria-controls="panel-${id}-body"><span class="sr-only">Show or hide details</span></button><div class="panel-body" id="panel-${id}-body">${tpl[id]}</div>`;
+      s.hidden = true;
+      s.querySelector('.panel-toggle').addEventListener('click', () => this.setCollapsed(!this.collapsed));
       const h = s.querySelector('h1, .eyebrow'); h.id = 'panel-' + id + '-h';
       host.appendChild(s); this.el[id] = s;
     }
+  }
+  /* mobile: collapse every card to its heading row so the scene is visible; remembered across places */
+  setCollapsed(v) {
+    this.collapsed = v;
+    for (const s of Object.values(this.el)) { s.classList.toggle('collapsed', v); s.querySelector('.panel-toggle').setAttribute('aria-expanded', String(!v)); }
   }
   show(id) {
     for (const [k, s] of Object.entries(this.el)) {
