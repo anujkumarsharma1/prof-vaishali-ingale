@@ -29,7 +29,7 @@ export function textTexture(text, { w = 512, h = 256, bg = PALETTE.cream, fg = P
 export function skyTexture() {
   const c = document.createElement('canvas'); c.width = 4; c.height = 256;
   const g = c.getContext('2d'), gr = g.createLinearGradient(0, 0, 0, 256);
-  gr.addColorStop(0, '#c9a3c4'); gr.addColorStop(0.45, '#f6b8b8'); gr.addColorStop(0.75, '#ffd3b5'); gr.addColorStop(1, '#efe9ec');
+  gr.addColorStop(0, '#b996c2'); gr.addColorStop(0.4, '#f3a9ae'); gr.addColorStop(0.68, '#ffc59a'); gr.addColorStop(0.85, '#ffe2b8'); gr.addColorStop(1, '#f6e4dc');
   g.fillStyle = gr; g.fillRect(0, 0, 4, 256);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
 }

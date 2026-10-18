@@ -13,11 +13,19 @@ export class World {
     const s = this.stage.scene;
     s.add(new THREE.HemisphereLight('#fff1f3', '#c9a3b4', 1.5));
     const sun = (this.sun = new THREE.DirectionalLight('#ffe2cc', 2.3));
-    sun.position.set(20, 40, 25); sun.castShadow = this.quality.tier >= 2;
+    sun.position.set(14, 26, -70);   // low sunset sun behind the main building: backlit glow sun.castShadow = this.quality.tier >= 2;
     sun.shadow.mapSize.set(2048, 2048);
     Object.assign(sun.shadow.camera, { left: -45, right: 45, top: 45, bottom: -45, near: 1, far: 140 });
     sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.04;
-    s.add(sun); s.add(sun.target); sun.target.position.set(10, 0, -30);
+    s.add(sun); s.add(sun.target); sun.target.position.set(0, 0, -20);
+    const fill = new THREE.DirectionalLight('#ffd9e0', 0.9); fill.position.set(-10, 15, 30); s.add(fill);
+    // soft sun disc + halo behind the dome (additive sprites, no textures to load)
+    const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'), gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gr.addColorStop(0, 'rgba(255,248,225,1)'); gr.addColorStop(0.18, 'rgba(255,226,170,.9)'); gr.addColorStop(0.5, 'rgba(255,190,150,.25)'); gr.addColorStop(1, 'rgba(255,180,150,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+    const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, transparent: true }));
+    glow.position.set(3, 13, -95); glow.scale.set(46, 46, 1); s.add(glow);
   }
   addLocation(loc) { loc.build(); this.root.add(loc.group); this.locations.push(loc); return loc; }
   scenery(path) {
@@ -31,18 +39,21 @@ export class World {
       const a = (i / 22) * Math.PI * 2, r = 30 + (i % 5) * 9;
       c.position.set(10 + Math.cos(a) * r, -6 + (i % 4) * 5, -30 + Math.sin(a) * r);
       c.scale.setScalar(1.4 + (i % 3) * 0.6); c.userData.s = 0.2 + (i % 4) * 0.1;
+      if (this.locations.some((l) => l.camPos.distanceTo(c.position) < 30 || l.charPos.distanceTo(c.position) < 22)) continue;   // keep views clear
       this.root.add(c); this.clouds.push(c);
     }
-    // floating clay stepping stones along the avatar path between places
-    const stone = new THREE.CylinderGeometry(0.9, 0.7, 0.4, 14);
-    const mats = [clay(P.sand), clay(P.peach), clay(P.pink)];
-    const N = 46;
-    for (let i = 1; i < N; i++) {
-      const t = i / N, p = path.char.getPoint(t);
-      if (this.locations.some((l) => l.charPos.distanceTo(p) < 9.5)) continue;
-      const m = new THREE.Mesh(stone, mats[i % 3]); m.position.copy(p).add(new THREE.Vector3(0, -0.2, 0));
-      m.receiveShadow = true; m.castShadow = this.quality.tier >= 2; this.root.add(m);
+    // a soft clay road the scooter rides along between places (ribbon + kerbs along the avatar spline)
+    const N = 220, half = 1.1, pos = [], kerbL = [], kerbR = [], up = new THREE.Vector3(0, 1, 0);
+    for (let i = 0; i <= N; i++) {
+      const t = i / N, p = path.char.getPoint(t), tan = path.char.getTangent(t), side = new THREE.Vector3().crossVectors(tan, up).normalize();
+      const y = p.y - 0.04;
+      pos.push(p.x + side.x * half, y, p.z + side.z * half, p.x - side.x * half, y, p.z - side.z * half);
+      kerbL.push(new THREE.Vector3(p.x + side.x * half, y + 0.06, p.z + side.z * half)); kerbR.push(new THREE.Vector3(p.x - side.x * half, y + 0.06, p.z - side.z * half));
     }
+    const idx = []; for (let i = 0; i < N; i++) { const a = i * 2; idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); }   // upward-facing
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+    const road = new THREE.Mesh(g, clay(P.sand)); road.receiveShadow = true; this.root.add(road);
+    [kerbL, kerbR].forEach((pts) => { const k = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), N, 0.09, 6), clay(P.peach)); k.castShadow = this.quality.tier >= 2; this.root.add(k); });
   }
   setReduced(v) { this.reduced = v; this.locations.forEach((l) => (l.reduced = v)); }
   update(ctx) {

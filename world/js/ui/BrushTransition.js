@@ -1,4 +1,4 @@
-/* BrushTransition: our own painterly wipe. Five thick, slightly wobbly strokes paint across the
+/* BrushTransition: our own painterly wipe. Three soft, slightly wobbly strokes paint across the
    screen (SVG stroke-dashoffset), the bus gets 'transition:cover' while the screen is hidden, then the
    strokes lift away. Reduced motion: a 200 ms crossfade instead. */
 const NS = 'http://www.w3.org/2000/svg';
@@ -10,13 +10,13 @@ export class BrushTransition {
     this.svg.setAttribute('preserveAspectRatio', 'none'); this.svg.setAttribute('aria-hidden', 'true');
     this.paths = [];
     const colors = ['#fff6ee', '#ffffff', '#fbe3dc', '#ffffff', '#fff6ee'];
-    for (let i = 0; i < 5; i++) {
-      const y = 10 + i * 20, p = document.createElementNS(NS, 'path');
+    for (let i = 0; i < 3; i++) {
+      const y = 17 + i * 33, p = document.createElementNS(NS, 'path');
       // hand-wobbled stroke from off-left to off-right
       let d = `M -10 ${y + (i % 2 ? 3 : -3)}`;
       for (let x = 0; x <= 110; x += 10) d += ` Q ${x - 5} ${y + Math.sin(x * 0.17 + i) * 5} ${x} ${y + Math.cos(x * 0.11 + i * 2) * 3}`;
       p.setAttribute('d', d); p.setAttribute('fill', 'none'); p.setAttribute('stroke', colors[i]);
-      p.setAttribute('stroke-width', '27'); p.setAttribute('stroke-linecap', 'round');
+      p.setAttribute('stroke-width', '44'); p.setAttribute('stroke-linecap', 'round');
       p.setAttribute('pathLength', '100'); p.style.strokeDasharray = '100 100'; p.style.strokeDashoffset = '100';
       this.svg.appendChild(p); this.paths.push(p);
     }
@@ -34,10 +34,10 @@ export class BrushTransition {
       svg.classList.remove('fade');
     } else {
       svg.style.opacity = 1;
-      await Promise.all(this.paths.map((p, i) => this._anim(p, [{ strokeDashoffset: 100 }, { strokeDashoffset: 0 }], 420, i * 55, 'cubic-bezier(.6,0,.3,1)')));
+      await Promise.all(this.paths.map((p, i) => this._anim(p, [{ strokeDashoffset: 100 }, { strokeDashoffset: 0 }], 300, i * 40, 'cubic-bezier(.65,0,.35,1)')));
       onCover && onCover(); this.bus.emit('transition:cover');
-      await new Promise((r) => setTimeout(r, 90));
-      await Promise.all(this.paths.map((p, i) => this._anim(p, [{ strokeDashoffset: 0 }, { strokeDashoffset: -100 }], 460, i * 55, 'cubic-bezier(.6,0,.3,1)')));
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));   // let the new view render once
+      await Promise.all(this.paths.map((p, i) => this._anim(p, [{ strokeDashoffset: 0 }, { strokeDashoffset: -100 }], 340, i * 40, 'cubic-bezier(.65,0,.35,1)')));
       this.paths.forEach((p) => (p.style.strokeDashoffset = '100'));
     }
     svg.classList.remove('on'); this.busy = false; this.bus.emit('transition:end');
