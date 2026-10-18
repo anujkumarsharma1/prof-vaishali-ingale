@@ -229,3 +229,47 @@ a{color:var(--plum)}
 .joy-knob{border-radius:4px;background:var(--plum)}
 .static .brand,.static .brand span{color:var(--plum);text-shadow:none}
 .brand,.brand span{color:var(--plum);text-shadow:0 0 8px rgba(255,255,255,.7)}
+
+/* ---------- polish pass: layout that never covers her ---------- */
+/* soft scrim behind the title so foliage / sky never fights the brand text */
+.topbar::before{content:"";position:absolute;left:0;top:0;width:min(560px,100%);height:120px;z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse 100% 100% at 0 0,rgba(244,242,238,.86) 0%,rgba(244,242,238,.55) 45%,rgba(244,242,238,0) 75%)}
+.static .topbar::before{display:none}
+.panel-toggle i{display:none}
+
+/* desktop / tablet: the card is a side panel on the left, under the title; the camera framing keeps her
+   in the free area to the right of it (App._frame) */
+@media (min-width:761px){
+  .panels{left:26px;top:108px;bottom:auto;width:min(380px,32vw)}
+  .panel{max-height:calc(100vh - 108px - 28px)}
+}
+
+/* phones: a bottom sheet above the icon bar. Peek by default (heading + two lines), open by tap or drag. */
+@media (max-width:760px){
+  .topbar{padding:12px 12px}
+  .brand{background:rgba(251,250,247,.86);padding:7px 10px 6px;border-radius:6px;border:1px solid var(--line);text-shadow:none}
+  .topbar::before{display:none}
+  .panels{left:10px;right:10px;bottom:calc(70px + env(safe-area-inset-bottom));width:auto}
+  .panel{padding:4px 16px 14px;max-height:50vh;border-radius:12px 12px 8px 8px;touch-action:pan-y;
+    transform:translateY(var(--drag,0px));transition:opacity .35s ease,transform .3s cubic-bezier(.2,.8,.2,1),max-height .35s ease}
+  .panel:not(.in){transform:translateY(calc(16px + var(--drag,0px)))}
+  .panel-toggle{display:block;position:sticky;top:0;left:auto;right:auto;width:calc(100% + 32px);margin:0 -16px 2px;height:22px;border:0;padding:0;
+    background:linear-gradient(rgba(251,250,247,.98),rgba(251,250,247,.9))!important;box-shadow:none!important;border-radius:0!important;cursor:grab;touch-action:none;z-index:2}
+  .panel-toggle::before,.panel.collapsed .panel-toggle::after{content:none}
+  .panel-toggle i{display:block;width:38px;height:4px;margin:9px auto 0;border-radius:2px;background:rgba(29,27,25,.28)}
+  .panel .eyebrow{padding-right:0}
+  .panel.collapsed{max-height:min(30vh,150px);overflow:hidden;cursor:pointer}
+  .panel.collapsed .panel-body>*{display:none}
+  .panel.collapsed .panel-body>.eyebrow,.panel.collapsed .panel-body>.title,.panel.collapsed .panel-body>.lede,.panel.collapsed .about-head{display:block}
+  .panel.collapsed .about-head .portrait{display:none}
+  .panel.collapsed .panel-body>.title{font-size:24px}
+  .panel.collapsed .lede{display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin:0;font-size:13.5px;line-height:1.45}
+  #panel-home.collapsed .lede{display:none!important}
+  #panel-home.collapsed .panel-body>.sub{display:block;margin:4px 0 0}
+  .panel.collapsed .eyebrow{margin:0 0 4px}
+  .iconbar{bottom:calc(12px + env(safe-area-inset-bottom))}
+  .joy{top:var(--joy-top,34%);right:10px;width:52px;height:104px;transition:top .3s ease}
+  .joy-knob{width:32px;height:32px}
+  .scroll-hint{bottom:auto;top:var(--hint-top,40%)}
+}
+.static .panel{transform:none!important}

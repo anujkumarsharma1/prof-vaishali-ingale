@@ -185,3 +185,47 @@ export function water(color = '#24474a', o = {}) {
   m.userData.isWater = true; delete o.repeat; Object.assign(m, o); return m;
 }
 export function waterTick(m, dt) { if (m && m.normalMap) { m.normalMap.offset.x += dt * 0.02; m.normalMap.offset.y += dt * 0.035; } }
+
+/* Waterfall sheet / plunge foam: animated shader (scrolling multi-octave streaks, aerated white water
+   toward the bottom, soft alpha edges, scene fog). kind 'fall' for the curtain, 'foam' for the pool disc. */
+const WF_V = `#include <common>
+#include <fog_pars_vertex>
+varying vec2 vUv;
+void main() { vUv = uv; vec4 mvPosition = modelViewMatrix * vec4(position, 1.0); gl_Position = projectionMatrix * mvPosition;
+#include <fog_vertex>
+}`;
+const WF_F = `#include <common>
+#include <fog_pars_fragment>
+uniform float uTime; uniform float uFoam; varying vec2 vUv;
+float h2(vec2 p) { p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
+float vn(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(h2(i), h2(i + vec2(1, 0)), f.x), mix(h2(i + vec2(0, 1)), h2(i + vec2(1, 1)), f.x), f.y); }
+void main() {
+  vec3 deep = vec3(0.10, 0.17, 0.18), white = vec3(0.86, 0.90, 0.90);
+  float a; vec3 col;
+  if (uFoam < 0.5) {
+    float x = vUv.x, y = vUv.y;
+    vec2 q = vec2(x * 34.0, y * 2.4 + uTime * 1.25);
+    float n = vn(q) * 0.5 + vn(q * vec2(2.1, 1.7) + 7.1) * 0.3 + vn(q * vec2(4.3, 3.1) - 3.3 + vec2(0.0, uTime * 0.8)) * 0.2;
+    float streak = smoothstep(0.38, 0.82, n);
+    float aer = smoothstep(0.6, 0.0, y);
+    col = mix(deep, white, clamp(streak * 0.75 + aer * 0.55 + 0.12, 0.0, 1.0));
+    float edge = smoothstep(0.0, 0.16, x) * smoothstep(1.0, 0.84, x);
+    float lip = smoothstep(1.0, 0.86, y + (vn(vec2(x * 18.0, uTime * 0.3)) - 0.5) * 0.06);
+    a = edge * mix(0.45, 0.95, max(streak, aer)) * lip;
+  } else {
+    vec2 c = vUv - 0.5; float r = length(c) * 2.0, ang = atan(c.y, c.x);
+    float n = vn(vec2(ang * 6.0, r * 5.0 - uTime * 0.7)) * 0.6 + vn(vec2(ang * 15.0 + 3.0, r * 11.0 - uTime * 1.1)) * 0.4;
+    col = white; a = smoothstep(1.0, 0.35, r) * smoothstep(0.3, 0.75, n) * 0.85;
+  }
+  gl_FragColor = vec4(col, a);
+  #include <tonemapping_fragment>
+  #include <colorspace_fragment>
+  #include <fog_fragment>
+}`;
+export function waterfallMaterial(kind = 'fall') {
+  return new THREE.ShaderMaterial({
+    uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, { uTime: { value: 0 }, uFoam: { value: kind === 'foam' ? 1 : 0 } }]),
+    vertexShader: WF_V, fragmentShader: WF_F, transparent: true, depthWrite: false, side: THREE.DoubleSide, fog: true
+  });
+}

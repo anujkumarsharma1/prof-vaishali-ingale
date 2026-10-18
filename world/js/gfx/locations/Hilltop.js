@@ -3,8 +3,9 @@ import * as THREE from 'three';
 import { RoundedBoxGeometry } from '../geo.js';
 import { Location } from '../Location.js';
 import { mat, surf, textTexture, PALETTE as P } from '../materials.js';
+import { hillGeometry } from '../noise.js';
 
-const X = -20, Y = 0, Z = -232;   // the hills at sunset, end of the journey
+const X = -20, Y = 0, Z = -252;   // the hills at sunset, end of the journey
 const GLYPH = { Email: '@', 'Google Scholar': 'Sc', ORCID: 'iD', LinkedIn: 'in' };
 const TINT = ['#2e3a40', '#3a3330', '#2f3b33', '#3b3340'];   // dark enamel plaque faces
 
@@ -15,16 +16,13 @@ export class Hilltop extends Location {
     this.mood = { fog: '#d8b49c', hemi: '#c8c8d8', sun: '#ffb27a', exposure: 0.9 };
   }
   build() {
-    this.add(new THREE.Mesh(new THREE.CylinderGeometry(7, 8, 1, 48), surf('grass', { color: '#b8ad86' })), X, Y - 0.48, Z + 2);
+    this.add(new THREE.Mesh(new THREE.CylinderGeometry(7, 8, 1, 96), surf('grass', { color: '#b8ad86' })), X, Y - 0.48, Z + 2);
     // little fort wall hint (Pune hill-fort mood)
     for (let i = -3; i <= 3; i++) this.add(new THREE.Mesh(new RoundedBoxGeometry(1.4, 1 + (i % 2 ? 0.4 : 0), 0.8, 2, 0.02), surf('rock', { color: '#8a837a', scale: 2 })), X + i * 1.5, Y + 0.5, Z - 4.4);
     // Dighi hills backdrop, in frame behind the tiles (low-poly, soft mauve haze)
     [[-26, -38, 16, 11], [-6, -46, 22, 16], [14, -40, 15, 10], [32, -50, 20, 13], [-44, -52, 18, 9]].forEach(([dx, dz, r, h], i) => {
-      const g = new THREE.ConeGeometry(r, h, 40, 10), p = g.attributes.position;
-      for (let k = 0; k < p.count; k++) { const vx = p.getX(k), vy = p.getY(k), vz = p.getZ(k), f = 1 + 0.22 * Math.sin(vx * 0.21 + i) * Math.cos(vz * 0.27 + i * 2) + 0.08 * Math.sin(vx * 0.9 + vz * 0.7) + 0.03 * Math.sin(vx * 2.3 - vz * 1.9); p.setXYZ(k, vx * f * 1.35, vy * (0.75 + 0.25 * f) - Math.max(0, vy) * 0.25 * Math.sin(vx * 0.15), vz * f * 0.8); }
-      g.computeVertexNormals();
-      const m = new THREE.Mesh(g, surf('grass', { color: '#a8977a', scale: 9 }));
-      m.position.set(X + dx, h / 2 - 0.5, Z + dz); m.rotation.y = i; this.group.add(m);
+      const m = new THREE.Mesh(hillGeometry(r * 1.35, h, { seed: i * 1.7 + 4 }), surf('grass', { color: '#a8977a', scale: 9 }));
+      m.position.set(X + dx, -0.5, Z + dz); m.scale.z = 0.7; m.rotation.y = i * 0.4; this.group.add(m);
     });
     this.tiles = [];
     const n = this.links.length, gap = 2.9, ox = -((n - 1) * gap) / 2;

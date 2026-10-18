@@ -56,14 +56,28 @@ export class Panels {
     for (const id of Object.keys(tpl)) {
       const s = document.createElement('section');
       s.className = 'panel glass'; s.id = 'panel-' + id; s.setAttribute('aria-labelledby', 'panel-' + id + '-h');
-      s.innerHTML = `<button class="panel-toggle" type="button" aria-expanded="true" aria-controls="panel-${id}-body"><span class="sr-only">Show or hide details</span></button><div class="panel-body" id="panel-${id}-body">${tpl[id]}</div>`;
+      s.innerHTML = `<button class="panel-toggle" type="button" aria-expanded="true" aria-controls="panel-${id}-body"><i aria-hidden="true"></i><span class="sr-only">Show or hide details</span></button><div class="panel-body" id="panel-${id}-body">${tpl[id]}</div>`;
       s.hidden = true;
-      s.querySelector('.panel-toggle').addEventListener('click', () => this.setCollapsed(!this.collapsed));
+      this._sheet(s);
       const h = s.querySelector('h1, .eyebrow'); h.id = 'panel-' + id + '-h';
       host.appendChild(s); this.el[id] = s;
     }
+    this.setCollapsed(this.sheetMode());   // phones start with the peek, so she is never hidden
   }
-  /* mobile: collapse every card to its heading row so the scene is visible; remembered across places */
+  /* mobile bottom sheet: the handle toggles on tap and follows a vertical drag (up = open, down = peek);
+     tapping the peeked card (not a link) also opens it. The choice is remembered across places. */
+  _sheet(s) {
+    const h = s.querySelector('.panel-toggle'); let y0 = null, id = null, moved = 0;
+    h.addEventListener('pointerdown', (e) => { id = e.pointerId; y0 = e.clientY; moved = 0; h.setPointerCapture(id); });
+    h.addEventListener('pointermove', (e) => { if (e.pointerId !== id) return; moved = e.clientY - y0; s.style.setProperty('--drag', Math.max(-60, Math.min(60, moved)) + 'px'); });
+    const end = (e) => { if (e.pointerId !== id) return; id = null; s.style.removeProperty('--drag');
+      if (Math.abs(moved) > 24) this.setCollapsed(moved > 0); else this.setCollapsed(!this.collapsed); };
+    h.addEventListener('pointerup', end); h.addEventListener('pointercancel', (e) => { if (e.pointerId === id) { id = null; s.style.removeProperty('--drag'); } });
+    h.addEventListener('click', (e) => { if (e.detail === 0) this.setCollapsed(!this.collapsed); });   // keyboard Enter / Space
+    s.addEventListener('click', (e) => { if (this.collapsed && this.sheetMode() && !e.target.closest('a, button')) this.setCollapsed(false); });
+  }
+  sheetMode() { return matchMedia('(max-width: 760px)').matches; }
+  /* mobile: collapse every card to a short peek (heading + one line) so the scene is visible */
   setCollapsed(v) {
     this.collapsed = v;
     for (const s of Object.values(this.el)) { s.classList.toggle('collapsed', v); s.querySelector('.panel-toggle').setAttribute('aria-expanded', String(!v)); }

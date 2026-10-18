@@ -8,6 +8,7 @@ import { RoundedBoxGeometry } from '../geo.js';
 import { Location } from '../Location.js';
 import { mat, surf, paint, glass, water, waterTick, textTexture, PALETTE as P } from '../materials.js';
 import { Flora, hedgeMat } from '../Flora.js';
+import { hillGeometry } from '../noise.js';
 
 const C = { wall: '#d8906f', trim: '#e9e0d2', band: '#a4483a', dome: '#97412f', trunk: '#8a7258' };
 const STOREY = 3.5;   // real storey height (m)
@@ -186,13 +187,10 @@ export class AitCampus extends Location {
     drive.rotation.x = -Math.PI / 2; drive.castShadow = false;
     [15, 18.5].forEach((r) => { const k = this.add(new THREE.Mesh(new THREE.TorusGeometry(r, 0.13, 4, 96, a1), surf('concrete', { color: '#dcd6cc' })), 0, 0.1, BZ + 23); k.rotation.set(-Math.PI / 2, 0, a0); });
     [-8, 8].forEach((x) => this.add(new THREE.Mesh(this.rb(8, 0.8, 0.9, 0.05), hedgeMat()), x, 0.4, BZ + 2.2));
-    [-19, -16, -13, -5, 5, 13, 16, 19].forEach((x) => this.flora.palm(x, 0, BZ + 3.4, 1.05));
+    [-19, -15, 15, 19].forEach((x) => this.flora.palm(x, 0, BZ + 3.4, 1.05));   // open frontage around the tower
     // Dighi hills behind: dry-grass slopes with noise relief
     [[-22, -82, 22, 14], [-2, -92, 30, 18], [22, -86, 24, 12]].forEach(([x, z, r, h], i) => {
-      const g = new THREE.ConeGeometry(r, h, 40, 10), p = g.attributes.position;
-      for (let k = 0; k < p.count; k++) { const vx = p.getX(k), vy = p.getY(k), vz = p.getZ(k), f = 1 + 0.22 * Math.sin(vx * 0.21 + i) * Math.cos(vz * 0.27 + i * 2) + 0.08 * Math.sin(vx * 0.9 + vz * 0.7) + 0.03 * Math.sin(vx * 2.3 - vz * 1.9); p.setXYZ(k, vx * f * 1.35, vy * (0.75 + 0.25 * f) - Math.max(0, vy) * 0.25 * Math.sin(vx * 0.15), vz * f * 0.8); }
-      g.computeVertexNormals();
-      const m = this.add(new THREE.Mesh(g, surf('grass', { color: '#b3a27c', scale: 9 })), x, h / 2 - 1, z); m.castShadow = false;
+      const m = this.add(new THREE.Mesh(hillGeometry(r * 1.35, h, { seed: i * 2.3 + 1 }), surf('grass', { color: '#b3a27c', scale: 9 })), x, -0.6, z); m.scale.z = 0.7; m.castShadow = false;
     });
   }
   update({ t, dt }) {
