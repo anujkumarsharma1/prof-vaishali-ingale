@@ -76,9 +76,11 @@ export class App {
       this.quality.sample(ctx.dt);
       if (this.started) this.path.update(ctx.dt);
       this.path.apply(this.stage.camera, this.character);
+      this._dolly();
       this.world.stream(this.stage.camera); this.world.mood(this.stage.camera, ctx.dt);
       this._establish(ctx.dt);
       if (this.portraitCam) this._portrait();
+      this._frame(ctx.dt);
       this.character.update(ctx); this.world.update(ctx); this.world.updateOcclusion(ctx.dt);
       if (this.started) {
         this._preT = (this._preT || 0) + ctx.dt;
@@ -112,6 +114,50 @@ export class App {
     cam.position.lerpVectors(this._est.p, to, e);
     this.character.ringBoost = 1 - e;              // the glow under her is larger while the camera is high up
     cam.lookAt(this._est.l.clone().lerp(look, e));
+  }
+  /* Framing: keep her in the part of the screen nothing covers. The free area is the viewport minus the
+     title bar, the info card (side panel on desktop, bottom sheet on phones) and the icon bar; an
+     off-axis view offset slides the image so her waist lands in the middle of that area. Damped, so
+     the card opening/closing or a ride glides rather than jumps. */
+  /* portrait phones: pull the camera back along the line to her (same orientation), so she reads smaller
+     with more of the place around her, instead of filling the narrow screen */
+  _dolly() {
+    const cam = this.stage.camera; if (cam.aspect >= 1) return;
+    const k = cam.aspect < 0.62 ? 1.32 : 1.18, g = this.character.group.position;
+    cam.position.sub(g).multiplyScalar(k).add(g);
+  }
+  _freeRect() {
+    const W = innerWidth, H = innerHeight, r = { l: 0, t: 0, r: W, b: H };
+    const brand = document.querySelector('.brand'); if (brand && !this.$('chrome').hidden) r.t = brand.getBoundingClientRect().bottom + 10;
+    const pan = Object.values(this.panels.el).find((p) => !p.hidden);
+    if (pan) {
+      const b = pan.getBoundingClientRect();
+      if (b.width > W * 0.6) r.b = Math.min(r.b, b.top - 12);            // bottom sheet
+      else if (b.height > 0) r.l = Math.max(r.l, b.right + 16);           // side panel
+    }
+    const ib = document.querySelector('.iconbar');
+    if (ib && !this.$('chrome').hidden) { const b = ib.getBoundingClientRect(); if (b.left > W * 0.15 && b.right < W * 0.85) r.b = Math.min(r.b, b.top - 10); }
+    if (r.b - r.t < H * 0.25) r.t = Math.max(0, r.b - H * 0.25);
+    return r;
+  }
+  _frame(dt) {
+    const T = this._T, cam = this.stage.camera, W = innerWidth, H = innerHeight;
+    if (!this._fv) this._fv = { v: new T.Vector3(), ox: 0, oy: 0, n: 0 };
+    const F = this._fv; F.n = (F.n + 1) % 6;
+    if (F.n === 0 || !F.rect) F.rect = this._freeRect();                  // layout read ~10x a second
+    const fr = F.rect;
+    cam.updateMatrixWorld();
+    const v = F.v.copy(this.character.group.position); v.y += 1.05; v.applyMatrix4(cam.matrixWorldInverse);
+    if (v.z > -0.5) return;
+    const tv = Math.tan(T.MathUtils.degToRad(cam.fov) / 2);
+    const sx = (0.5 + 0.5 * (v.x / -v.z) / (tv * cam.aspect)) * W, sy = (0.5 - 0.5 * (v.y / -v.z) / tv) * H;
+    const tx = (fr.l + fr.r) / 2, ty = fr.t + (fr.b - fr.t) * 0.56;
+    const ox = T.MathUtils.clamp(sx - tx, -W * 0.4, W * 0.4), oy = T.MathUtils.clamp(sy - ty, -H * 0.4, H * 0.6);
+    const k = F.init ? 1 - Math.exp(-dt * 5) : 1; F.init = true;
+    F.ox += (ox - F.ox) * k; F.oy += (oy - F.oy) * k;
+    cam.setViewOffset(W, H, Math.round(F.ox * 10) / 10, Math.round(F.oy * 10) / 10, W, H); cam.updateProjectionMatrix();
+    const root = this.root.style, mid = (fr.t + fr.b) / 2;
+    if (Math.abs((F.mid || 0) - mid) > 2) { F.mid = mid; root.setProperty('--joy-top', Math.round(mid - 52) + 'px'); root.setProperty('--hint-top', Math.round(fr.t + (fr.b - fr.t) * 0.2) + 'px'); }
   }
   /* test/preview: close three-quarter front view of the character */
   _portrait() {

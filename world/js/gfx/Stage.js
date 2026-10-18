@@ -46,7 +46,7 @@ export class Stage {
     this.renderer.setSize(w, h);
     this.camera.aspect = w / h;
     this.camera.fov = w < h ? 62 : 50;   // portrait phones see a bit more
-    if (w < h) this.camera.setViewOffset(w, h, 0, Math.round(h * 0.17), w, h); else this.camera.clearViewOffset();
+    // the view offset (framing around the UI) is set every frame by App._frame
     this.camera.updateProjectionMatrix();
   }
 }
