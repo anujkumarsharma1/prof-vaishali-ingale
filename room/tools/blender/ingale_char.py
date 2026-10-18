@@ -10,6 +10,7 @@ from mathutils import Vector
 argv = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
 OUT = argv[0] if argv else '/tmp/char_renders'
 BLEND = argv[argv.index('--blend') + 1] if '--blend' in argv else None
+PFX = argv[argv.index('--prefix') + 1] if '--prefix' in argv else ''
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 scn = bpy.context.scene
@@ -27,10 +28,32 @@ def M(name, rgb, rough=0.55, metal=0.0, sss=0.0, coat=0.0):
 def srgb(h):
     h = h.lstrip('#'); c = [int(h[i:i+2], 16) / 255 for i in (0, 2, 4)]
     return tuple(((x + 0.055) / 1.055) ** 2.4 if x > 0.04045 else x / 12.92 for x in c)
-SKIN = M('skin', srgb('#a8704e'), 0.5, sss=0.25)
-LIPS = M('lips', srgb('#a3262e'), 0.35, coat=0.3)
+SKIN_HEX = '#9b6a4f'
+SKIN = M('skin', srgb(SKIN_HEX), 0.5, sss=0.2)
+def add_face_shading(m):
+    nt = m.node_tree; bs = nt.nodes['Principled BSDF']
+    geo = nt.nodes.new('ShaderNodeNewGeometry')
+    def blob(pt, radius, color, strength):
+        d = nt.nodes.new('ShaderNodeVectorMath'); d.operation = 'DISTANCE'; d.inputs[1].default_value = pt
+        nt.links.new(geo.outputs['Position'], d.inputs[0])
+        mr = nt.nodes.new('ShaderNodeMapRange'); mr.inputs['From Min'].default_value = 0; mr.inputs['From Max'].default_value = radius
+        mr.inputs['To Min'].default_value = strength; mr.inputs['To Max'].default_value = 0.0
+        nt.links.new(d.outputs['Value'], mr.inputs['Value'])
+        return mr.outputs['Result'], color
+    return nt, bs, blob
+SKIN_SHADE = []   # filled after the head centre is known
+LIPS = M('lips', srgb('#a1303a'), 0.4, coat=0.2)
 BLACK = M('saree_black', srgb('#1c191d'), 0.6)
-BLOUSE = M('blouse_black', srgb('#18151a'), 0.5)
+PALLU = bpy.data.materials.new('pallu_body'); PALLU.use_nodes = True
+nt = PALLU.node_tree; b = nt.nodes['Principled BSDF']; b.inputs['Roughness'].default_value = 0.42; b.inputs['Sheen Weight'].default_value = 0.6
+b.inputs['Sheen Tint'].default_value = (*srgb('#6a5a70'), 1)
+tc = nt.nodes.new('ShaderNodeTexCoord'); vo = nt.nodes.new('ShaderNodeTexVoronoi'); vo.inputs['Scale'].default_value = 34
+nt.links.new(tc.outputs['Object'], vo.inputs['Vector'])
+lt = nt.nodes.new('ShaderNodeMath'); lt.operation = 'LESS_THAN'; lt.inputs[1].default_value = 0.17; nt.links.new(vo.outputs['Distance'], lt.inputs[0])
+mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'; mx.inputs[6].default_value = (*srgb('#241d24'), 1); mx.inputs[7].default_value = (*srgb('#c39236'), 1)
+nt.links.new(lt.outputs[0], mx.inputs[0]); nt.links.new(mx.outputs[2], b.inputs['Base Color'])
+mt = nt.nodes.new('ShaderNodeMath'); mt.operation = 'MULTIPLY'; mt.inputs[1].default_value = 0.6; nt.links.new(lt.outputs[0], mt.inputs[0]); nt.links.new(mt.outputs[0], b.inputs['Metallic'])
+BLOUSE = M('blouse_black', srgb('#141116'), 0.55)
 HAIR = M('hair', srgb('#0f0b0d'), 0.5, coat=0.08)
 INK = M('ink', srgb('#160f11'), 0.4)
 EYEW = M('eye_white', srgb('#efe8e0'), 0.25)
@@ -46,7 +69,12 @@ nt = GOLD.node_tree; b = nt.nodes['Principled BSDF']
 tc = nt.nodes.new('ShaderNodeTexCoord'); vor = nt.nodes.new('ShaderNodeTexVoronoi'); vor.inputs['Scale'].default_value = 260
 ramp = nt.nodes.new('ShaderNodeValToRGB'); ramp.color_ramp.elements[0].color = (*srgb('#8a5f18'), 1); ramp.color_ramp.elements[1].color = (*srgb('#c9973a'), 1)
 ramp.color_ramp.elements[0].position = 0.05; ramp.color_ramp.elements[1].position = 0.45
-nt.links.new(tc.outputs['Object'], vor.inputs['Vector']); nt.links.new(vor.outputs['Distance'], ramp.inputs['Fac'])
+nt.links.new(tc.outputs['Object'], vor.inputs['Vector'])
+wv = nt.nodes.new('ShaderNodeTexWave'); wv.wave_type = 'RINGS'; wv.inputs['Scale'].default_value = 140; wv.inputs['Distortion'].default_value = 4
+nt.links.new(tc.outputs['Object'], wv.inputs['Vector'])
+mm = nt.nodes.new('ShaderNodeMath'); mm.operation = 'MULTIPLY'; nt.links.new(vor.outputs['Distance'], mm.inputs[0]); nt.links.new(wv.outputs['Fac'], mm.inputs[1])
+nt.links.new(mm.outputs[0], ramp.inputs['Fac'])
+bump = nt.nodes.new('ShaderNodeBump'); bump.inputs['Strength'].default_value = 0.18; nt.links.new(mm.outputs[0], bump.inputs['Height']); nt.links.new(bump.outputs['Normal'], b.inputs['Normal'])
 nt.links.new(ramp.outputs['Color'], b.inputs['Base Color']); b.inputs['Metallic'].default_value = 0.55; b.inputs['Roughness'].default_value = 0.4
 # lanyard: blue strap with white dashes
 LAN = bpy.data.materials.new('lanyard'); LAN.use_nodes = True
@@ -113,14 +141,14 @@ bm = bmesh.new(); bmesh.ops.create_uvsphere(bm, u_segments=26, v_segments=16, ra
 for v in bm.verts:
     x, y, z = v.co
     # base skull: width 0.152, depth 0.19, height 0.23
-    X, Y, Z = x * 0.076, y * 0.094, z * 0.112
+    X, Y, Z = x * 0.08, y * 0.094, z * 0.11
     lower = max(0.0, -z)                                    # 0 at mid, 1 at chin
-    X *= 1 - 0.38 * lower ** 1.6                            # jaw taper to a soft, rounded chin
+    X *= 1 - 0.27 * lower ** 1.9                            # soft, rounded jaw
     Y *= 1 - 0.12 * lower
     if y < 0: Y *= 1.0 - 0.1 * max(0, z)                    # slightly flatter forehead
     if z < -0.55 and y < 0: Y -= 0.012 * (lower - 0.55)     # chin forward
     # cheekbones
-    Xs = X + math.copysign(0.006, x) * gauss(z + 0.05, 0.25) * (1 if y < 0 else 0.3)
+    Xs = X + math.copysign(0.009, x) * gauss(z + 0.22, 0.3) * (1 if y < 0 else 0.4)   # full cheeks
     X = Xs
     # eye sockets: gentle inset
     for sx in (-1, 1):
@@ -129,13 +157,25 @@ for v in bm.verts:
     # nose bridge + tip
     if y < 0:
         nz = gauss(x, 0.10) * gauss(z + 0.05, 0.22)
-        Y -= 0.016 * nz * (-y) ** 3
-        Y -= 0.008 * gauss(x, 0.13) * gauss(z + 0.24, 0.1) * (-y) ** 3
+        Y -= 0.011 * gauss(x, 0.075) * gauss(z + 0.08, 0.2) * (-y) ** 4          # bridge
+        Y -= 0.011 * gauss(x, 0.11) * gauss(z + 0.25, 0.08) * (-y) ** 4           # soft tip
+        Y += 0.003 * gauss(abs(x) - 0.12, 0.04) * gauss(z + 0.3, 0.05) * (-y) ** 3  # alar creases
+        Y -= 0.005 * gauss(abs(x) - 0.35, 0.18) * gauss(z + 0.22, 0.15) * (-y) ** 2  # cheek apples
         # lip mound and mouth line
         Y -= 0.006 * gauss(x, 0.28) * gauss(z + 0.45, 0.12) * (-y) ** 2
     v.co = Vector((X, Y, Z)) + HC
 head = obj_from(bm, 'head', [SKIN])
 head.modifiers.new('sub', 'SUBSURF').levels = 1
+# face shading: soft rose on the cheeks, warmer lips area, slightly deeper under the nose/brow
+FYc = HC.y - 0.094
+nt, bs, blob = add_face_shading(SKIN)
+base = nt.nodes.new('ShaderNodeRGB'); base.outputs[0].default_value = (*srgb(SKIN_HEX), 1); col_out = base.outputs[0]
+for pt, rad, c, st in [((-0.045, FYc + 0.02, HC.z - 0.03), 0.035, '#a8574f', 0.45), ((0.045, FYc + 0.02, HC.z - 0.03), 0.035, '#a8574f', 0.45),
+                       ((0, FYc + 0.012, HC.z - 0.062), 0.03, '#8e3e3a', 0.5), ((0, FYc + 0.02, HC.z + 0.0), 0.02, '#87573f', 0.25), ((0, FYc + 0.01, HC.z - 0.04), 0.012, '#6e4433', 0.5)]:
+    fac, colr = blob(pt, rad, c, st)
+    mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'; mx.inputs[7].default_value = (*srgb(colr), 1)
+    nt.links.new(fac, mx.inputs[0]); nt.links.new(col_out, mx.inputs[6]); col_out = mx.outputs[2]
+nt.links.new(col_out, bs.inputs['Base Color'])
 
 # neck
 neck = rings_mesh('neck', [(1.34, 0.056, 0.055, 0, 0.004, None), (1.40, 0.047, 0.05, 0, 0.006, None), (1.46, 0.046, 0.05, 0, 0.01, None)], 16, [SKIN])
@@ -148,8 +188,12 @@ for sx in (-1, 1):
     uvsphere('eye_w%d' % sx, (ex, ey + 0.003, ez), (0.0155, 0.008, 0.0095), EYEW, 16, 10)
     uvsphere('iris%d' % sx, (ex, ey - 0.0042, ez), (0.0085, 0.003, 0.0085), IRIS, 12, 8)
     uvsphere('glint%d' % sx, (ex - 0.003, ey - 0.0072, ez + 0.003), (0.0018, 0.001, 0.0018), EYEW, 8, 6)
+    bml = bmesh.new(); bmesh.ops.create_uvsphere(bml, u_segments=16, v_segments=8, radius=1)
+    bmesh.ops.delete(bml, geom=[v for v in bml.verts if v.co.z < 0.42], context='VERTS')
+    for v in bml.verts: v.co = Vector((v.co.x * 0.0172 + ex, v.co.y * 0.0095 + ey + 0.002, v.co.z * 0.0105 + ez - 0.001))
+    obj_from(bml, 'lidskin%d' % sx, [SKIN]).modifiers.new('sol', 'SOLIDIFY').thickness = 0.001
     # upper lid line (thick lash line) and soft lower line
-    lid = [Vector((ex + 0.0175 * math.cos(a) , ey - 0.0045 - 0.004 * math.sin(a), ez + 0.0035 + 0.0075 * math.sin(a))) for a in [math.pi * k / 10 for k in range(11)]]
+    lid = [Vector((ex + 0.0178 * math.cos(a) , ey - 0.0058 - 0.003 * math.sin(a), ez + 0.0015 + 0.0058 * math.sin(a))) for a in [math.pi * k / 10 for k in range(11)]]
     tube('lid%d' % sx, lid, [0.0012 + 0.0011 * math.sin(math.pi * k / 10) for k in range(11)], 6, INK)
     # brows: arched, thicker toward the inner end
     br = [Vector((sx * (0.012 + 0.032 * u), FY + 0.012 + 0.006 * u, ez + 0.024 + 0.008 * math.sin(math.pi * min(1, u * 1.25)) - 0.004 * u)) for u in [k / 10 for k in range(11)]]
@@ -159,17 +203,24 @@ for sx in (-1, 1):
     uvsphere('drop%d' % sx, (0.08 * sx, HC.y + 0.006, HC.z - 0.047), (0.0055, 0.0055, 0.008), RED, 10, 6)
     # ears (simple smooth shells, mostly under hair)
     uvsphere('ear%d' % sx, (0.075 * sx, HC.y + 0.008, HC.z - 0.008), (0.009, 0.016, 0.024), SKIN, 12, 8)
-uvsphere('nose_tip', (0, FY + 0.001, HC.z - 0.03), (0.0095, 0.0075, 0.0075), SKIN, 14, 10)
+# nose: one tapered form, narrow at the bridge, fuller and slightly forward at the tip, set into the face
+NC = Vector((0, FY + 0.0062, HC.z - 0.016))
+bmn = bmesh.new(); bmesh.ops.create_uvsphere(bmn, u_segments=14, v_segments=10, radius=1)
+for v in bmn.verts:
+    x, y, z = v.co; t = (1 - z) / 2                         # 0 at the bridge top, 1 at the tip
+    v.co = NC + Vector((x * 0.0072 * (0.55 + 0.6 * t), y * 0.0075 - 0.0042 * t ** 1.5, z * 0.021))
+obj_from(bmn, 'nose', [SKIN])
+for sx in (-1, 1): uvsphere('ala%d' % sx, (0.0078 * sx, FY + 0.0092, HC.z - 0.033), (0.0048, 0.005, 0.0042), SKIN, 10, 6)
 # lips: full, cupid's bow, red
 def lip(name, zc, h, w, bow, yoff):
     bm = bmesh.new(); bmesh.ops.create_uvsphere(bm, u_segments=20, v_segments=10, radius=1)
     for v in bm.verts:
         x, y, z = v.co
-        X = x * w; Z = z * h + bow * gauss(x, 0.25) * (1 if z > 0 else 0) * h; Y = y * 0.0042 - 0.003 * (1 - x * x)
+        X = x * w; Z = z * h + bow * gauss(x, 0.25) * (1 if z > 0 else 0) * h; Y = y * 0.0034 - 0.0025 * (1 - x * x)
         v.co = Vector((X, Y + yoff, Z + zc))
     return obj_from(bm, name, [LIPS])
-lip('lip_up', HC.z - 0.058, 0.0042, 0.0175, -0.35, FY + 0.0165)
-lip('lip_lo', HC.z - 0.0665, 0.005, 0.0158, 0.0, FY + 0.0175)
+lip('lip_up', HC.z - 0.059, 0.0034, 0.0145, -0.4, FY + 0.0195)
+lip('lip_lo', HC.z - 0.0655, 0.0042, 0.013, 0.0, FY + 0.0205)
 
 # ---------------- hair: cap + many wavy locks (curves -> mesh) ----------------
 # cap: shell over the skull, open over the face; parting slightly to her right (-X)
@@ -178,18 +229,18 @@ kill = []
 for v in bm.verts:
     x, y, z = v.co
     if z < -0.15 or (y < -0.2 and z < 0.55 - 0.0 * abs(x)): kill.append(v); continue
-    groove = 0.004 * gauss(x + 0.18, 0.06) * (1 if z > 0.3 else 0)
+    groove = 0.009 * gauss(x + 0.16, 0.045) * (1 if z > 0.25 and y < 0.3 else 0)
     v.co = Vector((x * 0.084, y * 0.101, z * 0.12 - groove)) + HC + Vector((0, 0.004, 0.006))
 bmesh.ops.delete(bm, geom=kill, context='VERTS')
 cap = obj_from(bm, 'hair_cap', [HAIR]); cap.modifiers.new('sol', 'SOLIDIFY').thickness = 0.006
 
 def lock(name, pts, r0, r1):
     cu = bpy.data.curves.new(name, 'CURVE'); cu.dimensions = '3D'
-    cu.resolution_u = 3; cu.bevel_depth = 1.0; cu.bevel_resolution = 1; cu.extrude = 0.0; cu.use_fill_caps = True
+    cu.resolution_u = 2; cu.bevel_depth = 1.0; cu.bevel_resolution = 1; cu.extrude = 0.0; cu.use_fill_caps = True
     sp = cu.splines.new('NURBS'); sp.points.add(len(pts) - 1)
     for i, p in enumerate(pts):
         sp.points[i].co = (*p, 1); u = i / (len(pts) - 1)
-        sp.points[i].radius = (r0 + (r1 - r0) * u) * (0.35 + 0.65 * math.sin(math.pi * min(0.92, u * 1.25 + 0.08)))
+        sp.points[i].radius = (r0 + (r1 - r0) * u) * (0.45 + 0.55 * math.sin(math.pi * min(0.5, u))) * (1 - 0.85 * max(0, u - 0.8) / 0.2)
     sp.use_endpoint_u = True; sp.order_u = 4
     o = bpy.data.objects.new(name, cu); cu.materials.append(HAIR); col.objects.link(o)
     return o
@@ -197,7 +248,7 @@ def lock(name, pts, r0, r1):
 locks = []
 import random
 random.seed(7)
-N = 20
+N = 38
 for i in range(N):
     # angle around the head, from the parting (front, slightly right) going round the back; skip the face
     side = -1 if i < N // 2 else 1
@@ -212,14 +263,14 @@ for i in range(N):
     for s in range(8):
         u = s / 7
         z = root.z - u * L
-        bulge = 0.088 + 0.075 * math.sin(min(1, u * 1.6) * math.pi * 0.5) + 0.01 * u     # volume grows down to the jaw
-        wave = 0.03 * math.sin(u * math.pi * 3.0 + i * 1.3) * min(1, u * 2)
+        bulge = 0.09 + 0.085 + 0.012 * random.random() - 0.006 + 0 * 0.075 - 0.085 + 0.085 * math.sin(min(1, u * 1.6) * math.pi * 0.5) + 0.01 * u     # volume grows down to the jaw
+        wave = 0.022 * math.sin(u * math.pi * 4.6 + i * 1.7) * min(1, u * 2.2)
         p = HC + out * (bulge + wave) + Vector((0, 0, z - HC.z))
         if u == 0: p = root
         if k < 0.25 and u > 0: p += Vector((0, 0.025 * u + 0.012, 0))      # front locks sit behind the cheek line
         if u > 0.6: p += Vector((0, 0.03 * (u - 0.6), 0))                   # ends fall onto the shoulders, slightly back
         pts.append(p)
-    locks.append(lock('lock%02d' % i, pts, 0.03, 0.022))
+    locks.append(lock('lock%02d' % i, pts, 0.021, 0.017))
 # convert locks to meshes and join
 bpy.ops.object.select_all(action='DESELECT')
 for o in locks: o.select_set(True)
@@ -231,12 +282,12 @@ for p in hairl.data.polygons: p.use_smooth = True
 # ---------------- torso / blouse ----------------
 def torso_r(z):
     # (rx, ry) by height: hips ~0.17, waist 0.13, bust 0.16, shoulders 0.19
-    pts = [(0.98, 0.165, 0.11), (1.06, 0.135, 0.095), (1.17, 0.15, 0.105), (1.24, 0.158, 0.112), (1.31, 0.16, 0.098), (1.355, 0.163, 0.088), (1.375, 0.148, 0.08), (1.39, 0.115, 0.07), (1.40, 0.07, 0.055)]
+    pts = [(0.98, 0.165, 0.11), (1.06, 0.135, 0.095), (1.17, 0.15, 0.105), (1.24, 0.158, 0.112), (1.31, 0.16, 0.098), (1.35, 0.16, 0.09), (1.37, 0.145, 0.083), (1.385, 0.118, 0.073), (1.395, 0.09, 0.063), (1.40, 0.065, 0.055)]
     for a, b in zip(pts, pts[1:]):
         if a[0] <= z <= b[0]:
             t = (z - a[0]) / (b[0] - a[0]); return a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t
     return pts[-1][1:]
-TZ = [0.98, 1.02, 1.06, 1.11, 1.17, 1.21, 1.24, 1.27, 1.30, 1.33, 1.355, 1.375, 1.39, 1.40]
+TZ = [0.98, 1.02, 1.06, 1.11, 1.17, 1.21, 1.24, 1.27, 1.30, 1.33, 1.35, 1.37, 1.385, 1.395, 1.40]
 def chest_fn(z):
     return lambda t: 1 + (0.06 * gauss(abs(math.sin(t)) - 0.45, 0.25) * (math.cos(t) > 0) if 1.17 < z < 1.29 else 0)
 def tmat(j, i, f):
@@ -264,41 +315,53 @@ neck = node_math('MAXIMUM', node_math('MULTIPLY', scoop, front), node_math('GREA
 mid = node_math('MULTIPLY', node_math('GREATER_THAN', sep.outputs['Z'], 1.025), node_math('LESS_THAN', sep.outputs['Z'], 1.075))
 fac = node_math('MAXIMUM', neck, mid)
 mix = nt.nodes.new('ShaderNodeMix'); mix.data_type = 'RGBA'
-mix.inputs[6].default_value = (*srgb('#18151a'), 1); mix.inputs[7].default_value = (*srgb('#a8704e'), 1)
+mix.inputs[6].default_value = (*srgb('#141116'), 1); mix.inputs[7].default_value = (*srgb(SKIN_HEX), 1)
 nt.links.new(fac, mix.inputs[0]); nt.links.new(mix.outputs[2], bs.inputs['Base Color'])
 torso = rings_mesh('torso', [(z, *torso_r(z), 0, 0.0, chest_fn(z)) for z in TZ], 28, [TORSO], None, cap_top=True)
 
 # ---------------- arms: tapered, slight elbow bend; short sleeves; hands ----------------
 for sx in (-1, 1):
     sh = Vector((0.165 * sx, 0.005, 1.36)); el = Vector((0.19 * sx, 0.02, 1.115)); wr = Vector((0.185 * sx, -0.03, 0.885))
-    up = [sh.lerp(el, u) for u in [k / 5 for k in range(6)]]
-    fo = [el.lerp(wr, u) for u in [k / 5 for k in range(6)]][1:]
+    up = [sh.lerp(el, u) for u in [0, 0.12, 0.25, 0.45, 0.65, 0.82, 0.92, 1.0]]
+    fo = [el.lerp(wr, u) for u in [0.08, 0.18, 0.4, 0.62, 0.82, 0.93, 1.0]]
     pts = up + fo
-    rad = [0.047, 0.044, 0.041, 0.039, 0.036, 0.033, 0.031, 0.029, 0.026, 0.023, 0.021]
+    rad = [0.047, 0.046, 0.044, 0.041, 0.038, 0.035, 0.034, 0.033, 0.032, 0.031, 0.029, 0.026, 0.023, 0.021, 0.0195]
     tube('arm%d' % sx, pts, rad, 14, SKIN)
-    tube('sleeve%d' % sx, [sh + Vector((-0.01 * sx, 0, 0.03)), sh + Vector((0, 0, 0.012)), sh.lerp(el, 0.18), sh.lerp(el, 0.36)], [0.03, 0.054, 0.052, 0.048], 14, BLOUSE)
+    tube('sleeve%d' % sx, [sh + Vector((-0.025 * sx, 0, 0.03)), sh + Vector((-0.008 * sx, 0, 0.022)), sh + Vector((0.002 * sx, 0, 0.0)), sh.lerp(el, 0.18), sh.lerp(el, 0.33), sh.lerp(el, 0.37)], [0.02, 0.045, 0.054, 0.052, 0.05, 0.044], 16, BLOUSE)
     h = wr + Vector((0, -0.005, -0.06))
-    hb = uvsphere('hand%d' % sx, h, (0.022, 0.012, 0.04), SKIN, 14, 10)
-    tube('thumb%d' % sx, [wr + Vector((-0.012 * sx, -0.014, -0.018)), wr + Vector((-0.016 * sx, -0.024, -0.05))], [0.0085, 0.007], 8, SKIN)
+    # palm faces the thigh (-sx); fingers hang down and curl slightly toward the palm
+    palm_c = wr + Vector((0, -0.004, -0.04))
+    uvsphere('palm%d' % sx, palm_c, (0.012, 0.024, 0.036), SKIN, 12, 8)
+    for fi, (fy, flen) in enumerate([(-0.016, 0.052), (-0.0055, 0.058), (0.0055, 0.055), (0.0155, 0.046)]):
+        b0 = palm_c + Vector((0, fy, -0.03)); fp = [b0]
+        ang = 0.0
+        for seg_len in (flen * 0.42, flen * 0.33, flen * 0.25):
+            ang += 0.32 + 0.05 * fi
+            fp.append(fp[-1] + Vector((-sx * math.sin(ang) * seg_len, 0, -math.cos(ang) * seg_len)))
+        tube('finger%d_%d' % (sx, fi), fp, [0.0068, 0.0062, 0.0056, 0.0048], 6, SKIN)
+    tb = palm_c + Vector((-0.006 * sx, -0.02, -0.004))
+    tube('thumb%d' % sx, [tb, tb + Vector((-0.012 * sx, -0.012, -0.018)), tb + Vector((-0.02 * sx, -0.014, -0.034))], [0.0082, 0.0072, 0.006], 6, SKIN)
     if sx < 0:   # one gold bangle on her right wrist
         bpy.ops.mesh.primitive_torus_add(major_radius=0.03, minor_radius=0.0045, major_segments=20, minor_segments=6, location=wr + Vector((0, 0, 0.02)))
         bpy.context.active_object.data.materials.append(GOLDM); bpy.context.active_object.name = 'bangle'
 
 # ---------------- saree skirt with front pleats and gold border ----------------
-SZ = [0.0, 0.035, 0.07, 0.2, 0.45, 0.7, 0.88, 1.0, 1.04]
+SZ = [0.004, 0.012, 0.03, 0.06, 0.09, 0.2, 0.33, 0.45, 0.5, 0.55, 0.7, 0.82, 0.9, 0.96, 1.0, 1.04]
 def skirt_r(z):
-    return (0.17 + 0.02 * (1 - z) ** 4 - 0.012 * math.sin(z * 3.0), 0.135 + 0.01 * (1 - z) ** 4) if z < 0.9 else torso_r(max(0.98, z))
+    roll = 0.012 * (1 - min(1, z / 0.012)) if z < 0.012 else 0
+    return (0.165 + 0.075 * (1 - z / 0.9) ** 1.6 - roll, 0.13 + 0.06 * (1 - z / 0.9) ** 1.6 - roll) if z < 0.9 else torso_r(max(0.98, z))
 def pleats(z):
-    return lambda t: 1 + (0.05 * math.sin(t * 26) * gauss(t if t < math.pi else t - 2 * math.pi, 0.55) * (1 - z) if z < 0.95 else 0)
-def smat(j, i, f): return 1 if f.calc_center_median().z < 0.075 else 0
-skirt = rings_mesh('skirt', [(z, *(r * 1.06 for r in skirt_r(z)), 0, 0.0, pleats(z)) for z in SZ], 40, [BLACK, GOLD], smat)
+    tt = lambda t: t if t < math.pi else t - 2 * math.pi
+    return lambda t: 1 + ((0.07 * abs(math.sin(t * 16)) - 0.035) * gauss(tt(t) + 0.15, 0.42) * (1 - z) ** 0.7 + 0.025 * math.sin(t * 7 + 1.3) * (1 - z) if z < 0.95 else 0)
+def smat(j, i, f): return 1 if f.calc_center_median().z < 0.09 else 0
+skirt = rings_mesh('skirt', [(z, *(r * 1.06 for r in skirt_r(z)), 0, 0.0, pleats(z)) for z in SZ], 48, [BLACK, GOLD], smat)
 # waist tuck band
 rings_mesh('waist', [(1.0, 0.172, 0.118, 0, 0, None), (1.035, 0.15, 0.104, 0, 0, None)], 24, [BLACK])
 
 # ---------------- pallu: ribbon from her right waist across the chest over her left shoulder, down the back --------
 def ribbon(name, centre, width, mats, border=0.18, solid=0.004, outward=None):
     bm = bmesh.new(); rows = []
-    W = 10
+    W = 12
     for k, p in enumerate(centre):
         d = (centre[min(k + 1, len(centre) - 1)] - centre[max(k - 1, 0)]).normalized()
         n = outward(p) if outward else Vector((0, -1, 0))
@@ -307,7 +370,7 @@ def ribbon(name, centre, width, mats, border=0.18, solid=0.004, outward=None):
     for k in range(len(rows) - 1):
         for j in range(W):
             f = bm.faces.new((rows[k][j], rows[k][j + 1], rows[k + 1][j + 1], rows[k + 1][j]))
-            f.material_index = 1 if (j == 0 or j == W - 1) else 0
+            f.material_index = 1 if (j <= 2 or j == W - 1) else 0
     o = obj_from(bm, name, mats)
     o.modifiers.new('sol', 'SOLIDIFY').thickness = solid
     return o
@@ -321,13 +384,13 @@ C = []
 for a, b2 in zip(pp, pp[1:]):
     for t in range(3): C.append(a.lerp(b2, t / 3))
 C.append(pp[-1])
-widths = [0.15 + 0.12 * min(1, abs(c.z - 1.38) * 2.5) for c in C]
-pallu = ribbon('pallu', C, widths, [BLACK, GOLD], outward=body_out, solid=0.005)
+widths = [0.19 + 0.12 * min(1, abs(c.z - 1.38) * 2.5) for c in C]
+pallu = ribbon('pallu', C, widths, [PALLU, GOLD], outward=body_out, solid=0.005)
 sw = pallu.modifiers.new('wrap', 'SHRINKWRAP'); sw.target = torso; sw.wrap_mode = 'OUTSIDE_SURFACE'; sw.offset = 0.012
 pallu.modifiers.move(1, 0)
 # ---------------- lanyard + card ----------------
 for sx in (-1, 1):
-    lp = [Vector((0.035 * sx, 0.025, 1.40)), Vector((0.06 * sx, -0.05, 1.37)), Vector((0.05 * sx, -0.10, 1.31)), Vector((0.03 * sx, -0.127, 1.24)), Vector((0.012 * sx, -0.14, 1.17))]
+    lp = [Vector((0.0, 0.068, 1.405)), Vector((0.05 * sx, 0.052, 1.405)), Vector((0.068 * sx, 0.0, 1.40)), Vector((0.065 * sx, -0.05, 1.375)), Vector((0.05 * sx, -0.10, 1.31)), Vector((0.03 * sx, -0.127, 1.24)), Vector((0.012 * sx, -0.14, 1.17))]
     r = ribbon('lanyard%d' % sx, lp, [0.012] * len(lp), [LAN, LAN], outward=body_out, solid=0.0015)
     w = r.modifiers.new('wrap', 'SHRINKWRAP'); w.target = torso; w.wrap_mode = 'OUTSIDE_SURFACE'; w.offset = 0.022; r.modifiers.move(1, 0)
 bpy.ops.mesh.primitive_cube_add(size=1, location=(0.0, -0.152, 1.12)); cd = bpy.context.active_object; cd.scale = (0.05, 0.004, 0.072); cd.data.materials.append(CARD); cd.name = 'id_card'
@@ -367,8 +430,8 @@ def shot(fname, loc, target, lens):
     d = Vector(target) - Vector(loc); cam.rotation_euler = d.to_track_quat('-Z', 'Y').to_euler()
     scn.render.filepath = OUT + '/' + fname; bpy.ops.render.render(write_still=True)
 import os; os.makedirs(OUT, exist_ok=True)
-shot('front.png', (0, -1.15, 1.47), (0, 0, 1.42), 85)
-shot('three_quarter.png', (-0.75, -0.9, 1.5), (0, 0, 1.41), 85)
+shot(PFX + 'front.png', (0, -1.15, 1.47), (0, 0, 1.42), 85)
+shot(PFX + 'three_quarter.png', (-0.75, -0.9, 1.5), (0, 0, 1.41), 85)
 scn.render.resolution_x, scn.render.resolution_y = 800, 1400
-shot('full_body.png', (0.35, -3.6, 1.0), (0, 0, 0.83), 50)
+shot(PFX + 'full_body.png', (0.35, -3.6, 1.0), (0, 0, 0.83), 50)
 if BLEND: bpy.ops.wm.save_as_mainfile(filepath=BLEND)
