@@ -11,7 +11,7 @@ export class World {
   }
   lights() {
     const s = this.stage.scene;
-    s.add(new THREE.HemisphereLight('#fff1f3', '#c9a3b4', 1.5));
+    s.add((this.hemi = new THREE.HemisphereLight('#fff1f3', '#c9a3b4', 1.5)));
     const sun = (this.sun = new THREE.DirectionalLight('#ffe2cc', 2.3));
     sun.position.set(14, 26, -70);   // low sunset sun behind the main building: backlit glow sun.castShadow = this.quality.tier >= 2;
     sun.shadow.mapSize.set(2048, 2048);
@@ -27,7 +27,7 @@ export class World {
     const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, transparent: true }));
     glow.position.set(3, 13, -95); glow.scale.set(46, 46, 1); s.add(glow);
   }
-  addLocation(loc) { loc.group.userData.isLocation = true; loc.build(); this.root.add(loc.group); this.locations.push(loc); return loc; }
+  addLocation(loc) { loc.group.userData.isLocation = true; if (!loc.lazy) this._build(loc); this.root.add(loc.group); this.locations.push(loc); return loc; }
   scenery(path) {
     // soft sea of clouds far below
     const cloudMat = mat('#fff4f2', { roughness: 1 });
@@ -43,9 +43,9 @@ export class World {
       this.root.add(c); this.clouds.push(c);
     }
     // ground under everything, so every path is on terrain and the camera is always above the road
-    const ground = new THREE.Mesh(new THREE.CircleGeometry(160, 64), mat('#b6d3a8')); ground.rotation.x = -Math.PI / 2; ground.position.y = -0.03; ground.receiveShadow = true; ground.userData.noOcclude = true; this.root.add(ground);
+    const ground = new THREE.Mesh(new THREE.CircleGeometry(420, 64), mat('#b6d3a8')); ground.rotation.x = -Math.PI / 2; ground.position.set(40, -0.03, -110); ground.receiveShadow = true; ground.userData.noOcclude = true; this.root.add(ground);
     // a road the scooter rides along between places (ribbon + kerbs along the avatar spline)
-    const N = 220, half = 1.1, pos = [], kerbL = [], kerbR = [], up = new THREE.Vector3(0, 1, 0);
+    const N = 900, half = 1.1, pos = [], kerbL = [], kerbR = [], up = new THREE.Vector3(0, 1, 0);
     const tStart = path.secT(1);   // gate -> main building is the walkway; the road starts at the drive
     for (let i = 0; i <= N; i++) {
       const t = tStart + (1 - tStart) * (i / N), p = path.char.getPoint(t), tan = path.char.getTangent(t), side = new THREE.Vector3().crossVectors(tan, up).normalize();
@@ -97,10 +97,25 @@ export class World {
   _restore(u) { u.traverse((o) => { if (o.isMesh && o.userData.origMat) { (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => m.dispose()); o.material = o.userData.origMat; delete o.userData.origMat; } }); }
   /* for tests: how many blockers are still opaque right now */
   opaqueBlockers() { let n = 0; this.blockers().forEach((u) => { const f = this.fading.get(u); if (!f || f.a > 0.5) n++; }); return n; }
+  _build(loc) {
+    loc.build(); loc.built = true; loc.reduced = this.reduced;
+    const sh = this.quality.tier >= 2;
+    loc.group.traverse((o) => { if (o.isMesh || o.isInstancedMesh) { o.castShadow = o.castShadow && sh; if (this._occList && !o.userData.noOcclude && o.isMesh && !o.isInstancedMesh) this._occList.push(o); } });
+  }
+  /* lazy build: places come into being when the camera is within 150 m (fog hides them until ~120 m) */
+  stream(camera) { for (const l of this.locations) if (!l.built && camera.position.distanceTo(l.camPos) < 150) this._build(l); }
+  /* mood: blend fog, sky light and sun toward the place nearest the camera */
+  mood(camera, dt) {
+    if (!this._fogC) { this._fogC = new THREE.Color(); this._tmp = new THREE.Color(); }
+    let best = null, bd = 1e9; for (const l of this.locations) { const d = camera.position.distanceTo(l.camPos); if (d < bd) { bd = d; best = l; } }
+    if (!best) return; const k = 1 - Math.exp(-dt * 1.5), m = best.mood, s = this.stage.scene;
+    s.fog.color.lerp(this._tmp.set(m.fog), k); this.hemi.color.lerp(this._tmp.set(m.hemi), k); this.sun.color.lerp(this._tmp.set(m.sun), k);
+    const r = this.stage.renderer; r.toneMappingExposure += (m.exposure - r.toneMappingExposure) * k;
+  }
   setReduced(v) { this.reduced = v; this.locations.forEach((l) => (l.reduced = v)); }
   update(ctx) {
     if (!this.reduced && this.clouds) this.clouds.forEach((c, i) => { c.position.x += Math.sin(ctx.t * 0.05 + i) * c.userData.s * ctx.dt; });
-    this.locations.forEach((l) => l.update(ctx));
+    this.locations.forEach((l) => l.built && l.update(ctx, this.stage.camera));
   }
   /* pointer picking for clickable 3D objects (contact glyphs) */
   pick(clientX, clientY) {

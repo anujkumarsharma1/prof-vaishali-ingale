@@ -139,3 +139,4 @@ a{color:var(--plum)}
 }
 .static .panel-toggle{display:none!important}
 @media (max-width:760px){.panel .eyebrow{padding-right:44px}}
+.plain{margin:0 0 10px;padding-left:18px;font-size:13.5px;line-height:1.5}.plain li{margin:0 0 4px}

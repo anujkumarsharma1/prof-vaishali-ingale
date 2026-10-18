@@ -10,7 +10,8 @@ export class Location {
     this.charPos = new THREE.Vector3(...charPos);
     this.camPos = new THREE.Vector3(...camPos);
     this.look = new THREE.Vector3(...look);
-    this.pickables = []; this.active = false; this.reduced = false;
+    this.pickables = []; this.active = false; this.reduced = false; this.built = false; this.lazy = false;
+    this.mood = { fog: '#f6d2c6', hemi: '#fff1f3', sun: '#ffe2cc', exposure: 1.05 };   // campus sunset default
   }
   build() {}
   enter() { this.active = true; }

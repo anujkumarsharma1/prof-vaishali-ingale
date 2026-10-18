@@ -18,6 +18,20 @@ export class Panels {
       campus: `<p class="eyebrow">Army Institute of Technology · Dighi Hills, Pune</p>
         <p class="lede">${esc((F.research && F.research.lead) || content.tagline)}</p>
         <p class="row"><a class="btn solid" href="${site}publications/">Publications</a><a class="btn ghost" href="${site}leadership/">Leadership</a></p>`,
+      research: `<p class="eyebrow">Research · ${esc(F.publications.lead)}</p>
+        <p class="lede">${esc(F.research.lead)}</p>
+        <ul class="plain">${F.research.sections[0].items.map((i) => `<li><b>${esc(i.b)}</b> · ${esc(i.t)}</li>`).join('')}</ul>
+        <p class="row"><a class="btn solid" href="${site}publications/">All publications</a></p>`,
+      teaching: `<p class="eyebrow">Teaching</p>
+        <p class="lede">${esc(F.teaching.lead)}</p>
+        <ul class="plain">${F.teaching.sections[0].items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>`,
+      projects: `<p class="eyebrow">Projects & research areas</p>
+        <p class="lede">Student and lab projects are coming soon. Meanwhile, her research areas:</p>
+        <ul class="plain">${F.research.sections[0].items.map((i) => `<li><b>${esc(i.b)}</b>: ${esc(i.t)}</li>`).join('')}</ul>`,
+      leadership: `<p class="eyebrow">Leadership & awards</p>
+        <p class="lede">${esc(F.leadership.lead)}</p>
+        <ul class="plain">${F.awards.sections[0].timeline.map((i) => `<li><b>${esc(i.y)}</b> · ${esc(i.t)}</li>`).join('')}</ul>
+        <p class="row"><a class="btn solid" href="${site}leadership/">Leadership</a><a class="btn ghost" href="${site}awards/">Awards & books</a></p>`,
       about: `<p class="eyebrow">About</p>
         <div class="about-head"><img class="portrait photo-frame" src="../room/assets/portrait.webp" alt="Portrait of ${esc(content.name)}" width="88" height="88" loading="lazy">
         <p class="lede">I'm ${esc(content.name.replace(/^Prof\.\s*/, ''))}. ${esc(a.lead.replace(/^Assistant Professor/, 'I am an Assistant Professor'))}</p></div>

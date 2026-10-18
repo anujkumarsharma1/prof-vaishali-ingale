@@ -4,14 +4,15 @@ import { RoundedBoxGeometry } from '../geo.js';
 import { Location } from '../Location.js';
 import { mat, textTexture, PALETTE as P } from '../materials.js';
 
-const X = 40, Y = 0, Z = -70;   // ground-level lookout toward the Dighi hills
+const X = -20, Y = 0, Z = -232;   // the hills at sunset, end of the journey
 const GLYPH = { Email: '@', 'Google Scholar': 'Sc', ORCID: 'iD', LinkedIn: 'in' };
 const TINT = [P.coral, P.pink, P.peach, P.mauve];
 
 export class Hilltop extends Location {
   constructor(links) {
     super('contact', 'Contact', { charPos: [X, Y, Z + 7], camPos: [X + 1, Y + 2.8, Z + 15.5], look: [X, Y + 2.8, Z - 2] });
-    this.links = links;
+    this.links = links; this.lazy = true;
+    this.mood = { fog: '#f2b7b4', hemi: '#ffe4ea', sun: '#ff9f86', exposure: 1.0 };
   }
   build() {
     this.add(new THREE.Mesh(new THREE.CylinderGeometry(7, 8, 1, 32), mat(P.leaf)), X, Y - 0.48, Z + 2);

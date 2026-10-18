@@ -34,16 +34,18 @@ async def run(p, name, vp, mobile):
     # ride hops: sample many timesteps; count frames where an opaque mesh still blocks the rider
     async def ride(idx, tag):
         await pg.evaluate(f'__world.go({idx})'); bad = 0; n = 0
-        for k in range(24):
+        for k in range(20):
             await pg.wait_for_timeout(130)
             n += 1; b = await pg.evaluate('__world.world.opaqueBlockers()')
             # a blocker counts only if it stays opaque after the fade had time (two samples in a row)
             if b: bad += 1
-            if k in (4, 9, 14): await pg.screenshot(path=OUT+f'{name}_ride_{tag}_{k:02d}.png')
+            if k in (5, 12): await pg.screenshot(path=OUT+f'{name}_ride_{tag}_{k:02d}.png')
         print(name, 'ride', tag, 'samples', n, 'frames with an opaque blocker', bad)
     await pg.keyboard.press('Escape')
     await ride(2, 'campus_to_about'); await pg.wait_for_timeout(1500)
-    await ride(3, 'about_to_contact'); await pg.wait_for_timeout(1500)
+    for idx, tag in ((3, 'about_to_research'), (4, 'research_to_teaching'), (5, 'teaching_to_projects'), (6, 'projects_to_leadership'), (7, 'leadership_to_contact')):
+        await ride(idx, tag); await pg.wait_for_timeout(1800)
+        await pg.screenshot(path=OUT+f'{name}_place_{tag.split("_to_")[1]}.png')
     await pg.evaluate('__world.path.jump(1); __world.path.section = -1'); await pg.wait_for_timeout(1500)
     await pg.click('#menu-btn'); await pg.wait_for_timeout(300)
     await pg.click('#menu-list li:nth-child(3) button'); await pg.wait_for_timeout(700)
@@ -53,7 +55,7 @@ async def run(p, name, vp, mobile):
     await pg.click('#menu-btn'); await pg.wait_for_timeout(300)
     await pg.click('#menu-list li:nth-child(1) button'); await pg.wait_for_timeout(3000)
     await pg.click('#menu-btn'); await pg.wait_for_timeout(300)
-    await pg.click('#menu-list li:nth-child(4) button'); await pg.wait_for_timeout(330)
+    await pg.click('#menu-list li:nth-child(8) button'); await pg.wait_for_timeout(330)
     await pg.screenshot(path=OUT+f'{name}_4_brush.png')
     await pg.wait_for_timeout(3000)
     await pg.screenshot(path=OUT+f'{name}_5_contact.png')

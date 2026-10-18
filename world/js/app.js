@@ -9,7 +9,8 @@ import { BrushTransition } from './ui/BrushTransition.js';
 import { Sound } from './ui/Sound.js';
 import { Fallback } from './ui/Fallback.js';
 
-const SECTIONS = [{ id: 'home', label: 'Home' }, { id: 'campus', label: 'Main building' }, { id: 'about', label: 'About' }, { id: 'contact', label: 'Contact' }];
+const SECTIONS = [{ id: 'home', label: 'Home' }, { id: 'campus', label: 'Main building' }, { id: 'about', label: 'About' }, { id: 'research', label: 'Research' },
+  { id: 'teaching', label: 'Teaching' }, { id: 'projects', label: 'Projects' }, { id: 'leadership', label: 'Leadership & awards' }, { id: 'contact', label: 'Contact' }];
 const nextFrame = () => new Promise((r) => requestAnimationFrame(() => r()));
 
 export class App {
@@ -43,11 +44,14 @@ export class App {
     const [{ Stage }, { World }, { Character }, { CameraPath }, { GateView, AitCampus }, { HiTerrace }, { Hilltop }] = await Promise.all([
       import('./gfx/Stage.js'), import('./gfx/World.js'), import('./gfx/Character.js'), import('./gfx/CameraPath.js'),
       import('./gfx/locations/AitMainBuilding.js'), import('./gfx/locations/HiTerrace.js'), import('./gfx/locations/Hilltop.js')]);
+    const J = await import('./gfx/locations/Journey.js');
     this._progress(0.25); await nextFrame();
     const bus = this.bus, store = this.store, F = Object.fromEntries(this.content.folders.map((f) => [f.id, f]));
     this.stage = new Stage(bus, this.$('stage'), this.quality);
     this.world = new World(bus, this.stage, this.quality); this.world.lights();
-    const locs = [new GateView(), new AitCampus(this.content), new HiTerrace(), new Hilltop(F.contact.links)];
+    const locs = [new GateView(), new AitCampus(this.content), new HiTerrace(),
+      new J.Skyline(F.publications.pubs), new J.WaterfallValley(), new J.TechPark(F.research.sections[0].items),
+      new J.MonumentPlaza(F.awards.sections[0].timeline), new Hilltop(F.contact.links)];
     for (let i = 0; i < locs.length; i++) { this.world.addLocation(locs[i]); this._progress(0.3 + 0.15 * (i + 1)); await nextFrame(); }
     this.path = new CameraPath(bus, store, locs);
     this.world.scenery(this.path);
@@ -64,6 +68,7 @@ export class App {
       this.quality.sample(ctx.dt);
       if (this.started) this.path.update(ctx.dt);
       this.path.apply(this.stage.camera, this.character);
+      this.world.stream(this.stage.camera); this.world.mood(this.stage.camera, ctx.dt);
       this._establish(ctx.dt);
       if (this.portraitCam) this._portrait();
       this.character.update(ctx); this.world.update(ctx); this.world.updateOcclusion(ctx.dt);
@@ -107,7 +112,7 @@ export class App {
   }
   go(i) {
     if (!this.path || i === this.path.section) return;
-    const far = Math.abs(i - this.path.section) > 1;
+    const far = Math.abs(i - this.path.section) > 2;   // up to two places away: ride; further: soft wipe
     if (far) this.brush.run(() => this.path.jump(i)); else this.path.glide(i);
   }
   _input(locs) {
@@ -123,7 +128,7 @@ export class App {
       if (k === 'ArrowDown' || k === 'PageDown' || k === 'ArrowRight') { e.preventDefault(); this.go(Math.min(SECTIONS.length - 1, cur + 1)); }
       if (k === 'ArrowUp' || k === 'PageUp' || k === 'ArrowLeft') { e.preventDefault(); this.go(Math.max(0, cur - 1)); }
     });
-    const contact = locs[3];
+    const contact = locs[locs.length - 1];
     cv.addEventListener('pointermove', (e) => { const o = this.world.pick(e.clientX, e.clientY); contact.setHover(o); cv.style.cursor = o ? 'pointer' : ''; });
     cv.addEventListener('click', (e) => {
       const o = this.world.pick(e.clientX, e.clientY); if (!o || !o.userData.href) return;
