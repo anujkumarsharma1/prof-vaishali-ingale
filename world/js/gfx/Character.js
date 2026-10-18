@@ -39,7 +39,7 @@ export class Character {
     const body = (this.body = new THREE.Group()); this.rig.add(body);
     const m = (g, mt, x, y, z, p = body) => this._m(g, mt, x, y, z, p);
     // palette from her photo: black saree + blouse, mustard/gold embroidered border, warm brown skin
-    const black = mat('#1d1a1f', { roughness: 0.7 }), skin = mat('#a8714f', { roughness: 0.6 }), hairM = mat('#141012', { roughness: 0.55, flatShading: true });
+    const black = mat('#1d1a1f', { roughness: 0.7 }), skin = mat('#a8714f', { roughness: 0.6 });
     const goldTex = borderTexture(), gold = new THREE.MeshStandardMaterial({ map: goldTex, roughness: 0.45, metalness: 0.25 });
     const goldPlain = mat('#c99a3a', { roughness: 0.4, metalness: 0.35 });
     // --- saree skirt (feet 0 -> waist 1.0), slim and gently flared; embroidered hem band
@@ -73,40 +73,69 @@ export class Character {
     const head = (this.head = new THREE.Group()); head.position.set(0, 1.76, 0.01); body.add(head);
     m(new THREE.SphereGeometry(0.105, 28, 22), skin, 0, 0, 0, head).scale.set(0.88, 1.12, 0.96);
     m(new THREE.SphereGeometry(0.06, 16, 12), skin, 0, -0.055, 0.03, head).scale.set(1.1, 0.8, 1);   // jaw/chin
-    // face: brows, eyes, nose, red lips, small earrings
-    const ink = mat('#1a1214', { roughness: 0.4 });
+    // face: almond eyes (white, iris, lid line), arched brows, red lips; all smooth-shaded
+    const ink = mat('#1a1214', { roughness: 0.4 }), white = mat('#f3ece4', { roughness: 0.3 });
+    const iris = mat('#2b1a14', { roughness: 0.25 });
     [-1, 1].forEach((sd) => {
-      m(new THREE.SphereGeometry(0.017, 12, 8), mat('#f5efe8'), 0.034 * sd, 0.012, 0.087, head).scale.set(1.3, 0.8, 0.5);
-      m(new THREE.SphereGeometry(0.0105, 10, 8), ink, 0.034 * sd, 0.012, 0.094, head);
-      const brow = m(new THREE.BoxGeometry(0.04, 0.008, 0.008), ink, 0.036 * sd, 0.042, 0.091, head); brow.rotation.z = -0.15 * sd;
-      m(new THREE.SphereGeometry(0.011, 8, 6), goldPlain, 0.093 * sd, -0.03, 0.0, head);            // earring stud
-      m(new THREE.SphereGeometry(0.009, 8, 6), mat('#b3282d'), 0.093 * sd, -0.05, 0.0, head);       // red drop
+      const ex = 0.033 * sd, ey = 0.014, ez = 0.083;
+      m(new THREE.SphereGeometry(0.019, 20, 14), white, ex, ey, ez, head).scale.set(1.35, 0.72, 0.55);
+      m(new THREE.SphereGeometry(0.0115, 16, 12), iris, ex, ey, ez + 0.007, head).scale.set(1, 1, 0.5);
+      m(new THREE.SphereGeometry(0.0026, 8, 6), white, ex + 0.003, ey + 0.003, ez + 0.0115, head);  // catchlight
+      const lid = m(new THREE.TorusGeometry(0.024, 0.0032, 6, 18, Math.PI), ink, ex, ey + 0.001, ez + 0.003, head);
+      lid.scale.set(1.05, 0.55, 1);
+      const brow = m(new THREE.TorusGeometry(0.026, 0.0042, 6, 18, Math.PI * 0.8), ink, ex + 0.002 * sd, 0.026, 0.088, head);
+      brow.rotation.z = Math.PI * 0.1; brow.scale.set(1, 0.5, 0.6);
+      m(new THREE.SphereGeometry(0.011, 12, 8), goldPlain, 0.093 * sd, -0.03, 0.0, head);            // earring stud
+      m(new THREE.SphereGeometry(0.009, 12, 8), mat('#b3282d'), 0.093 * sd, -0.05, 0.0, head);       // red drop
     });
-    m(new THREE.SphereGeometry(0.013, 8, 6), skin, 0, -0.012, 0.1, head).scale.set(0.9, 1.2, 0.8);    // nose
-    m(new THREE.SphereGeometry(0.02, 12, 8), mat('#a3222a', { roughness: 0.35 }), 0, -0.05, 0.088, head).scale.set(1.25, 0.42, 0.5);
-    // hair: voluminous, shoulder-length, wavy, worn open; side parting; faceted waves
-    const H = (r, x, y, z, sx = 1, sy = 1, sz = 1) => m(new THREE.IcosahedronGeometry(r, 2), hairM, x, y, z, head).scale.set(sx, sy, sz);
-    H(0.118, 0, 0.035, -0.012, 0.98, 0.95, 1.0);              // crown
-    H(0.05, 0.04, 0.11, 0.03, 1.4, 0.5, 1);                    // side-parted fringe sweep (above the brows)
-    H(0.042, -0.055, 0.1, 0.035, 1, 0.55, 1);
+    m(new THREE.SphereGeometry(0.013, 14, 10), skin, 0, -0.012, 0.098, head).scale.set(0.85, 1.3, 0.8);    // nose
+    const lipM = mat('#a3222a', { roughness: 0.35 });
+    m(new THREE.SphereGeometry(0.018, 18, 12), lipM, 0, -0.045, 0.089, head).scale.set(1.3, 0.32, 0.5);  // upper lip
+    m(new THREE.SphereGeometry(0.017, 18, 12), lipM, 0, -0.054, 0.087, head).scale.set(1.2, 0.4, 0.5);   // lower lip
+    // hair: smooth lathed shells with soft waves, centre-side parting, open and shoulder length.
+    // cap: thin shell hugging the skull, cut away over the face so the forehead stays clear
+    const hairM2 = mat('#141012', { roughness: 0.42, metalness: 0.05 });
+    const cap = new THREE.SphereGeometry(0.118, 40, 28, Math.PI * 0.62, Math.PI * 1.76, 0, Math.PI * 0.62);
+    m(cap, hairM2, 0, 0.012, -0.004, head).scale.set(0.92, 1.0, 1.0);
+    const front = new THREE.SphereGeometry(0.119, 40, 16, 0, Math.PI * 2, 0, Math.PI * 0.2);      // crown over the hairline
+    m(front, hairM2, 0, 0.014, 0.0, head).scale.set(0.92, 1.0, 1.02);
+    // parting: two swept wings from a parting slightly to her right, curving down past the temples
     [-1, 1].forEach((sd) => {
-      H(0.066, 0.108 * sd, -0.02, -0.03, 0.75, 1.2, 1);         // sides framing the face
-      H(0.07, 0.11 * sd, -0.12, -0.03, 0.9, 1.1, 1);           // waves at the jaw
-      H(0.075, 0.12 * sd, -0.21, -0.05, 1, 1.0, 0.9);          // ends resting on the shoulders
-      H(0.06, 0.14 * sd, -0.27, -0.06, 1, 0.8, 0.8);
+      const pts = []; const wide = sd > 0 ? 1.0 : 0.9;
+      for (let i = 0; i <= 24; i++) {
+        const v = i / 24, y = 0.07 - v * 0.38;
+        const rad = (0.035 + Math.sin(Math.min(1, v * 1.6) * Math.PI * 0.5) * 0.085 + Math.sin(v * Math.PI * 5) * 0.02 * v) * wide;
+        pts.push(new THREE.Vector2(Math.max(0.005, rad), y));
+      }
+      // half-lathe that covers the side and back only (front quadrant open for the face)
+      const g = new THREE.LatheGeometry(pts, 36, sd > 0 ? Math.PI * 0.3 : Math.PI, Math.PI * 0.7);
+      g.computeVertexNormals();
+      const w = m(g, hairM2, 0.03 * sd, 0.0, -0.02, head); w.scale.set(0.95, 1, 0.9);
     });
-    H(0.13, 0, -0.06, -0.07, 1.1, 1.2, 0.8);                    // back volume
-    H(0.11, 0, -0.2, -0.08, 1.3, 1.0, 0.7);                     // back ends
-    // --- arms: short black sleeve, forearm, hand, one gold bangle
+    // swept lock from the parting, up on the crown and off the forehead
+    const sweep = m(new THREE.SphereGeometry(0.06, 24, 14), hairM2, 0.03, 0.082, 0.03, head);
+    sweep.scale.set(1.15, 0.26, 1.0); sweep.rotation.z = -0.25;
+    // back volume to the shoulders
+    const back = []; for (let i = 0; i <= 24; i++) { const v = i / 24; back.push(new THREE.Vector2(0.02 + Math.sin(Math.min(1, v * 1.4) * Math.PI * 0.5) * 0.12 + Math.sin(v * 9) * 0.008, 0.06 - v * 0.36)); }
+    m(new THREE.LatheGeometry(back, 36, Math.PI * 0.55, Math.PI * 0.9), hairM2, 0, 0, -0.04, head).scale.set(1.05, 1, 0.75);
+    // --- arms: tapered lathed limbs with a soft elbow bend, short black sleeve, hands, one gold bangle
+    const limb = (r0, r1, len) => {
+      const pts = []; for (let i = 0; i <= 12; i++) { const v = i / 12; const rr = r0 + (r1 - r0) * v + Math.sin(v * Math.PI) * 0.006; pts.push(new THREE.Vector2(rr, -len * v)); }
+      pts.unshift(new THREE.Vector2(0.001, 0.004)); pts.push(new THREE.Vector2(0.001, -len - 0.004));
+      return new THREE.LatheGeometry(pts, 18);
+    };
     const arm = (side) => {
       const piv = new THREE.Group(); piv.position.set(0.17 * side, 1.47, 0); body.add(piv);
-      m(new THREE.CapsuleGeometry(0.048, 0.08, 4, 12), black, 0, -0.05, 0, piv);
-      m(new THREE.CapsuleGeometry(0.038, 0.2, 4, 12), skin, 0, -0.18, 0, piv);
+      m(new THREE.SphereGeometry(0.052, 18, 14), black, 0, -0.02, 0, piv).scale.set(1, 1.15, 1);          // sleeve cap
+      m(limb(0.05, 0.043, 0.1), black, 0, -0.01, 0, piv);                                                 // sleeve
+      m(limb(0.038, 0.03, 0.28), skin, 0, -0.02, 0, piv);                                                 // upper arm
       const elbow = new THREE.Group(); elbow.position.set(0, -0.29, 0); piv.add(elbow);
-      m(new THREE.CapsuleGeometry(0.032, 0.2, 4, 12), skin, 0, -0.12, 0, elbow);
-      m(new THREE.SphereGeometry(0.038, 12, 10), skin, 0, -0.26, 0.005, elbow).scale.set(0.8, 1.1, 0.6);
-      if (side < 0) { const b = m(new THREE.TorusGeometry(0.036, 0.007, 6, 16), goldPlain, 0, -0.2, 0, elbow); b.rotation.x = Math.PI / 2; }
-      piv.userData.elbow = elbow; piv.rotation.z = 0.08 * side; return piv;
+      m(new THREE.SphereGeometry(0.03, 14, 10), skin, 0, 0, 0, elbow);
+      m(limb(0.03, 0.021, 0.23), skin, 0, 0, 0, elbow);                                                   // forearm to wrist
+      const hand = m(new THREE.SphereGeometry(0.03, 16, 12), skin, 0, -0.26, 0.004, elbow); hand.scale.set(0.7, 1.25, 0.45);
+      m(new THREE.CapsuleGeometry(0.008, 0.03, 4, 8), skin, 0.018 * side, -0.25, 0.012, elbow).rotation.z = 0.5 * side;  // thumb
+      if (side < 0) { const bg = m(new THREE.TorusGeometry(0.027, 0.006, 8, 20), goldPlain, 0, -0.21, 0, elbow); bg.rotation.x = Math.PI / 2; }
+      piv.userData.elbow = elbow; piv.rotation.z = 0.1 * side; elbow.rotation.x = -0.18; return piv;
     };
     this.armL = arm(1); this.armR = arm(-1);   // armL = her left (+x)
     // --- seated drape for riding: lap over the seat, black fall with gold hem over the board, feet
@@ -141,8 +170,10 @@ export class Character {
   setMotion(speed, yawRate, canRide = true, hasScooter = true) { this.speed = speed; this.yawRate = yawRate; this.canRide = canRide; this.scooter.visible = hasScooter; }
   update({ dt, t }) {
     const k = 1 - Math.exp(-dt * 5);                 // frame-rate independent smoothing
-    const riding = this.speed > 0.6 && this.canRide !== false ? 1 : 0;
-    const walk = this.speed > 0.6 && !riding ? Math.min(1, this.speed / 3) : 0;
+    // rest timer: once she has been slow for 0.35 s she steps off, even if the spring tail is still creeping
+    this.slow = this.speed < 1.2 ? (this.slow || 0) + dt : 0;
+    const riding = this.speed > 0.6 && this.slow < 0.35 && this.canRide !== false ? 1 : 0;
+    const walk = this.speed > 0.6 && !riding && this.slow < 0.35 ? Math.min(1, this.speed / 3) : 0;
     this.walk = (this.walk || 0) + (walk - (this.walk || 0)) * k;
     this.ride += (riding - this.ride) * (1 - Math.exp(-dt * 6));
     const r = THREE.MathUtils.smoothstep(this.ride, 0, 1);

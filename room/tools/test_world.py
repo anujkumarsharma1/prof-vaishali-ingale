@@ -44,8 +44,14 @@ async def run(p, name, vp, mobile):
     await pg.keyboard.press('Escape')
     await ride(2, 'campus_to_about'); await pg.wait_for_timeout(1500)
     for idx, tag in ((3, 'about_to_research'), (4, 'research_to_teaching'), (5, 'teaching_to_projects'), (6, 'projects_to_leadership'), (7, 'leadership_to_contact')):
-        await ride(idx, tag); await pg.wait_for_timeout(1800)
+        await ride(idx, tag)
+        # swiftshader runs slower than real time: wait until she has actually arrived, then let her step off
+        for _ in range(60):
+            if await pg.evaluate('Math.abs(__world.path.t-__world.path.target) < 0.001'): break
+            await pg.wait_for_timeout(250)
+        await pg.wait_for_timeout(1500)
         await pg.screenshot(path=OUT+f'{name}_place_{tag.split("_to_")[1]}.png')
+        print(name, 'arrived', tag, await pg.evaluate('({speed:+__world.character.speed.toFixed(2), ride:+__world.character.ride.toFixed(2), t:+__world.path.t.toFixed(4), target:__world.path.target})'))
     await pg.evaluate('__world.path.jump(1); __world.path.section = -1'); await pg.wait_for_timeout(1500)
     await pg.click('#menu-btn'); await pg.wait_for_timeout(300)
     await pg.click('#menu-list li:nth-child(3) button'); await pg.wait_for_timeout(700)
