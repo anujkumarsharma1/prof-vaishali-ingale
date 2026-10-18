@@ -11,11 +11,14 @@ async def run(p, name, vp, mobile):
     await pg.goto(URL); await pg.wait_for_selector('.gate.ready', timeout=60000)
     await pg.screenshot(path=OUT+f'{name}_0_gate.png')
     print(name, await pg.evaluate('({mode:__world.mode,tier:__world.quality.tier,r:__world.quality.reason})'))
-    await pg.click('#start-quiet'); await pg.wait_for_timeout(2500)
-    await pg.screenshot(path=OUT+f'{name}_1_home.png')
-    # scroll to About via wheel / keys
-    await pg.keyboard.press('ArrowDown'); await pg.wait_for_timeout(700)
-    await pg.screenshot(path=OUT+f'{name}_1b_riding.png')
+    await pg.click('#start-quiet'); await pg.wait_for_timeout(1400)
+    await pg.screenshot(path=OUT+f'{name}_1a_establishing.png')
+    await pg.wait_for_timeout(3600)                       # establishing shot (3.2 s) has finished
+    await pg.screenshot(path=OUT+f'{name}_1_home_gate.png')
+    await pg.keyboard.press('ArrowDown')                  # walk through the gate and down the walkway
+    for i, ms in enumerate((450, 450, 600)):
+        await pg.wait_for_timeout(ms)
+        await pg.screenshot(path=OUT+f'{name}_1{"bcd"[i]}_walk_{i}.png')
     await pg.wait_for_timeout(3500)
     await pg.screenshot(path=OUT+f'{name}_2_campus.png')
     if mobile:
@@ -25,7 +28,7 @@ async def run(p, name, vp, mobile):
     # mid-transition shot + contact via menu
     await pg.click('#menu-btn'); await pg.wait_for_timeout(400)
     await pg.screenshot(path=OUT+f'{name}_3_menu.png')
-    await pg.click('#menu-list li:nth-child(3) button'); await pg.wait_for_timeout(1000)
+    await pg.click('#menu-list li:nth-child(3) button'); await pg.wait_for_timeout(700)
     await pg.screenshot(path=OUT+f'{name}_3b_scooter_ride.png')
     await pg.wait_for_timeout(3000)
     await pg.screenshot(path=OUT+f'{name}_3c_about.png')

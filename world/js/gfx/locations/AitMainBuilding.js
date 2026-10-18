@@ -68,13 +68,13 @@ export class AitCampus extends Location {
       for (let k = 0; k < 5; k++) this.add(new THREE.Mesh(new THREE.BoxGeometry(3.3, 0.03, 0.02), clay('#e9d7c4')), 8.8 * sd, 0.4 + k * 0.42, GZ + 0.66);
     });
     // trimmed hedges in the foreground (kept to the sides so they never hide the avatar)
-    [[-4.6, 2.2, 4.2], [4.6, 2.2, 4.2], [-8.5, 0.5, 3], [8.5, 0.5, 3]].forEach(([x, z, w]) => this.add(new THREE.Mesh(rb(w, 0.9, 1.1, 0.35), clay('#8fbf62')), x, 0.45, z));
+    [[-9.6, 2.4, 5], [10.8, 2.4, 4]].forEach(([x, z, w]) => this.add(new THREE.Mesh(rb(w, 0.9, 1.1, 0.35), clay('#8fbf62')), x, 0.45, z));
   }
   /* The walkway from the gate to the building (from Cyber's photo): concrete slabs with joints,
      on the left a steel railing and a shelter roof, then a row of potted plants on gravel; on the
      right yellow-and-black kerb blocks with a hedge; palms and round trees on both sides; a light pole. */
   _walkway() {
-    const z0 = -1.5, z1 = BZ + 4, len = z0 - z1, cz = (z0 + z1) / 2;
+    const z0 = -1.5, z1 = -31.5, len = z0 - z1, cz = (z0 + z1) / 2;   // walkway ends at the curved drive
     this.add(new THREE.Mesh(this.rb(6.4, 0.12, len, 0.04), clay('#d9cfc9')), 0, 0.06, cz).castShadow = false;
     for (let z = z0 - 2; z > z1; z -= 2.2) this.add(new THREE.Mesh(new THREE.BoxGeometry(6.3, 0.02, 0.06), clay('#bfb2ad')), 0, 0.125, z).castShadow = false;
     this.add(new THREE.Mesh(this.rb(1.6, 0.1, len - 10, 0.04), clay('#cdbfb9')), -4.1, 0.05, cz - 5);       // gravel strip
@@ -96,8 +96,8 @@ export class AitCampus extends Location {
     this.add(new THREE.Mesh(this.rb(1.2, 0.9, len - 2, 0.35), clay('#7fae5e')), 4.6, 0.45, cz);
     // palms and round trees lining both sides
     this.lanePalms = [];
-    for (let z = -6, k = 0; z > z1; z -= 4.5, k++) { this.lanePalms.push(this._palm(-6.2 - (k % 2) * 1.2, z, k)); this.lanePalms.push(this._palm(6.6 + (k % 2), z - 2, k + 1)); }
-    for (let z = -4; z > z1 - 4; z -= 5) [-11, 11.5].forEach((x, j) => {
+    for (let z = -6, k = 0; z > -29; z -= 4.5, k++) { this.lanePalms.push(this._palm((z > -16 ? -9 : -6.2) - (k % 2) * 1.2, z, k)); if (z > -20) this.lanePalms.push(this._palm(6.6 + (k % 2), z - 2, k + 1)); }   // right side stops early: the camera leaves that way   // left palms clear of the shelter roof
+    for (let z = -4; z > -29; z -= 5) [-11, 11.5].forEach((x, j) => {
       const tr = this.add(new THREE.Mesh(new THREE.IcosahedronGeometry(1.8 + ((z + j) % 3) * 0.2, 1), clay(j ? P.leafDark : P.leaf, { flatShading: true })), x, 3.4, z);
       this.add(new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.26, 2.2, 8), clay(C.trunk)), x, 1.1, z); void tr;
     });
@@ -155,20 +155,21 @@ export class AitCampus extends Location {
     this.add(new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.7, 8), clay(P.gold)), 0, 11.75, BZ - 2);
     // flag pole (plain pennant, no emblem)
     this.add(new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 4.2, 6), clay(P.stone)), -2.3, 2.1, BZ + 1.2);
-    this.flag = this.add(new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.55, 6, 1), new THREE.MeshStandardMaterial({ color: '#b4554f', side: THREE.DoubleSide, roughness: 0.9 })), -1.83, 3.9, BZ + 1.2);
+    const flagGeo = new THREE.PlaneGeometry(0.9, 0.55, 6, 1); flagGeo.translate(0.45, 0, 0);   // hinge at the pole
+    this.flag = this.add(new THREE.Mesh(flagGeo, new THREE.MeshStandardMaterial({ color: '#b4554f', side: THREE.DoubleSide, roughness: 0.9 })), -2.25, 3.9, BZ + 1.2); this.flag.castShadow = false;
   }
   _grounds() {
     // quatrefoil fountain pond
     const sh = new THREE.Shape(), R = 1.4;
     for (let i = 0; i <= 64; i++) { const a = (i / 64) * Math.PI * 2, r = R * (0.75 + 0.25 * Math.abs(Math.cos(2 * a))); i ? sh.lineTo(Math.cos(a) * r, Math.sin(a) * r) : sh.moveTo(Math.cos(a) * r, Math.sin(a) * r); }
     const rim = new THREE.ExtrudeGeometry(sh, { depth: 0.35, bevelEnabled: true, bevelSize: 0.12, bevelThickness: 0.1, bevelSegments: 3 });
-    const pond = this.add(new THREE.Mesh(rim, clay(P.cream)), 7, 0, BZ + 7); pond.rotation.x = -Math.PI / 2;
-    const water = this.add(new THREE.Mesh(new THREE.ShapeGeometry(sh), clay(C.water, { roughness: 0.3 })), 7, 0.47, BZ + 7);
+    const pond = this.add(new THREE.Mesh(rim, clay(P.cream)), -9, 0, BZ + 4.6); pond.rotation.x = -Math.PI / 2;
+    const water = this.add(new THREE.Mesh(new THREE.ShapeGeometry(sh), clay(C.water, { roughness: 0.3 })), -9, 0.47, BZ + 4.6);
     water.rotation.x = -Math.PI / 2; water.scale.setScalar(0.88);
-    this.jet = this.add(new THREE.Mesh(new THREE.ConeGeometry(0.12, 1.1, 10), new THREE.MeshStandardMaterial({ color: '#dff3f6', transparent: true, opacity: 0.8 })), 7, 1.0, BZ + 7);
+    this.jet = this.add(new THREE.Mesh(new THREE.ConeGeometry(0.12, 1.1, 10), new THREE.MeshStandardMaterial({ color: '#dff3f6', transparent: true, opacity: 0.8 })), -9, 1.0, BZ + 4.6);
     // round flower bed with a yellow hedge
-    this.add(new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.28, 10, 28), clay('#e6c95a')), -7, 0.2, BZ + 7).rotation.x = Math.PI / 2;
-    this.add(new THREE.Mesh(new THREE.CylinderGeometry(1.05, 1.05, 0.2, 24), clay('#b9d98f')), -7, 0.1, BZ + 7);
+    this.add(new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.28, 10, 28), clay('#e6c95a')), 9, 0.2, BZ + 4.6).rotation.x = Math.PI / 2;
+    this.add(new THREE.Mesh(new THREE.CylinderGeometry(1.05, 1.05, 0.2, 24), clay('#b9d98f')), 9, 0.1, BZ + 4.6);
     // curved asphalt drive with a white kerb in front of the building (front photo)
     const a0 = Math.PI * 0.2, a1 = Math.PI * 0.6;
     const drive = this.add(new THREE.Mesh(new THREE.RingGeometry(15, 18.5, 64, 1, a0, a1), clay('#8f8a8f')), 0, 0.09, BZ + 23);
@@ -178,7 +179,7 @@ export class AitCampus extends Location {
     [-8, 8].forEach((x) => this.add(new THREE.Mesh(this.rb(8, 0.6, 0.9, 0.25), clay(P.leafDark)), x, 0.3, BZ + 2.2));
     // palms in a row along the wings
     this.palms = [];
-    [-12, -9.5, -6.5, 6.5, 9.5, 12].forEach((x, i) => this.palms.push(this._palm(x, BZ + 3.4, i)));
+    [-19, -16, -13, -5, 5, 13, 16, 19].forEach((x, i) => this.palms.push(this._palm(x, BZ + 3.4, i)));
     // Dighi hills behind
     [[-22, -72, 10, 9], [-6, -80, 14, 12], [16, -75, 12, 8]].forEach(([x, z, r, h]) => {
       const m = this.add(new THREE.Mesh(new THREE.ConeGeometry(r, h, 7), clay('#b9a3b5', { flatShading: true })), x, h / 2 - 1, z); m.castShadow = false;
@@ -195,7 +196,7 @@ export class AitCampus extends Location {
   update({ t }) {
     if (this.reduced) return;
     [...this.palms, ...this.lanePalms].forEach((p, i) => { p.userData.crown.rotation.z = Math.sin(t * 0.9 + i) * 0.05; });
-    this.flag.rotation.y = Math.sin(t * 2.2) * 0.25;
+    this.flag.rotation.y = -0.15 + Math.sin(t * 2.2) * 0.2;
     this.jet.scale.y = 1 + Math.sin(t * 6) * 0.08;
   }
 }
