@@ -21,6 +21,9 @@ async def run(p, name, vp, mobile):
         await pg.screenshot(path=OUT+f'{name}_1{"bcd"[i]}_walk_{i}.png')
     await pg.wait_for_timeout(3500)
     await pg.screenshot(path=OUT+f'{name}_2_campus.png')
+    await pg.evaluate('__world.portraitCam = true'); await pg.wait_for_timeout(600)
+    await pg.screenshot(path=OUT+f'{name}_2p_character_portrait.png')
+    await pg.evaluate('__world.portraitCam = false'); await pg.wait_for_timeout(200)
     if mobile:
         await pg.click('#panel-campus .panel-toggle'); await pg.wait_for_timeout(400)
         await pg.screenshot(path=OUT+f'{name}_2b_campus_collapsed.png')

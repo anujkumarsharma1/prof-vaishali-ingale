@@ -65,6 +65,7 @@ export class App {
       if (this.started) this.path.update(ctx.dt);
       this.path.apply(this.stage.camera, this.character);
       this._establish(ctx.dt);
+      if (this.portraitCam) this._portrait();
       this.character.update(ctx); this.world.update(ctx); this.world.updateOcclusion(ctx.dt);
     });
     bus.on('quality:change', (t) => { this.stage.renderer.shadowMap.enabled = t >= 2; this.world.sun.castShadow = t >= 2; this.stage.scene.traverse((o) => { if (o.material) o.material.needsUpdate = true; }); });
@@ -91,6 +92,12 @@ export class App {
     if (!this._est) { const T = this._T; this._est = { p: new T.Vector3(6, 24, 26), l: new T.Vector3(0, 4, -38) }; }
     cam.position.lerpVectors(this._est.p, to, e);
     cam.lookAt(this._est.l.clone().lerp(look, e));
+  }
+  /* test/preview: close three-quarter front view of the character */
+  _portrait() {
+    const T = this._T, g = this.character.group, cam = this.stage.camera;
+    const off = new T.Vector3(0.75, 1.62, 1.35).applyAxisAngle(new T.Vector3(0, 1, 0), g.rotation.y);
+    cam.position.copy(g.position).add(off); cam.lookAt(g.position.x, g.position.y + 1.45, g.position.z);
   }
   async _prewarm(locs) {
     const r = this.stage.renderer, cam = this.stage.camera, sc = this.stage.scene;

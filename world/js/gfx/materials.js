@@ -1,4 +1,4 @@
-/* Shared clay materials (cached) and a canvas-text texture helper. */
+/* Shared stylised materials (cached soft PBR, crisp shading) and a canvas-text texture helper. */
 import * as THREE from 'three';
 
 export const PALETTE = {
@@ -7,10 +7,10 @@ export const PALETTE = {
   stone: '#e6d6d0', skin: '#c98b6b', hair: '#2b1d1f', gold: '#e8b86b', white: '#ffffff'
 };
 const cache = new Map();
-export function clay(color, opts = {}) {
+export function mat(color, opts = {}) {
   const key = color + JSON.stringify(opts);
   if (!cache.has(key)) {
-    cache.set(key, new THREE.MeshStandardMaterial({ color: new THREE.Color(color), roughness: 0.82, metalness: 0, ...opts }));
+    cache.set(key, new THREE.MeshStandardMaterial({ color: new THREE.Color(color), roughness: 0.55, metalness: 0, envMapIntensity: 0.6, ...opts }));
   }
   return cache.get(key);
 }
@@ -33,3 +33,4 @@ export function skyTexture() {
   g.fillStyle = gr; g.fillRect(0, 0, 4, 256);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
 }
+

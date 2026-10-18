@@ -1,4 +1,4 @@
-/* Fallback: no WebGL (or ?static). Same panels, stacked as a calm one-page clay layout. */
+/* Fallback: no WebGL (or ?static). Same panels, stacked as a calm one-page layout. */
 export class Fallback {
   static mount(panels, reason) {
     document.body.classList.add('static');

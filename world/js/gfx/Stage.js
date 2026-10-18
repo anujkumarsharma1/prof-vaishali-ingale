@@ -1,6 +1,7 @@
 /* Stage: renderer, camera, resize, pixel ratio by quality tier. */
 import * as THREE from 'three';
 import { skyTexture } from './materials.js';
+import { RoomEnvironment } from '../../../room/vendor/RoomEnvironment.js';
 
 export class Stage {
   constructor(bus, container, quality) {
@@ -13,6 +14,8 @@ export class Stage {
     this.renderer.domElement.setAttribute('aria-hidden', 'true');
     this.scene = new THREE.Scene();
     this.scene.background = skyTexture();
+    // soft studio reflections for the polished stylised look
+    const pm = new THREE.PMREMGenerator(this.renderer); this.scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture; this.scene.environmentIntensity = 0.45; pm.dispose();
     this.scene.fog = new THREE.Fog('#f6d2c6', 40, 120);
     this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 300);
     this.renderer.domElement.addEventListener('webglcontextlost', (e) => { e.preventDefault(); bus.emit('gl:lost'); });

@@ -1,8 +1,8 @@
-/* Contact: a hilltop at dusk with giant clay glyph tiles; each tile is a real link. */
+/* Contact: a ground-level lookout with giant stylised glyph tiles; each tile is a real link. */
 import * as THREE from 'three';
-import { RoundedBoxGeometry } from '../../../../room/vendor/RoundedBoxGeometry.js';
+import { RoundedBoxGeometry } from '../geo.js';
 import { Location } from '../Location.js';
-import { clay, textTexture, PALETTE as P } from '../materials.js';
+import { mat, textTexture, PALETTE as P } from '../materials.js';
 
 const X = 40, Y = 0, Z = -70;   // ground-level lookout toward the Dighi hills
 const GLYPH = { Email: '@', 'Google Scholar': 'Sc', ORCID: 'iD', LinkedIn: 'in' };
@@ -14,19 +14,19 @@ export class Hilltop extends Location {
     this.links = links;
   }
   build() {
-    this.add(new THREE.Mesh(new THREE.CylinderGeometry(7, 8, 1, 32), clay(P.leaf)), X, Y - 0.48, Z + 2);
+    this.add(new THREE.Mesh(new THREE.CylinderGeometry(7, 8, 1, 32), mat(P.leaf)), X, Y - 0.48, Z + 2);
     // little fort wall hint (Pune hill-fort mood)
-    for (let i = -3; i <= 3; i++) this.add(new THREE.Mesh(new RoundedBoxGeometry(1.2, 1 + (i % 2 ? 0.4 : 0), 0.8, 2, 0.15), clay(P.stone)), X + i * 1.5, Y + 0.5, Z - 4.4);
+    for (let i = -3; i <= 3; i++) this.add(new THREE.Mesh(new RoundedBoxGeometry(1.2, 1 + (i % 2 ? 0.4 : 0), 0.8, 2, 0.15), mat(P.stone)), X + i * 1.5, Y + 0.5, Z - 4.4);
     // Dighi hills backdrop, in frame behind the tiles (low-poly, soft mauve haze)
     [[-26, -38, 16, 11], [-6, -46, 22, 16], [14, -40, 15, 10], [32, -50, 20, 13], [-44, -52, 18, 9]].forEach(([dx, dz, r, h], i) => {
-      const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, 7), clay(i % 2 ? '#b9a3b5' : '#c7aebd', { flatShading: true }));
+      const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, 7), mat(i % 2 ? '#b9a3b5' : '#c7aebd', { flatShading: true }));
       m.position.set(X + dx, h / 2 - 0.5, Z + dz); m.rotation.y = i; this.group.add(m);
     });
     this.tiles = [];
     const n = this.links.length, gap = 2.9, ox = -((n - 1) * gap) / 2;
     this.links.forEach((l, i) => {
       const face = new THREE.MeshStandardMaterial({ map: textTexture(GLYPH[l.label] || l.label.slice(0, 2), { w: 256, h: 256, bg: TINT[i % 4], fg: P.cream, font: '700 150px Quicksand, Comfortaa, Inter, sans-serif' }), roughness: 0.8 });
-      const side = clay(TINT[i % 4]);
+      const side = mat(TINT[i % 4]);
       const m = new THREE.Mesh(new RoundedBoxGeometry(2.2, 2.2, 0.9, 4, 0.32), [side, side, side, side, face, side]);
       const home = new THREE.Vector3(X + ox + i * gap, Y + 2.6, Z - 1);
       m.position.copy(home); m.castShadow = true;

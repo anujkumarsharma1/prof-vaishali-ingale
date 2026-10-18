@@ -1,6 +1,6 @@
 /* World: lights, the island, clouds, stepping stones between places; owns locations and picking. */
 import * as THREE from 'three';
-import { clay, PALETTE as P } from './materials.js';
+import { mat, PALETTE as P } from './materials.js';
 
 export class World {
   constructor(bus, stage, quality) {
@@ -30,7 +30,7 @@ export class World {
   addLocation(loc) { loc.group.userData.isLocation = true; loc.build(); this.root.add(loc.group); this.locations.push(loc); return loc; }
   scenery(path) {
     // soft sea of clouds far below
-    const cloudMat = clay('#fff4f2', { roughness: 1 });
+    const cloudMat = mat('#fff4f2', { roughness: 1 });
     this.clouds = [];
     const geo = new THREE.IcosahedronGeometry(1, 2);
     for (let i = 0; i < 22; i++) {
@@ -43,8 +43,8 @@ export class World {
       this.root.add(c); this.clouds.push(c);
     }
     // ground under everything, so every path is on terrain and the camera is always above the road
-    const ground = new THREE.Mesh(new THREE.CircleGeometry(160, 64), clay('#b6d3a8')); ground.rotation.x = -Math.PI / 2; ground.position.y = -0.03; ground.receiveShadow = true; ground.userData.noOcclude = true; this.root.add(ground);
-    // a soft clay road the scooter rides along between places (ribbon + kerbs along the avatar spline)
+    const ground = new THREE.Mesh(new THREE.CircleGeometry(160, 64), mat('#b6d3a8')); ground.rotation.x = -Math.PI / 2; ground.position.y = -0.03; ground.receiveShadow = true; ground.userData.noOcclude = true; this.root.add(ground);
+    // a road the scooter rides along between places (ribbon + kerbs along the avatar spline)
     const N = 220, half = 1.1, pos = [], kerbL = [], kerbR = [], up = new THREE.Vector3(0, 1, 0);
     const tStart = path.secT(1);   // gate -> main building is the walkway; the road starts at the drive
     for (let i = 0; i <= N; i++) {
@@ -55,8 +55,8 @@ export class World {
     }
     const idx = []; for (let i = 0; i < N; i++) { const a = i * 2; idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); }   // upward-facing
     const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
-    const road = new THREE.Mesh(g, clay(P.sand)); road.receiveShadow = true; road.userData.noOcclude = true; this.root.add(road);
-    [kerbL, kerbR].forEach((pts) => { const k = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), N, 0.09, 6), clay(P.peach)); k.castShadow = this.quality.tier >= 2; k.userData.noOcclude = true; this.root.add(k); });
+    const road = new THREE.Mesh(g, mat(P.sand)); road.receiveShadow = true; road.userData.noOcclude = true; this.root.add(road);
+    [kerbL, kerbR].forEach((pts) => { const k = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), N, 0.09, 6), mat(P.peach)); k.castShadow = this.quality.tier >= 2; k.userData.noOcclude = true; this.root.add(k); });
   }
   /* Occlusion: rays from the camera to the avatar's head and waist; any scenery that blocks them
      fades to low opacity (its materials are cloned on first fade), then fades back when clear. */
