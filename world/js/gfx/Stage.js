@@ -29,6 +29,8 @@ export class Stage {
     this.renderer.setSize(w, h);
     this.camera.aspect = w / h;
     this.camera.fov = w < h ? 62 : 50;   // portrait phones see a bit more
+    // portrait phones: the info card covers the bottom third, so frame the scene higher (she stays visible above it)
+    if (w < h) this.camera.setViewOffset(w, h, 0, Math.round(h * 0.17), w, h); else this.camera.clearViewOffset();
     this.camera.updateProjectionMatrix();
   }
 }

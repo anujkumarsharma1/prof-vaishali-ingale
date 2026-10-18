@@ -121,7 +121,7 @@ export class App {
     document.getElementById('chrome').appendChild(pad);
     const knob = pad.firstChild; this.joy = { v: 0 }; let id = null, y0 = 0;
     const set = (dy) => { const c = Math.max(-34, Math.min(34, dy)); knob.style.transform = `translateY(${c}px)`; this.joy.v = Math.abs(c) < 6 ? 0 : c / 34; };
-    pad.addEventListener('pointerdown', (e) => { id = e.pointerId; y0 = e.clientY; pad.setPointerCapture(id); pad.classList.add('on'); e.stopPropagation(); });
+    pad.addEventListener('pointerdown', (e) => { e.preventDefault(); id = e.pointerId; y0 = e.clientY; pad.setPointerCapture(id); pad.classList.add('on'); e.stopPropagation(); });
     pad.addEventListener('pointermove', (e) => { if (e.pointerId === id) set(e.clientY - y0); });
     const end = (e) => { if (e.pointerId !== id) return; id = null; set(0); pad.classList.remove('on'); };
     pad.addEventListener('pointerup', end); pad.addEventListener('pointercancel', end);
