@@ -14,3 +14,8 @@ See `/workspace/site_build/REDESIGN_PLAN.md` for the full plan.
 - Falls back to the procedural figure on load errors, without WebAssembly, or with `?proc`.
 ## Mobile
 - Touch devices get a vertical joystick (drag up = forward). Portrait phones frame the scene higher so she stays above the card.
+
+## Homepage
+The site root (`/index.html`) is generated from `world/index.html`, and the previous office
+homepage lives at `/classic/` (generated from `room/index.html`). After editing either source,
+run `python3 room/tools/make_home_index.py` from the repo root and commit the outputs.
