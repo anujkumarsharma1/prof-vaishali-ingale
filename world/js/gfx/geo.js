@@ -1,1 +1,1 @@
-import{RoundedBoxGeometry as RB}from"../../../room/vendor/RoundedBoxGeometry.js";export class RoundedBoxGeometry extends RB{constructor(o=1,e=1,t=1,r=2,n=.1){const m=Math.min(n,.035,.12*Math.min(o,e,t));super(o,e,t,Math.min(r,2),m)}}
+import{RoundedBoxGeometry as RB}from"../../../room/vendor/RoundedBoxGeometry.js";export class RoundedBoxGeometry extends RB{constructor(o=1,e=1,r=1,t=2,m=.1){super(o,e,r,3,Math.min(Math.max(m,.05),.09,.15*Math.min(o,e,r)))}}

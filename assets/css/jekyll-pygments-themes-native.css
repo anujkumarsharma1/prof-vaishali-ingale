@@ -185,7 +185,10 @@
 } /* Literal.String.Heredoc */
 .highlight .si {
   color: #ed9d13;
-} /* Literal.String.Interpol */ /* Literal.String.Other */
+} /* Literal.String.Interpol */
+.highlight .sx {
+  color: #ffa500;
+} /* Literal.String.Other */
 .highlight .sr {
   color: #ed9d13;
 } /* Literal.String.Regex */ /* Literal.String.Single */
