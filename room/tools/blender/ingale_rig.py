@@ -63,8 +63,11 @@ def torso_w(p):
         w = {k: v * (1 - 0.6 * a) for k, v in w.items()}; w['upperarm.' + side(p)] = 0.6 * a
     return w
 def leg_w(p):
-    h = ss(0.86, 0.96, p.z); kt = ss(0.42, 0.58, p.z); wl = ss(-0.05, 0.05, p.x)
-    return {'hips': h, 'thigh.L': (1 - h) * kt * wl, 'thigh.R': (1 - h) * kt * (1 - wl), 'shin.L': (1 - h) * (1 - kt) * wl, 'shin.R': (1 - h) * (1 - kt) * (1 - wl)}
+    # Saree skirt: mostly carried by the pelvis so it doesn't stretch when the legs fold to sit. The front (lap)
+    # follows the thighs a little more than the back; weights blend smoothly across the knee and the midline.
+    h = ss(0.74, 0.96, p.z); kt = ss(0.25, 0.75, p.z); wl = ss(-0.09, 0.09, p.x)
+    follow = (0.8 if p.y < 0 else 0.45) * (1 - h) * (0.75 + 0.25 * ss(-0.12, 0.0, -p.y))
+    return {'hips': 1 - follow, 'thigh.L': follow * kt * wl, 'thigh.R': follow * kt * (1 - wl), 'shin.L': follow * (1 - kt) * wl, 'shin.R': follow * (1 - kt) * (1 - wl)}
 def hair_w(p):
     s = ss(HC.z - 0.03, HC.z - 0.2, p.z)
     bn = 'hair.B' if p.y > 0.035 else 'hair.' + side(p)

@@ -18,7 +18,10 @@ async def run(p, name, vp, mobile):
     print(name, 'transfer before start: %.2f MB' % (bytes_in[0] / 1e6))
     await pg.click('#start-quiet'); await pg.wait_for_timeout(1400)
     await pg.screenshot(path=OUT+f'{name}_1a_establishing.png')
-    await pg.wait_for_timeout(3600)                       # establishing shot (3.2 s) has finished
+    for _ in range(60):                                   # establishing shot finished (swiftshader runs slower than real time)
+        if await pg.evaluate('__world._estT === undefined || __world._estT >= 1'): break
+        await pg.wait_for_timeout(250)
+    await pg.wait_for_timeout(400)
     await pg.screenshot(path=OUT+f'{name}_1_home_gate.png')
     await pg.keyboard.press('ArrowDown')                  # walk through the gate and down the walkway
     for i, ms in enumerate((450, 450, 600)):

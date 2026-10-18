@@ -166,3 +166,6 @@ a{color:var(--plum)}
 .joy-dn{bottom:8px;border-top-color:#4a3348!important}
 .static .joy{display:none}
 @media (prefers-reduced-motion:reduce){.panel,.joy-knob{transition:none!important}}
+
+/* static page: keep the last card clear of the fixed icon bar */
+.static .panels{padding-bottom:calc(110px + env(safe-area-inset-bottom))}

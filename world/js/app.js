@@ -98,13 +98,14 @@ export class App {
   /* Establishing shot after START: a high, wide view of the whole campus (front photo) that eases
      down into the back-facing view at the gate. Skipped with reduced motion. */
   _establish(dt) {
-    if (this._estT === undefined || this._estT >= 1) return;
+    if (this._estT === undefined || this._estT >= 1) { if (this.character) this.character.ringBoost = 0; return; }
     if (this.store.get('reducedMotion')) { this._estT = 1; return; }
     this._estT = Math.min(1, this._estT + dt / 3.2);
     const e = this._estT < 0.5 ? 4 * this._estT ** 3 : 1 - Math.pow(-2 * this._estT + 2, 3) / 2;   // easeInOutCubic
     const cam = this.stage.camera, to = cam.position.clone(), look = this.path._l.clone();
     if (!this._est) { const T = this._T; this._est = { p: new T.Vector3(6, 24, 26), l: new T.Vector3(0, 4, -38) }; }
     cam.position.lerpVectors(this._est.p, to, e);
+    this.character.ringBoost = 1 - e;              // the glow under her is larger while the camera is high up
     cam.lookAt(this._est.l.clone().lerp(look, e));
   }
   /* test/preview: close three-quarter front view of the character */

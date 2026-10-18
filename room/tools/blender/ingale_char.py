@@ -70,12 +70,21 @@ tc = nt.nodes.new('ShaderNodeTexCoord'); vor = nt.nodes.new('ShaderNodeTexVorono
 ramp = nt.nodes.new('ShaderNodeValToRGB'); ramp.color_ramp.elements[0].color = (*srgb('#8a5f18'), 1); ramp.color_ramp.elements[1].color = (*srgb('#c9973a'), 1)
 ramp.color_ramp.elements[0].position = 0.05; ramp.color_ramp.elements[1].position = 0.45
 nt.links.new(tc.outputs['Object'], vor.inputs['Vector'])
-wv = nt.nodes.new('ShaderNodeTexWave'); wv.wave_type = 'RINGS'; wv.inputs['Scale'].default_value = 140; wv.inputs['Distortion'].default_value = 4
-nt.links.new(tc.outputs['Object'], wv.inputs['Vector'])
-mm = nt.nodes.new('ShaderNodeMath'); mm.operation = 'MULTIPLY'; nt.links.new(vor.outputs['Distance'], mm.inputs[0]); nt.links.new(wv.outputs['Fac'], mm.inputs[1])
-nt.links.new(mm.outputs[0], ramp.inputs['Fac'])
-bump = nt.nodes.new('ShaderNodeBump'); bump.inputs['Strength'].default_value = 0.18; nt.links.new(mm.outputs[0], bump.inputs['Height']); nt.links.new(bump.outputs['Normal'], b.inputs['Normal'])
-nt.links.new(ramp.outputs['Color'], b.inputs['Base Color']); b.inputs['Metallic'].default_value = 0.55; b.inputs['Roughness'].default_value = 0.4
+# embroidered motif: little rosettes (bright gold dot + dark outline ring) on a mustard ground, with fine thread grain
+vor.inputs['Scale'].default_value = 120
+dot = nt.nodes.new('ShaderNodeMapRange'); dot.inputs['From Min'].default_value = 0.18; dot.inputs['From Max'].default_value = 0.24; dot.inputs['To Min'].default_value = 1.0; dot.inputs['To Max'].default_value = 0.0
+nt.links.new(vor.outputs['Distance'], dot.inputs['Value'])
+ring_lo = nt.nodes.new('ShaderNodeMath'); ring_lo.operation = 'COMPARE'; ring_lo.inputs[1].default_value = 0.31; ring_lo.inputs[2].default_value = 0.035
+nt.links.new(vor.outputs['Distance'], ring_lo.inputs[0])
+grain = nt.nodes.new('ShaderNodeTexNoise'); grain.inputs['Scale'].default_value = 900; nt.links.new(tc.outputs['Object'], grain.inputs['Vector'])
+gmul = nt.nodes.new('ShaderNodeMath'); gmul.operation = 'MULTIPLY_ADD'; gmul.inputs[1].default_value = 0.25; gmul.inputs[2].default_value = 0.35
+nt.links.new(grain.outputs['Fac'], gmul.inputs[0])
+fac1 = nt.nodes.new('ShaderNodeMath'); fac1.operation = 'MAXIMUM'; nt.links.new(dot.outputs['Result'], fac1.inputs[0]); nt.links.new(gmul.outputs[0], fac1.inputs[1])
+nt.links.new(fac1.outputs[0], ramp.inputs['Fac'])
+dark = nt.nodes.new('ShaderNodeMix'); dark.data_type = 'RGBA'; dark.inputs[7].default_value = (*srgb('#5a3a12'), 1)
+nt.links.new(ring_lo.outputs[0], dark.inputs[0]); nt.links.new(ramp.outputs['Color'], dark.inputs[6])
+nt.links.new(dark.outputs[2], b.inputs['Base Color'])
+b.inputs['Metallic'].default_value = 0.55; b.inputs['Roughness'].default_value = 0.4
 # lanyard: blue strap with white dashes
 LAN = bpy.data.materials.new('lanyard'); LAN.use_nodes = True
 nt = LAN.node_tree; b = nt.nodes['Principled BSDF']

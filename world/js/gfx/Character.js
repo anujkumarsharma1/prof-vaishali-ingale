@@ -39,7 +39,21 @@ export class Character {
     this.rig = new THREE.Group(); this.group.add(this.rig);
     this.speed = 0; this.yawRate = 0; this.ride = 0; this.lean = 0; this.dist = 0; this.reduced = false;
     this.buildFigure(); this.buildScooter();
-    this.model = null; this.mixer = null;
+    this.model = null; this.mixer = null; this.ringBoost = 0;
+    this.buildHighlight();
+  }
+  /* soft highlight so she reads from far away (aerial Home view, first walk frames): a warm glow disc on the
+     ground plus a gentle rim light from in front/above (the camera is usually behind her) */
+  buildHighlight() {
+    const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
+    const rg = g.createRadialGradient(64, 64, 8, 64, 64, 62);
+    rg.addColorStop(0, 'rgba(255,240,214,0.85)'); rg.addColorStop(0.55, 'rgba(255,214,190,0.35)'); rg.addColorStop(1, 'rgba(255,214,190,0)');
+    g.fillStyle = rg; g.fillRect(0, 0, 128, 128);
+    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+    this.glow = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 1.8), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false }));
+    this.glow.rotation.x = -Math.PI / 2; this.glow.position.y = 0.03; this.glow.renderOrder = 2; this.glow.userData.noOcclude = true;
+    this.group.add(this.glow);
+    this.rim = new THREE.PointLight('#ffd6c4', 6, 5, 1.6); this.rim.position.set(0.4, 2.3, 1.3); this.group.add(this.rim);
   }
   /* Load the rigged model; resolves true when it replaced the procedural figure. */
   async loadModel() {
@@ -211,6 +225,7 @@ export class Character {
   }
   setMotion(speed, yawRate, canRide = true, hasScooter = true) { this.speed = speed; this.yawRate = yawRate; this.canRide = canRide; this.scooter.visible = hasScooter; }
   update({ dt, t }) {
+    if (this.glow) { const b = this.ringBoost || 0; this.glow.scale.setScalar(1 + 4 * b); this.glow.material.opacity = 0.55 + 0.45 * b - 0.4 * (this.ride || 0); this.rim.intensity = 6 + 10 * b; }
     const k = 1 - Math.exp(-dt * 5);                 // frame-rate independent smoothing
     // rest timer: once she has been slow for 0.35 s she steps off, even if the spring tail is still creeping
     this.slow = this.speed < 1.2 ? (this.slow || 0) + dt : 0;
