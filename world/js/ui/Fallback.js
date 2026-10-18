@@ -1,0 +1,1 @@
+export class Fallback{static mount(t,e){document.body.classList.add("static"),Object.values(t.el).forEach(t=>{t.hidden=!1,t.classList.add("in")});const s=document.getElementById("static-note");s&&(s.hidden=!1,s.textContent="Showing the light version ("+e+").")}}
