@@ -56,10 +56,13 @@ export class App {
     this.path = new CameraPath(bus, store, locs);
     this.world.scenery(this.path);
     this.character = new Character(); this.stage.scene.add(this.character.group);
+    const modelP = this.character.loadModel();          // rigged GLB (falls back to the procedural figure)
     this.world.initOcclusion(this.character);
     this.character.group.traverse((o) => { if (o.isMesh) o.castShadow = this.quality.tier >= 2; });
     this.world.setReduced(store.get('reducedMotion')); this.character.reduced = store.get('reducedMotion');
     this.path.apply(this.stage.camera, this.character);
+    this.modelLoaded = await Promise.race([modelP, new Promise((r) => setTimeout(() => r(false), 9000))]);
+    this.character.group.traverse((o) => { if (o.isMesh) o.castShadow = this.quality.tier >= 2; });
     await this._prewarm(locs);
     this._progress(0.95); await nextFrame();
 

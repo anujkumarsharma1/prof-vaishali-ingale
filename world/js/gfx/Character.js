@@ -27,12 +27,54 @@ function lanyardTexture() {
 
 const SCOOT = { body: '#8fcfc4', dark: '#4f6f7a', seat: '#5b3a4f', chrome: '#e9e4e6', tyre: '#3b2f36', light: '#fff4c7' };
 
+/* Rigged likeness (GLB, Draco) made by room/tools/blender/ingale_rig.py. Clips: Idle, Walk, Sit, StandToSit,
+   SitToStand. The procedural figure below stays as the fallback (no WASM, load error, ?proc). */
+const MODEL_URL = new URL('../../assets/ingale.glb', import.meta.url).href;
+const DRACO_PATH = new URL('../../../room/vendor/draco/', import.meta.url).href;
+const MODEL_SCALE = 1.17;          // Blender model is 1.62 m; the world was laid out for a ~1.9 m figure
+
 export class Character {
   constructor() {
     this.group = new THREE.Group(); this.group.name = 'professor';
     this.rig = new THREE.Group(); this.group.add(this.rig);
     this.speed = 0; this.yawRate = 0; this.ride = 0; this.lean = 0; this.dist = 0; this.reduced = false;
     this.buildFigure(); this.buildScooter();
+    this.model = null; this.mixer = null;
+  }
+  /* Load the rigged model; resolves true when it replaced the procedural figure. */
+  async loadModel() {
+    if (/[?&]proc\b/.test(location.search) || typeof WebAssembly !== 'object') return false;
+    try {
+      const [{ GLTFLoader }, { DRACOLoader }] = await Promise.all([import('../../../room/vendor/GLTFLoader.js'), import('../../../room/vendor/draco/DRACOLoader.js')]);
+      const draco = new DRACOLoader(); draco.setDecoderPath(DRACO_PATH); draco.setDecoderConfig({ type: 'wasm' });
+      const loader = new GLTFLoader(); loader.setDRACOLoader(draco);
+      const gltf = await loader.loadAsync(MODEL_URL);
+      draco.dispose();
+      const root = gltf.scene; root.scale.setScalar(MODEL_SCALE);
+      root.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; if (o.material) o.material.envMapIntensity = 0.6; } });
+      this.holder = new THREE.Group(); this.holder.add(root); this.rig.add(this.holder);
+      this.mixer = new THREE.AnimationMixer(root); this.clips = {};
+      for (const c of gltf.animations) { const a = this.mixer.clipAction(c); a.play(); a.setEffectiveWeight(0); this.clips[c.name] = a; }
+      for (const n of ['StandToSit', 'SitToStand']) if (this.clips[n]) { this.clips[n].setLoop(THREE.LoopOnce); this.clips[n].clampWhenFinished = true; this.clips[n].paused = true; }
+      this.body.visible = false; this.model = root;
+      return true;
+    } catch (e) { console.info('character: using the procedural figure (' + (e && e.message) + ')'); return false; }
+  }
+  /* Drive the clip weights from the same walk / ride blend the procedural figure uses. */
+  _animateModel(dt, r) {
+    const C = this.clips, wk = this.walk || 0;
+    // stand <-> sit: scrub the transition clip by the ride blend (forward when mounting, reverse when stepping off)
+    const goingUp = (this._prevR || 0) > r; this._prevR = r;
+    const tr = goingUp ? C.SitToStand : C.StandToSit, other = goingUp ? C.StandToSit : C.SitToStand;
+    const tw = 4 * r * (1 - r);
+    if (tr) { tr.time = (goingUp ? 1 - r : r) * tr.getClip().duration; tr.setEffectiveWeight(tw); }
+    if (other) other.setEffectiveWeight(0);
+    const rest = 1 - tw;
+    C.Idle && C.Idle.setEffectiveWeight(rest * (1 - r) * (1 - wk));
+    if (C.Walk) { C.Walk.setEffectiveWeight(rest * (1 - r) * wk); C.Walk.time = ((this.dist * 0.55) % 1) * C.Walk.getClip().duration; }
+    C.Sit && C.Sit.setEffectiveWeight(rest * r);
+    this.mixer.update(this.reduced ? 0 : dt);
+    this.holder.position.set(0, 0, -0.2 * r);
   }
   _m(geo, mat, x, y, z, parent) { const o = new THREE.Mesh(geo, mat); o.position.set(x, y, z); o.castShadow = true; parent.add(o); return o; }
   buildFigure() {
@@ -182,6 +224,7 @@ export class Character {
     this.scooter.position.set(1.15 * (1 - r), 0, 0.15 * (1 - r));
     this.scooter.rotation.y = 0.35 * (1 - r);
     this.wheels.forEach((w) => (w.rotation.x += (this.speed * dt) / 0.24));
+    if (this.model) { this._animateModel(dt, r); const lean = THREE.MathUtils.clamp(-this.yawRate * 0.35, -0.3, 0.3) * r; this.lean += (lean - this.lean) * k; this.rig.rotation.z = this.reduced ? 0 : this.lean; this.rig.position.y = this.reduced ? 0 : r * Math.abs(Math.sin(this.dist * 2.2)) * 0.035; return; }
     // figure: stand -> sit on the seat, arms to the handlebar
     this.body.position.set(0, -0.02 * r, -0.2 * r);
     const st = Math.max(0.001, 1 - r);
