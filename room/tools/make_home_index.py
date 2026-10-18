@@ -33,7 +33,7 @@ root = gen('world/index.html', 'index.html', [
     (r'data-site-base="[^"]*"', 'data-site-base="./"'),
     (r'(href|src)="(css|js|assets)/', r'\1="world/\2/'),   # the world's own files
     (r'(href|src)="\.\./', r'\1="'),                         # main-site files and pages
-    (r'"three": "\.\./', '"three": "'),                       # importmap
+    (r'"three": "\.\./', '"three": "./'),                     # importmap (needs ./ to be a valid address)
 ], 'world')
 # share-card / app-icon head lines the previous root homepage had (absolute URLs)
 HEAD_EXTRA = '''<!-- Launch kit head lines (added by make_home_index.py) -->
