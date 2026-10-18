@@ -143,6 +143,8 @@ FACE_L = 0.200                        # hairline -> chin
 FACE_W = FACE_L / PHI                 # face length : width = phi  (~0.124 m cheek to cheek)
 THIRD = FACE_L / 3                    # equal vertical thirds
 Z_CHIN = HC.z - 0.115
+CHIN_DROP = float(__import__('os').environ.get('CHIN_DROP', '0.01'))   # how far the front of the jaw is pulled down onto Z_CHIN
+JAW_EXT = float(__import__('os').environ.get('JAW_EXT', '0.006'))
 Z_NOSE = Z_CHIN + THIRD               # nose base
 Z_BROW = Z_CHIN + 2 * THIRD           # brow line
 Z_HAIR = Z_CHIN + 3 * THIRD           # hairline
@@ -166,7 +168,7 @@ for v in bm.verts:
     # base skull: width 0.152, depth 0.19, height 0.23
     X, Y, Z = x * 0.08, y * 0.094, z * 0.11
     lower = max(0.0, -z)                                    # 0 at mid, 1 at chin
-    if z < 0: Z = z * (0.11 + 0.02 * lower ** 1.5)            # lower face reaches Z_CHIN at the front
+    if z < 0: Z = z * (0.11 + JAW_EXT * lower ** 1.5)          # lower face length (tuned so the chin silhouette lands on Z_CHIN)
     X *= 1 - 0.27 * lower ** 1.9                            # soft, rounded jaw
     Y *= 1 - 0.12 * lower
     if y < 0: Y *= 1.0 - 0.1 * max(0, z)                    # slightly flatter forehead
@@ -187,6 +189,13 @@ for v in bm.verts:
         Y -= 0.005 * gauss(abs(x) - 0.35, 0.18) * gauss(z + 0.22, 0.15) * (-y) ** 2  # cheek apples
         # lip mound and mouth line
         Y -= 0.006 * gauss(x, 0.28) * gauss(z - hz(Z_MOUTH), 0.12) * (-y) ** 2
+    # rounded jaw: pull the FRONT of the lower face down (and slightly forward) so the chin lands on Z_CHIN;
+    # weight fades toward the sides so the cheeks stay full instead of the jaw turning long and pointy
+    if y < 0:
+        w = max(0.0, min(1.0, (lower - 0.2) / 0.7)); w = w * w * (3 - 2 * w)
+        side = gauss(x, 0.75)
+        Z -= CHIN_DROP * w * side * min(1, -y * 1.4)
+        Y -= 0.012 * w * side * min(1, -y * 1.4)
     v.co = Vector((X, Y, Z)) + HC
 head = obj_from(bm, 'head', [SKIN])
 head.modifiers.new('sub', 'SUBSURF').levels = 1
@@ -241,16 +250,17 @@ for sx in (-1, 1):
     uvsphere('drop%d' % sx, (0.08 * sx, HC.y + 0.006, HC.z - 0.047), (0.0055, 0.0055, 0.008), RED, 10, 6)
     uvsphere('ear%d' % sx, (0.075 * sx, HC.y + 0.008, HC.z - 0.008), (0.009, 0.016, 0.024), SKIN, 12, 8)
 # nose: tapered form from just below the brow to the nose base; alae span = NOSE_W
-ntop, nbot = Z_BROW - 0.018, Z_NOSE + 0.003
+ntop, nbot = Z_BROW - 0.027, Z_NOSE + 0.002
 NC = Vector((0, surf_y(0, (ntop + nbot) / 2) + 0.005, (ntop + nbot) / 2)); NH = (ntop - nbot) / 2
-bmn = bmesh.new(); bmesh.ops.create_uvsphere(bmn, u_segments=14, v_segments=10, radius=1)
+bmn = bmesh.new(); bmesh.ops.create_uvsphere(bmn, u_segments=16, v_segments=12, radius=1)
 for v in bmn.verts:
     x, y, z = v.co; t = (1 - z) / 2                         # 0 at the bridge, 1 at the tip
-    v.co = NC + Vector((x * 0.0074 * (0.55 + 0.6 * t), y * 0.0068 - 0.0036 * t ** 1.3, z * NH))
-obj_from(bmn, 'nose', [SKIN])
-for sx in (-1, 1):
-    ax = sx * (NOSE_W / 2 - 0.0058); az = Z_NOSE + 0.0048
-    uvsphere('ala%d' % sx, (ax, surf_y(ax, az) + 0.0036, az), (0.0058, 0.0052, 0.0046), SKIN, 10, 6)
+    wing = max(0.0, (t - 0.68) / 0.32); wing = math.sin(min(1, wing) * math.pi * 0.5)       # flare into the nostril wings
+    half_w = 0.0068 * (0.55 + 0.45 * t) + (NOSE_W / 2 - 0.0068) * wing * (1 - 0.35 * max(0, -y))
+    tip = 0.0032 * math.sin(min(1, t * 1.05) * math.pi * 0.5) * (1 - 0.6 * wing * abs(x))      # soft, rounded tip
+    v.co = NC + Vector((x * half_w, y * (0.0068 + 0.002 * wing) - tip, z * NH))
+obj_from(bmn, 'nose', [SKIN]).modifiers.new('sub', 'SUBSURF').levels = 1
+# (nostril wings are part of the nose mesh)
 # mouth: ONE form (upper + lower lip with a cupid's bow), corners tucked back, a soft parting line; philtrum ridges
 bmm = bmesh.new(); bmesh.ops.create_uvsphere(bmm, u_segments=24, v_segments=14, radius=1)
 my = surf_y(0, Z_MOUTH)
@@ -458,6 +468,13 @@ dg = bpy.context.evaluated_depsgraph_get(); tris = 0; per = {}
 for o in scn.objects:
     if o.type == 'MESH':
         me = o.evaluated_get(dg).to_mesh(); me.calc_loop_triangles(); tris += len(me.loop_triangles); per[o.name.rstrip('-0123456789')[:6]] = per.get(o.name.rstrip('-0123456789')[:6], 0) + len(me.loop_triangles); o.evaluated_get(dg).to_mesh_clear()
+bv = BVHTree.FromObject(head, dg); zz = HC.z - 0.05; chin_z = None
+while zz > HC.z - 0.2:                       # level ray sweep down the midline: lowest z that still hits the face from the front
+    h = bv.ray_cast(Vector((0, -1, zz)), Vector((0, 1, 0)))
+    if h[0] is None or h[0].y > HC.y - 0.02: break
+    chin_z = zz; zz -= 0.0005
+print('CHIN silhouette z = %.4f  guide Z_CHIN = %.4f  diff = %+.4f m' % (chin_z, Z_CHIN, chin_z - Z_CHIN))
+if __import__('os').environ.get('NORENDER'): raise SystemExit
 print('TRIS', tris, sorted(per.items(), key=lambda x: -x[1])[:10])
 
 # ---------------- lighting / world / camera (site palette: lilac -> peach) ----------------
@@ -483,16 +500,19 @@ def shot(fname, loc, target, lens):
     d = Vector(target) - Vector(loc); cam.rotation_euler = d.to_track_quat('-Z', 'Y').to_euler()
     scn.render.filepath = OUT + '/' + fname; bpy.ops.render.render(write_still=True)
 import os; os.makedirs(OUT, exist_ok=True)
-shot(PFX + 'front.png', (0, -1.15, 1.47), (0, 0, 1.42), 85)
+shot(PFX + 'front.png', (0, -1.15, Z_EYE - 0.02), (0, 0, Z_EYE - 0.02), 85)   # level camera at eye height
 from bpy_extras.object_utils import world_to_camera_view
 import json
 def px(p):
     c = world_to_camera_view(scn, cam, Vector(p)); return [c.x * scn.render.resolution_x, (1 - c.y) * scn.render.resolution_y]
 yfront = surf_y(0, Z_EYE) + 0.004       # project guides at the face surface depth
-guides = {'h': {n: [px((-FACE_W / 2 - 0.02, yfront, z)), px((FACE_W / 2 + 0.02, yfront, z))] for n, z in
+BVHF = BVHTree.FromObject(head, bpy.context.evaluated_depsgraph_get())
+def ydepth(z):                       # each guide is drawn at the depth of the face at that height (fair in perspective)
+    h = BVHF.ray_cast(Vector((0, -1, z + 0.0015)), Vector((0, 1, 0))); return h[0].y if h[0] else yfront
+guides = {'h': {n: [px((-FACE_W / 2 - 0.02, ydepth(z), z)), px((FACE_W / 2 + 0.02, ydepth(z), z))] for n, z in
                 [('hairline', Z_HAIR), ('brow', Z_BROW), ('nose base', Z_NOSE), ('mouth (golden split)', Z_MOUTH), ('chin', Z_CHIN), ('eyes', Z_EYE)]},
           'v': {('%+.1f eye' % (x / EYE_W)): [px((x, yfront, Z_HAIR + 0.01)), px((x, yfront, Z_CHIN - 0.01))] for x in [EYE_W * k / 2 for k in (-5, -3, -1, 1, 3, 5)]},
-          'box': [px((-FACE_W / 2, yfront, Z_HAIR)), px((FACE_W / 2, yfront, Z_CHIN))],
+          'box': [px((-FACE_W / 2, ydepth(Z_HAIR), Z_HAIR)), px((FACE_W / 2, ydepth(Z_CHIN), Z_CHIN))],
           'consts': {'PHI': PHI, 'FACE_L': FACE_L, 'FACE_W': round(FACE_W, 4), 'THIRD': round(THIRD, 4), 'EYE_W': round(EYE_W, 4), 'EYE_H': round(EYE_H, 4), 'NOSE_W': round(NOSE_W, 4), 'MOUTH_W': round(MOUTH_W, 4), 'LIP_UP': LIP_UP, 'LIP_LO': round(LIP_LO, 4)}}
 json.dump(guides, open(OUT + '/' + PFX + 'front_guides.json', 'w'), indent=1)
 shot(PFX + 'three_quarter.png', (-0.75, -0.9, 1.5), (0, 0, 1.41), 85)
