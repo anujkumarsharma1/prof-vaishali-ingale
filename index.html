@@ -1,14 +1,12 @@
 <!doctype html>
-<!-- Generated from room/index.html by room/tools/make_root_index.py. Edit that file, then re-run. -->
-<html lang="en" data-site-base="./" data-room-base="room/">
+<!-- Generated from world/index.html by room/tools/make_home_index.py. Edit that file, then re-run. -->
+<html lang="en" data-site-base="./">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Prof. Vaishali S. Ingale · Information Technology, AIT Pune</title>
-<meta name="description" content="An interactive way into the portfolio of Prof. Vaishali S. Ingale, Assistant Professor, Department of Information Technology, Army Institute of Technology, Pune.">
-<meta name="theme-color" content="#fbf4ec">
-<link rel="icon" href="assets/img/favicon-32.png" sizes="32x32">
-<!-- Launch kit head lines (added by Role A root_room.py) -->
+<meta name="description" content="An interactive 3D way into the portfolio of Prof. Vaishali S. Ingale, Assistant Professor, Department of Information Technology, Army Institute of Technology, Pune.">
+<!-- Launch kit head lines (added by make_home_index.py) -->
 <meta property="og:site_name" content="Prof. Vaishali S. Ingale">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Prof. Vaishali S. Ingale">
@@ -25,60 +23,70 @@
 <meta name="twitter:description" content="Prof. Vaishali S. Ingale is an Assistant Professor in the Department of Information Technology at the Army Institute of Technology (AIT), Pune, where she has taught since 2005.">
 <meta name="twitter:image" content="https://anujkumarsharma1.github.io/prof-vaishali-ingale/assets/img/og-image.jpg">
 <meta name="twitter:image:alt" content="Prof. Vaishali S. Ingale, Information Technology, AIT Pune">
-<link rel="canonical" href="https://anujkumarsharma1.github.io/prof-vaishali-ingale/">
 <link rel="manifest" href="assets/img/site.webmanifest">
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<link rel="canonical" href="https://anujkumarsharma1.github.io/prof-vaishali-ingale/">
 <meta name="robots" content="noindex, nofollow">
-<link rel="preload" href="room/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="room/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<meta name="theme-color" content="#1b1a18">
+<link rel="icon" href="assets/img/favicon-32.png" sizes="32x32">
 <link rel="stylesheet" href="room/css/fonts.css">
-<link rel="stylesheet" href="room/css/room.css">
-<link rel="stylesheet" href="room/css/type-scale.css">
-<link rel="stylesheet" href="room/css/cards.css">
-<link rel="stylesheet" href="room/css/intro-game.css">
+<link rel="stylesheet" href="world/css/world.css">
+<script type="importmap">{ "imports": { "three": "room/vendor/three.module.min.js" } }</script>
 </head>
 <body class="is-loading">
-<nav aria-label="Skip"><a class="skip" id="skip" href="about/">Skip to pages <span aria-hidden="true">→</span></a></nav>
+<a class="skip" href="classic/">Skip to the classic site</a>
 
-<div class="loader" id="loader" role="status" aria-live="polite">
-  <p class="loader-name">Vaishali S. Ingale</p>
-  <div class="loader-line" aria-hidden="true"><span id="loader-bar"></span></div>
-  <p class="sr-only" id="loader-label">Loading</p>
+<div class="stage" id="stage"></div>
+<div class="frame" aria-hidden="true"></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="7"/><feDisplacementMap in="SourceGraphic" scale="14"/></filter></svg>
+
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gate-name">
+  <div class="gate-card glass">
+    <p class="gate-name" id="gate-name">Vaishali S. Ingale</p>
+    <p class="gate-sub">Information Technology · AIT Pune</p>
+    <div class="gate-ring" id="gate-ring" aria-hidden="true"></div>
+    <button class="btn solid start" id="start" type="button" disabled>START</button>
+    <button class="linkish" id="start-quiet" type="button">Enter without sound</button>
+    <div class="gate-help" id="gate-help">
+      <p data-k="pointer"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="5"/><path d="M12 7v3"/></svg><span>On laptop: scroll with your mouse wheel / trackpad to move.</span></p>
+      <p data-k="touch"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V5a1.5 1.5 0 0 1 3 0v5m0-1a1.5 1.5 0 0 1 3 0v2m0-1a1.5 1.5 0 0 1 3 0v4a6 6 0 0 1-6 6h-1a5 5 0 0 1-4-2l-3-4a1.5 1.5 0 0 1 2.3-2L9 15"/></svg><span>On phone: swipe or use the joystick.</span></p>
+    </div>
+  </div>
 </div>
 
-<div class="stage" id="stage" aria-hidden="true"></div>
-<div class="tip" id="tip" aria-hidden="true"></div>
-
-<div class="game-ui" id="game-ui"></div>
-<button class="pill skip-intro" id="skip-intro" type="button" hidden>Skip intro</button>
-<div class="veil" id="veil" aria-hidden="true"></div>
-
-<div class="room-ui" id="room-ui" role="region" aria-label="Office controls" hidden>
-  <p class="room-cap">Drag to look around. Click the laptop, the photo, the shelf or the chalkboard.</p>
-  <button class="pill pill-primary" id="sit" type="button">Click the laptop</button>
+<div id="chrome" hidden>
+  <header class="topbar">
+    <p class="brand">Vaishali S. Ingale<span>Information Technology · AIT Pune</span></p>
+    <button class="burger" id="menu-btn" type="button" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span><b class="sr-only">Menu</b></button>
+  </header>
+  <nav class="menu glass" id="menu" hidden aria-label="Places">
+    <ul id="menu-list"></ul>
+    <p class="menu-h">Classic pages</p>
+    <p class="menu-classic"><a class="menu-item small classic-link" href="classic/">Classic site <span aria-hidden="true">→</span></a></p>
+    <ul id="menu-pages"></ul>
+  </nav>
+  <div class="iconbar neu" role="toolbar" aria-label="Settings">
+    <button id="ico-sound" type="button" aria-pressed="false" title="Sound"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path class="w" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg><span class="sr-only">Sound</span></button>
+    <button id="ico-motion" type="button" aria-pressed="false" title="Reduce motion"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7"/><path class="w" d="M5 19L19 5"/></svg><span class="sr-only">Reduce motion</span></button>
+    <button id="ico-quality" type="button" title="Graphics quality"><span class="lbl">HD</span><span class="sr-only"> graphics quality</span></button>
+    <a href="classic/" title="Classic site"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5z"/><path class="w" d="M8 8h8M8 12h8M8 16h5"/></svg><span class="sr-only">Classic site</span></a>
+  </div>
 </div>
 
-<div class="os" id="os" hidden></div>
+<main id="panels" class="panels"></main>
+<p id="static-note" class="static-note" hidden></p>
+<p class="sr-only" id="live" aria-live="polite"></p>
 
 <noscript>
-  <div class="noscript">
-    <p class="loader-name">Vaishali S. Ingale</p>
+  <div class="noscript glass">
+    <p class="gate-name">Vaishali S. Ingale</p>
     <p>Assistant Professor, Department of Information Technology, Army Institute of Technology, Pune.</p>
-    <ul>
-      <li><a href="about/">About</a></li>
-      <li><a href="publications/">Publications</a></li>
-      <li><a href="leadership/">Leadership &amp; Service</a></li>
-      <li><a href="awards/">Awards &amp; Books</a></li>
-      <li><a href="cv/">CV</a></li>
-      <li><a href="mailto:vingale@aitpune.edu.in">vingale@aitpune.edu.in</a></li>
-    </ul>
+    <p><a href="classic/">Classic site</a> · <a href="about/">About</a> · <a href="publications/">Publications</a> · <a href="cv/">CV</a> · <a href="mailto:vingale@aitpune.edu.in">vingale@aitpune.edu.in</a></p>
   </div>
-  <style>.loader{display:none}</style>
+  <style>.gate{display:none}</style>
 </noscript>
 
-<script src="room/vendor/gsap.min.js" defer></script>
-<script src="room/js/content.js" defer></script>
-<script src="room/js/desktop.js" defer></script>
-<script src="room/js/main.js" defer></script>
+<script src="room/js/content.js"></script>
+<script type="module" src="world/js/app.js"></script>
 </body>
 </html>

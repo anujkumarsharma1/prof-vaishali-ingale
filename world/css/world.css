@@ -273,3 +273,6 @@ a{color:var(--plum)}
   .scroll-hint{bottom:auto;top:var(--hint-top,40%)}
 }
 .static .panel{transform:none!important}
+/* "Classic site" link in the menu (the old office homepage, now at /classic/) */
+.menu-classic{margin:0}
+.menu-item.classic-link{font-weight:600;text-decoration:underline;text-underline-offset:3px}

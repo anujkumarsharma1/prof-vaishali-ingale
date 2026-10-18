@@ -43,7 +43,7 @@ export class Panels {
         ${(() => { const ce = F.awards.sections.find((x) => /certif/i.test(x.h)); return ce ? `<h2 class="h2">${esc(ce.h)}</h2><ul class="plain">${ce.items.map((i) => `<li><b>${esc(i.b)}</b>: ${esc(i.t)}</li>`).join('')}</ul>` : ''; })()}
         <p class="row"><a class="btn solid" href="${site}leadership/">Leadership page</a><a class="btn ghost" href="${site}awards/">Awards &amp; books</a></p>`,
       about: `<p class="eyebrow">About</p>
-        <div class="about-head"><img class="portrait photo-frame" src="../room/assets/portrait.webp" alt="Portrait of ${esc(content.name)}" width="88" height="88" loading="lazy">
+        <div class="about-head"><img class="portrait photo-frame" src="${site}room/assets/portrait.webp" alt="Portrait of ${esc(content.name)}" width="88" height="88" loading="lazy">
         <p class="lede">I'm ${esc(content.name.replace(/^Prof\.\s*/, ''))}. ${esc(a.lead.replace(/^Assistant Professor/, 'I am an Assistant Professor'))}</p></div>
         <ul class="stats">${a.stats.map((s) => `<li class="neu-in"><b>${esc(s.n)}</b><span>${esc(s.l)}</span></li>`).join('')}</ul>
         ${a.facts.map((f) => `<p class="fact"><b>${esc(f.b)}:</b> ${esc(f.t)}</p>`).join('')}
