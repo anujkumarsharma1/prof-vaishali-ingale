@@ -9,12 +9,14 @@ export class Quality {
   detect() {
     const q = new URLSearchParams(location.search);
     if (q.has('static')) return this._set(0, 'forced by ?static');
+    if (q.has('lite')) return this._set(1, 'Lite (forced by ?lite)');
     let gl = null;
     try { const c = document.createElement('canvas'); gl = c.getContext('webgl2') || c.getContext('webgl'); } catch (e) { gl = null; }
     if (!gl) return this._set(0, 'no WebGL');
     const ext = gl.getExtension('WEBGL_debug_renderer_info');
     this.renderer = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : '';
     const lose = gl.getExtension('WEBGL_lose_context'); if (lose) lose.loseContext();
+    if (q.has('hd')) return this._set(2, 'forced by ?hd');
     if (/swiftshader|llvmpipe|software|basic render/i.test(this.renderer)) return this._set(1, 'software renderer');
     const mem = navigator.deviceMemory || 8, cores = navigator.hardwareConcurrency || 8;
     const saveData = navigator.connection && navigator.connection.saveData;
@@ -25,7 +27,7 @@ export class Quality {
   _set(t, why) { this.tier = t; this.reason = why; return t; }
   /* Feed frame deltas for the first ~4 s; if the median is under ~42 fps, drop to tier 1. */
   sample(dt) {
-    if (!this._probing || this.tier < 2) return;
+    if (!this._probing || this.tier < 2 || /[?&]hd\b/.test(location.search)) return;
     this._samples.push(dt);
     if (this._samples.length >= 180) {
       const s = this._samples.slice(30).sort((a, b) => a - b), med = s[s.length >> 1];

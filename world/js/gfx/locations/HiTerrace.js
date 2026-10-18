@@ -2,7 +2,8 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from '../geo.js';
 import { Location } from '../Location.js';
-import { mat, PALETTE as P } from '../materials.js';
+import { surf, paint } from '../materials.js';
+import { Flora } from '../Flora.js';
 
 const GLYPHS = {
   H: ['10001', '10001', '10001', '11111', '10001', '10001', '10001'],
@@ -15,20 +16,23 @@ export class HiTerrace extends Location {
   constructor() { super('about', 'About', { charPos: [X, Y, Z + 6], camPos: [X - 1.5, Y + 2.6, Z + 14], look: [X, Y + 3.2, Z - 4] }); }
   build() {
     // building under the terrace
-    this.add(new THREE.Mesh(new RoundedBoxGeometry(14, Y, 14, 4, 0.3), mat(P.cream)), X, Y / 2 - 0.05, Z + 2);
+    this.add(new THREE.Mesh(new THREE.BoxGeometry(14, Y, 14), surf('concrete', { color: '#bdb5aa' })), X, Y / 2 - 0.05, Z + 2);
     // terrace floor and parapet
-    this.add(new THREE.Mesh(new RoundedBoxGeometry(14.4, 0.5, 14.4, 3, 0.2), mat(P.sand)), X, Y - 0.25, Z + 2);
+    this.add(new THREE.Mesh(new RoundedBoxGeometry(14.4, 0.5, 14.4, 2, 0.02), surf('paving', { color: '#d2c8bb', scale: 1.4 })), X, Y - 0.25, Z + 2);
     [[0, 9.1, 14, 0.6], [0, -5.1, 14, 0.6], [-7.1, 2, 0.6, 14], [7.1, 2, 0.6, 14]].forEach(([dx, dz, w, d]) =>
-      this.add(new THREE.Mesh(new RoundedBoxGeometry(w, 0.9, d, 3, 0.25), mat(P.pink)), X + dx, Y + 0.45, Z + dz));
+      this.add(new THREE.Mesh(new RoundedBoxGeometry(w, 1.05, d, 2, 0.02), paint('#d9c9b5')), X + dx, Y + 0.52, Z + dz));
     // potted plants
+    const fl = new Flora();
     [[-5.5, 7.5], [5.5, 7.5], [-5.5, -3.5]].forEach(([dx, dz]) => {
-      this.add(new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.35, 0.7, 16), mat(P.coral)), X + dx, Y + 0.35, Z + dz);
-      this.add(new THREE.Mesh(new THREE.IcosahedronGeometry(0.7, 1), mat(P.leaf, { flatShading: true })), X + dx, Y + 1.2, Z + dz);
+      this.add(new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.38, 0.7, 20), paint('#8e4a33')), X + dx, Y + 0.35, Z + dz);
+      fl.bush(X + dx, Y + 0.6, Z + dz, 1.5);
     });
+    fl.flush(this.group);
     // voxel HI!
     this.voxels = [];
-    const s = 0.62, geo = new RoundedBoxGeometry(s * 0.92, s * 0.92, s * 0.92, 2, 0.1);
-    const mats = [mat(P.coral), mat(P.pink), mat(P.peach)];
+    // a weathering-steel (corten) sculpture: solid letters from sharp blocks
+    const s = 0.62, geo = new THREE.BoxGeometry(s, s, s * 1.2);
+    const cor = surf('metal', { color: '#9a5634', metalness: 0.55, roughness: 0.9, scale: 1.2 }), mats = [cor, cor, cor];
     let ox = -((5 + 1.6 + 1 + 1.6 + 1) * s) / 2, gi = 0;
     for (const ch of ['H', 'I', '!']) {
       const rows = GLYPHS[ch];

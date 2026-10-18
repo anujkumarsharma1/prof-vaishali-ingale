@@ -1,6 +1,6 @@
 /* World: lights, the island, clouds, stepping stones between places; owns locations and picking. */
 import * as THREE from 'three';
-import { mat, PALETTE as P } from './materials.js';
+import { surf } from './materials.js';
 
 export class World {
   constructor(bus, stage, quality) {
@@ -11,39 +11,28 @@ export class World {
   }
   lights() {
     const s = this.stage.scene;
-    s.add((this.hemi = new THREE.HemisphereLight('#fff1f3', '#c9a3b4', 1.5)));
-    const sun = (this.sun = new THREE.DirectionalLight('#ffe2cc', 2.3));
-    sun.position.set(14, 26, -70);   // low sunset sun behind the main building: backlit glow sun.castShadow = this.quality.tier >= 2;
+    s.add((this.hemi = new THREE.HemisphereLight('#c9d4e6', '#6b5a48', 0.35)));
+    // low warm sun behind the main building (matches the HDRI sun direction); the shadow frustum is tight
+    // and follows the character, so nearby contact shadows stay crisp and soft-edged
+    const sun = (this.sun = new THREE.DirectionalLight('#ffc89a', 2.6));
+    this.sunDir = new THREE.Vector3(0.2, 0.34, -0.92).normalize();
+    sun.position.copy(this.sunDir).multiplyScalar(60); sun.castShadow = this.quality.tier >= 2;
     sun.shadow.mapSize.set(2048, 2048);
-    Object.assign(sun.shadow.camera, { left: -45, right: 45, top: 45, bottom: -45, near: 1, far: 140 });
-    sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.04;
-    s.add(sun); s.add(sun.target); sun.target.position.set(0, 0, -20);
-    const fill = new THREE.DirectionalLight('#ffd9e0', 0.9); fill.position.set(-10, 15, 30); s.add(fill);
-    // soft sun disc + halo behind the dome (additive sprites, no textures to load)
-    const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'), gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
-    gr.addColorStop(0, 'rgba(255,248,225,1)'); gr.addColorStop(0.18, 'rgba(255,226,170,.9)'); gr.addColorStop(0.5, 'rgba(255,190,150,.25)'); gr.addColorStop(1, 'rgba(255,180,150,0)');
-    g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
-    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
-    const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, transparent: true }));
-    glow.position.set(3, 13, -95); glow.scale.set(46, 46, 1); s.add(glow);
+    Object.assign(sun.shadow.camera, { left: -22, right: 22, top: 22, bottom: -22, near: 1, far: 140 });
+    sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.03; sun.shadow.radius = 4;
+    s.add(sun); s.add(sun.target);
+  }
+  /* keep the tight shadow box centred a little ahead of the character */
+  followSun(target) {
+    if (!this.sun || !target) return;
+    const t = this.sun.target.position; t.copy(target); this.sun.position.copy(t).addScaledVector(this.sunDir, 60);
+    this.sun.target.updateMatrixWorld();
   }
   addLocation(loc) { loc.group.userData.isLocation = true; if (!loc.lazy) this._build(loc); this.root.add(loc.group); this.locations.push(loc); return loc; }
   scenery(path) {
-    // soft sea of clouds far below
-    const cloudMat = mat('#fff4f2', { roughness: 1 });
-    this.clouds = [];
-    const geo = new THREE.IcosahedronGeometry(1, 2);
-    for (let i = 0; i < 22; i++) {
-      const c = new THREE.Group();
-      for (let j = 0; j < 4; j++) { const b = new THREE.Mesh(geo, cloudMat); b.position.set(j * 1.4 - 2, Math.sin(j) * 0.4, (j % 2) * 0.6); b.scale.setScalar(1.2 + (j % 3) * 0.5); c.add(b); }
-      const a = (i / 22) * Math.PI * 2, r = 30 + (i % 5) * 9;
-      c.position.set(10 + Math.cos(a) * r, -6 + (i % 4) * 5, -30 + Math.sin(a) * r);
-      c.scale.setScalar(1.4 + (i % 3) * 0.6); c.userData.s = 0.2 + (i % 4) * 0.1;
-      if (this.locations.some((l) => l.camPos.distanceTo(c.position) < 30 || l.charPos.distanceTo(c.position) < 22)) continue;   // keep views clear
-      this.root.add(c); this.clouds.push(c);
-    }
+    this.clouds = [];   // the HDRI sky carries real clouds now
     // ground under everything, so every path is on terrain and the camera is always above the road
-    const ground = new THREE.Mesh(new THREE.CircleGeometry(420, 64), mat('#b6d3a8')); ground.rotation.x = -Math.PI / 2; ground.position.set(40, -0.03, -110); ground.receiveShadow = true; ground.userData.noOcclude = true; this.root.add(ground);
+    const ground = new THREE.Mesh(new THREE.CircleGeometry(420, 64), surf('grass', { scale: 3.2 })); ground.rotation.x = -Math.PI / 2; ground.position.set(40, -0.03, -110); ground.receiveShadow = true; ground.userData.noOcclude = true; this.root.add(ground);
     // a road the scooter rides along between places (ribbon + kerbs along the avatar spline)
     const N = 900, half = 1.1, pos = [], kerbL = [], kerbR = [], up = new THREE.Vector3(0, 1, 0);
     const tStart = path.secT(1);   // gate -> main building is the walkway; the road starts at the drive
@@ -55,8 +44,8 @@ export class World {
     }
     const idx = []; for (let i = 0; i < N; i++) { const a = i * 2; idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); }   // upward-facing
     const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
-    const road = new THREE.Mesh(g, mat(P.sand)); road.receiveShadow = true; road.userData.noOcclude = true; this.root.add(road);
-    [kerbL, kerbR].forEach((pts) => { const k = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), N, 0.09, 6), mat(P.peach)); k.castShadow = this.quality.tier >= 2; k.userData.noOcclude = true; this.root.add(k); });
+    const road = new THREE.Mesh(g, surf('asphalt')); road.receiveShadow = true; road.userData.noOcclude = true; this.root.add(road);
+    [kerbL, kerbR].forEach((pts) => { const k = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), N, 0.11, 4), surf('concrete', { color: '#cfc9bf' })); k.castShadow = this.quality.tier >= 2; k.userData.noOcclude = true; this.root.add(k); });
   }
   /* Occlusion: rays from the camera to the avatar's head and waist; any scenery that blocks them
      fades to low opacity (its materials are cloned on first fade), then fades back when clear. */
@@ -123,7 +112,7 @@ export class World {
   }
   setReduced(v) { this.reduced = v; this.locations.forEach((l) => (l.reduced = v)); }
   update(ctx) {
-    if (!this.reduced && this.clouds) this.clouds.forEach((c, i) => { c.position.x += Math.sin(ctx.t * 0.05 + i) * c.userData.s * ctx.dt; });
+    if (this.char) this.followSun(this.char.group.position);
     this.locations.forEach((l) => l.built && l.update(ctx, this.stage.camera));
   }
   /* pointer picking for clickable 3D objects (contact glyphs) */
