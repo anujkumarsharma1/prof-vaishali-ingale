@@ -27,7 +27,7 @@ export class World {
     const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, transparent: true }));
     glow.position.set(3, 13, -95); glow.scale.set(46, 46, 1); s.add(glow);
   }
-  addLocation(loc) { loc.build(); this.root.add(loc.group); this.locations.push(loc); return loc; }
+  addLocation(loc) { loc.group.userData.isLocation = true; loc.build(); this.root.add(loc.group); this.locations.push(loc); return loc; }
   scenery(path) {
     // soft sea of clouds far below
     const cloudMat = clay('#fff4f2', { roughness: 1 });
@@ -43,7 +43,7 @@ export class World {
       this.root.add(c); this.clouds.push(c);
     }
     // ground under everything, so every path is on terrain and the camera is always above the road
-    const ground = new THREE.Mesh(new THREE.CircleGeometry(160, 64), clay('#b6d3a8')); ground.rotation.x = -Math.PI / 2; ground.position.y = -0.03; ground.receiveShadow = true; this.root.add(ground);
+    const ground = new THREE.Mesh(new THREE.CircleGeometry(160, 64), clay('#b6d3a8')); ground.rotation.x = -Math.PI / 2; ground.position.y = -0.03; ground.receiveShadow = true; ground.userData.noOcclude = true; this.root.add(ground);
     // a soft clay road the scooter rides along between places (ribbon + kerbs along the avatar spline)
     const N = 220, half = 1.1, pos = [], kerbL = [], kerbR = [], up = new THREE.Vector3(0, 1, 0);
     const tStart = path.secT(1);   // gate -> main building is the walkway; the road starts at the drive
@@ -55,9 +55,48 @@ export class World {
     }
     const idx = []; for (let i = 0; i < N; i++) { const a = i * 2; idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); }   // upward-facing
     const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
-    const road = new THREE.Mesh(g, clay(P.sand)); road.receiveShadow = true; this.root.add(road);
-    [kerbL, kerbR].forEach((pts) => { const k = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), N, 0.09, 6), clay(P.peach)); k.castShadow = this.quality.tier >= 2; this.root.add(k); });
+    const road = new THREE.Mesh(g, clay(P.sand)); road.receiveShadow = true; road.userData.noOcclude = true; this.root.add(road);
+    [kerbL, kerbR].forEach((pts) => { const k = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), N, 0.09, 6), clay(P.peach)); k.castShadow = this.quality.tier >= 2; k.userData.noOcclude = true; this.root.add(k); });
   }
+  /* Occlusion: rays from the camera to the avatar's head and waist; any scenery that blocks them
+     fades to low opacity (its materials are cloned on first fade), then fades back when clear. */
+  initOcclusion(character) {
+    this.char = character; this.fading = new Map(); this._occRay = new THREE.Raycaster();
+    this._occList = []; this.root.traverse((o) => { if (o.isMesh && !o.userData.noOcclude) this._occList.push(o); });
+    this._a = new THREE.Vector3(); this._b = new THREE.Vector3();
+  }
+  _unit(o) { while (o.parent && o.parent !== this.root && !o.parent.userData.isLocation) o = o.parent; return o; }
+  blockers() {
+    const cam = this.stage.camera, out = new Set();
+    for (const h of [1.95, 1.2]) {
+      this._b.copy(this.char.group.position); this._b.y += h;
+      const dir = this._a.copy(this._b).sub(cam.position), d = dir.length() - 0.4; dir.normalize();
+      this._occRay.set(cam.position, dir); this._occRay.far = Math.max(0.1, d);
+      for (const hit of this._occRay.intersectObjects(this._occList, false)) out.add(this._unit(hit.object));
+    }
+    return out;
+  }
+  updateOcclusion(dt) {
+    if (!this.char) return;
+    const now = this.blockers();
+    now.forEach((u) => { if (!this.fading.has(u)) this.fading.set(u, { a: 1, mats: this._cloneMats(u) }); });
+    for (const [u, f] of this.fading) {
+      const want = now.has(u) ? 0.18 : 1;
+      f.a += (want - f.a) * (1 - Math.exp(-dt * 10));
+      f.mats.forEach((m) => { m.opacity = f.a; m.transparent = f.a < 0.99; m.depthWrite = f.a > 0.6; });
+      if (want === 1 && f.a > 0.995) { this._restore(u); this.fading.delete(u); }
+    }
+  }
+  _cloneMats(u) {
+    const mats = [];
+    u.traverse((o) => { if (!o.isMesh) return; o.userData.origMat = o.material;
+      o.material = Array.isArray(o.material) ? o.material.map((m) => m.clone()) : o.material.clone();
+      (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => mats.push(m)); });
+    return mats;
+  }
+  _restore(u) { u.traverse((o) => { if (o.isMesh && o.userData.origMat) { (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => m.dispose()); o.material = o.userData.origMat; delete o.userData.origMat; } }); }
+  /* for tests: how many blockers are still opaque right now */
+  opaqueBlockers() { let n = 0; this.blockers().forEach((u) => { const f = this.fading.get(u); if (!f || f.a > 0.5) n++; }); return n; }
   setReduced(v) { this.reduced = v; this.locations.forEach((l) => (l.reduced = v)); }
   update(ctx) {
     if (!this.reduced && this.clouds) this.clouds.forEach((c, i) => { c.position.x += Math.sin(ctx.t * 0.05 + i) * c.userData.s * ctx.dt; });

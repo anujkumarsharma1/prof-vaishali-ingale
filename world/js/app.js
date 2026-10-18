@@ -52,6 +52,7 @@ export class App {
     this.path = new CameraPath(bus, store, locs);
     this.world.scenery(this.path);
     this.character = new Character(); this.stage.scene.add(this.character.group);
+    this.world.initOcclusion(this.character);
     this.character.group.traverse((o) => { if (o.isMesh) o.castShadow = this.quality.tier >= 2; });
     this.world.setReduced(store.get('reducedMotion')); this.character.reduced = store.get('reducedMotion');
     this.path.apply(this.stage.camera, this.character);
@@ -64,7 +65,7 @@ export class App {
       if (this.started) this.path.update(ctx.dt);
       this.path.apply(this.stage.camera, this.character);
       this._establish(ctx.dt);
-      this.character.update(ctx); this.world.update(ctx);
+      this.character.update(ctx); this.world.update(ctx); this.world.updateOcclusion(ctx.dt);
     });
     bus.on('quality:change', (t) => { this.stage.renderer.shadowMap.enabled = t >= 2; this.world.sun.castShadow = t >= 2; this.stage.scene.traverse((o) => { if (o.material) o.material.needsUpdate = true; }); });
     bus.on('section:enter', ({ index, prev }) => {
