@@ -104,6 +104,15 @@ export class World {
   }
   /* lazy build: places come into being when the camera is within 150 m (fog hides them until ~120 m) */
   stream(camera) { for (const l of this.locations) if (!l.built && camera.position.distanceTo(l.camPos) < 150) this._build(l); }
+  /* preload: in idle time, build (and compile shaders for) places up to two stops ahead/behind, one per call,
+     so the first visit doesn't hitch when the lazy build would otherwise happen mid-ride */
+  preload(section, renderer, camera) {
+    const order = this.locations.map((l, i) => [Math.abs(i - section), l]).filter(([d, l]) => !l.built && d <= 2).sort((x, y) => x[0] - y[0]);
+    if (!order.length) return false;
+    const l = order[0][1]; this._build(l);
+    try { renderer.compile(l.group, camera, this.stage.scene); } catch (e) { /* compile is an optimisation only */ }
+    return true;
+  }
   /* mood: blend fog, sky light and sun toward the place nearest the camera */
   mood(camera, dt) {
     if (!this._fogC) { this._fogC = new THREE.Color(); this._tmp = new THREE.Color(); }

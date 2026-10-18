@@ -9,6 +9,8 @@ export class Panels {
     const href = (u) => (/^(https?:|mailto:)/.test(u) ? u : site + u);
     const ext = (u) => (/^https?:/.test(u) ? ' target="_blank" rel="noopener"' : '');
     const a = F.about, c = F.contact;
+    const stats = (st) => (st && st.length ? `<ul class="stats">${st.map((x) => `<li class="neu-in"><b>${esc(x.n)}</b><span>${esc(x.l)}</span></li>`).join('')}</ul>` : '');
+    const years = (pubs) => { const m = new Map(); for (const p of pubs) { const y = p.year || 'Other'; if (!m.has(y)) m.set(y, []); m.get(y).push(p); } return [...m.entries()].sort((x, y) => (+y[0] || 0) - (+x[0] || 0)); };
     const tpl = {
       home: `<p class="eyebrow">Hello, welcome</p>
         <h1 class="title">${esc(content.name)}</h1>
@@ -18,20 +20,28 @@ export class Panels {
       campus: `<p class="eyebrow">Army Institute of Technology · Dighi Hills, Pune</p>
         <p class="lede">${esc((F.research && F.research.lead) || content.tagline)}</p>
         <p class="row"><a class="btn solid" href="${site}publications/">Publications</a><a class="btn ghost" href="${site}leadership/">Leadership</a></p>`,
-      research: `<p class="eyebrow">Research · ${esc(F.publications.lead)}</p>
+      research: `<p class="eyebrow">Research &amp; publications</p>
         <p class="lede">${esc(F.research.lead)}</p>
-        <ul class="plain">${F.research.sections[0].items.map((i) => `<li><b>${esc(i.b)}</b> · ${esc(i.t)}</li>`).join('')}</ul>
-        <p class="row"><a class="btn solid" href="${site}publications/">All publications</a></p>`,
+        <ul class="tags">${F.research.sections[0].items.map((i) => `<li title="${esc(i.t)}"><b>${esc(i.b)}</b></li>`).join('')}</ul>
+        <h2 class="h2">All publications <span class="count">${F.publications.pubs.length}</span></h2>
+        ${years(F.publications.pubs).map(([y, list]) => `<h3 class="yr">${esc(y)}</h3><ol class="pubs">${list.map((p) => `<li>${p.href ? `<a href="${esc(p.href)}"${ext(p.href)}>${esc(p.title)}</a>` : esc(p.title)}<span>${esc(p.meta)}</span></li>`).join('')}</ol>`).join('')}
+        <p class="row"><a class="btn solid" href="${site}publications/">Publications page</a></p>`,
       teaching: `<p class="eyebrow">Teaching</p>
         <p class="lede">${esc(F.teaching.lead)}</p>
-        <ul class="plain">${F.teaching.sections[0].items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>`,
-      projects: `<p class="eyebrow">Projects & research areas</p>
-        <p class="lede">Student and lab projects are coming soon. Meanwhile, her research areas:</p>
-        <ul class="plain">${F.research.sections[0].items.map((i) => `<li><b>${esc(i.b)}</b>: ${esc(i.t)}</li>`).join('')}</ul>`,
-      leadership: `<p class="eyebrow">Leadership & awards</p>
+        <ul class="plain">${F.teaching.sections[0].items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>
+        ${(() => { const tb = F.awards.sections.find((x) => /textbook/i.test(x.h)); return tb ? `<h2 class="h2">${esc(tb.h)}</h2>${stats(tb.stats)}<ul class="plain">${tb.items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>` : ''; })()}
+        <p class="row"><a class="btn ghost" href="${href(F.teaching.url || 'about/#teaching')}">More on teaching</a></p>`,
+      projects: `<p class="eyebrow">Projects &amp; research areas</p>
+        <p class="lede">A page of student and lab projects is coming soon. Until then, these are the areas her group works in.</p>
+        <ul class="plain">${F.research.sections[0].items.map((i) => `<li><b>${esc(i.b)}</b>: ${esc(i.t)}</li>`).join('')}</ul>
+        ${(() => { const pt = F.awards.sections.find((x) => /patent/i.test(x.h)); return pt ? `<h2 class="h2">${esc(pt.h)}</h2><p class="fact"><b>${esc(pt.p)}</b></p><ul class="plain">${pt.items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>` : ''; })()}`,
+      leadership: `<p class="eyebrow">Leadership &amp; awards</p>
         <p class="lede">${esc(F.leadership.lead)}</p>
+        ${F.leadership.sections.map((x) => `<article class="lead-item"><h2 class="h2">${esc(x.h)}</h2>${x.kicker ? `<p class="kicker">${esc(x.kicker)}</p>` : ''}${x.p ? `<p>${esc(x.p)}</p>` : ''}${stats(x.stats)}${x.items && x.items.length ? `<ul class="plain">${x.items.map((i) => `<li>${esc(typeof i === 'string' ? i : (i.b ? i.b + ': ' : '') + (i.t || ''))}</li>`).join('')}</ul>` : ''}</article>`).join('')}
+        <h2 class="h2">Awards</h2>
         <ul class="plain">${F.awards.sections[0].timeline.map((i) => `<li><b>${esc(i.y)}</b> · ${esc(i.t)}</li>`).join('')}</ul>
-        <p class="row"><a class="btn solid" href="${site}leadership/">Leadership</a><a class="btn ghost" href="${site}awards/">Awards & books</a></p>`,
+        ${(() => { const ce = F.awards.sections.find((x) => /certif/i.test(x.h)); return ce ? `<h2 class="h2">${esc(ce.h)}</h2><ul class="plain">${ce.items.map((i) => `<li><b>${esc(i.b)}</b>: ${esc(i.t)}</li>`).join('')}</ul>` : ''; })()}
+        <p class="row"><a class="btn solid" href="${site}leadership/">Leadership page</a><a class="btn ghost" href="${site}awards/">Awards &amp; books</a></p>`,
       about: `<p class="eyebrow">About</p>
         <div class="about-head"><img class="portrait photo-frame" src="../room/assets/portrait.webp" alt="Portrait of ${esc(content.name)}" width="88" height="88" loading="lazy">
         <p class="lede">I'm ${esc(content.name.replace(/^Prof\.\s*/, ''))}. ${esc(a.lead.replace(/^Assistant Professor/, 'I am an Assistant Professor'))}</p></div>

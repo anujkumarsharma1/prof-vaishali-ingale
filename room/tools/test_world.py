@@ -2,15 +2,20 @@ import asyncio, sys
 from playwright.async_api import async_playwright
 OUT='/workspace/site_build/redesign_shots/'
 URL='http://localhost:8765/world/'
+async def _sz(r, acc):
+    try: acc[0] += len(await r.body())
+    except Exception: pass
 async def run(p, name, vp, mobile):
     b = await p.chromium.launch(executable_path='/usr/bin/google-chrome', headless=True, args=['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader'])
     ctx = await b.new_context(viewport=vp, device_scale_factor=2 if mobile else 1, is_mobile=mobile, has_touch=mobile)
-    pg = await ctx.new_page(); errs=[]
+    pg = await ctx.new_page(); errs=[]; bytes_in=[0]
+    pg.on('response', lambda r: asyncio.ensure_future(_sz(r, bytes_in)))
     pg.on('console', lambda m: errs.append(m.type+': '+m.text) if m.type in ('error','warning') else None)
     pg.on('pageerror', lambda e: errs.append('pageerror: '+str(e)))
     await pg.goto(URL); await pg.wait_for_selector('.gate.ready', timeout=60000)
     await pg.screenshot(path=OUT+f'{name}_0_gate.png')
-    print(name, await pg.evaluate('({mode:__world.mode,tier:__world.quality.tier,r:__world.quality.reason})'))
+    print(name, await pg.evaluate('({mode:__world.mode,tier:__world.quality.tier,r:__world.quality.reason, model:__world.modelLoaded})'))
+    print(name, 'transfer before start: %.2f MB' % (bytes_in[0] / 1e6))
     await pg.click('#start-quiet'); await pg.wait_for_timeout(1400)
     await pg.screenshot(path=OUT+f'{name}_1a_establishing.png')
     await pg.wait_for_timeout(3600)                       # establishing shot (3.2 s) has finished
@@ -52,6 +57,19 @@ async def run(p, name, vp, mobile):
         await pg.wait_for_timeout(1500)
         await pg.screenshot(path=OUT+f'{name}_place_{tag.split("_to_")[1]}.png')
         print(name, 'arrived', tag, await pg.evaluate('({speed:+__world.character.speed.toFixed(2), ride:+__world.character.ride.toFixed(2), t:+__world.path.t.toFixed(4), target:__world.path.target})'))
+    print(name, 'render info at contact', await pg.evaluate('({calls: __world.stage.renderer.info.render.calls, tris: __world.stage.renderer.info.render.triangles, geos: __world.stage.renderer.info.memory.geometries, tex: __world.stage.renderer.info.memory.textures})'))
+    print(name, 'transfer after full ride: %.2f MB' % (bytes_in[0] / 1e6))
+    print(name, 'a11y', await pg.evaluate('''(() => { const imgs=[...document.images].filter(i=>!i.alt).length; const btn=[...document.querySelectorAll('button')].filter(b=>!(b.innerText.trim()||b.getAttribute('aria-label')||b.querySelector('.sr-only'))).length; const links=[...document.querySelectorAll('a')].filter(a=>!(a.innerText.trim()||a.getAttribute('aria-label'))).length; const h=document.querySelectorAll('h1').length; return {imgsNoAlt:imgs, unnamedButtons:btn, unnamedLinks:links, h1:h, pubsListed: document.querySelectorAll('#panel-research .pubs li').length}; })()'''))
+    if mobile:
+        await pg.evaluate('__world.path.jump(2); __world.path.section = -1'); await pg.wait_for_timeout(1200)
+        box = await pg.locator('.joy').bounding_box()
+        if box:
+            t0 = await pg.evaluate('__world.path.target')
+            cx, cy = box['x'] + box['width'] / 2, box['y'] + box['height'] / 2
+            await pg.mouse.move(cx, cy); await pg.mouse.down(); await pg.mouse.move(cx, cy - 40, steps=4); await pg.wait_for_timeout(900)
+            await pg.screenshot(path=OUT+f'{name}_7_joystick.png'); await pg.mouse.up()
+            print(name, 'joystick moved target', round(t0, 4), '->', round(await pg.evaluate('__world.path.target'), 4))
+        else: print(name, 'joystick: not shown')
     await pg.evaluate('__world.path.jump(1); __world.path.section = -1'); await pg.wait_for_timeout(1500)
     await pg.click('#menu-btn'); await pg.wait_for_timeout(300)
     await pg.click('#menu-list li:nth-child(3) button'); await pg.wait_for_timeout(700)
@@ -68,6 +86,7 @@ async def run(p, name, vp, mobile):
     print(name, 'section', await pg.evaluate('__world.path.section'), 'hash', await pg.evaluate('location.hash'))
     await pg.goto(URL+'?static'); await pg.wait_for_selector('.gate.ready'); await pg.click('#start')
     await pg.wait_for_timeout(800); await pg.screenshot(path=OUT+f'{name}_6_static.png', full_page=True)
+    print(name, 'static panels visible', await pg.evaluate("[...document.querySelectorAll('.panel')].filter(p=>!p.hidden).length"), 'pubs', await pg.evaluate("document.querySelectorAll('#panel-research .pubs li').length"))
     print(name,'errors:', errs or 'none')
     await b.close()
 async def main():

@@ -75,6 +75,12 @@ export class App {
       this._establish(ctx.dt);
       if (this.portraitCam) this._portrait();
       this.character.update(ctx); this.world.update(ctx); this.world.updateOcclusion(ctx.dt);
+      if (this.started) {
+        this._preT = (this._preT || 0) + ctx.dt;
+        if (this._preT > 0.6) { this._preT = 0; const sec = Math.max(0, this.path.section); const idle = window.requestIdleCallback || ((f) => setTimeout(f, 1));
+          if (!this._preBusy) { this._preBusy = true; idle(() => { this.world.preload(sec, this.stage.renderer, this.stage.camera); this._preBusy = false; }); } }
+        if (this.joy && this.joy.v) this.path.nudge(-this.joy.v * ctx.dt * 0.09);
+      }
     });
     bus.on('quality:change', (t) => { this.stage.renderer.shadowMap.enabled = t >= 2; this.world.sun.castShadow = t >= 2; this.stage.scene.traverse((o) => { if (o.material) o.material.needsUpdate = true; }); });
     bus.on('section:enter', ({ index, prev }) => {
@@ -106,6 +112,20 @@ export class App {
     const T = this._T, g = this.character.group, cam = this.stage.camera;
     const off = new T.Vector3(0.75, 1.62, 1.35).applyAxisAngle(new T.Vector3(0, 1, 0), g.rotation.y);
     cam.position.copy(g.position).add(off); cam.lookAt(g.position.x, g.position.y + 1.45, g.position.z);
+  }
+  /* mobile joystick: drag up to walk/ride forward, down to go back (swipe and the menu still work) */
+  _joystick() {
+    if (!matchMedia('(pointer: coarse)').matches) return;
+    const pad = document.createElement('div'); pad.className = 'joy'; pad.setAttribute('aria-hidden', 'true');
+    pad.innerHTML = '<span class="joy-knob"></span><i class="joy-up"></i><i class="joy-dn"></i>';
+    document.getElementById('chrome').appendChild(pad);
+    const knob = pad.firstChild; this.joy = { v: 0 }; let id = null, y0 = 0;
+    const set = (dy) => { const c = Math.max(-34, Math.min(34, dy)); knob.style.transform = `translateY(${c}px)`; this.joy.v = Math.abs(c) < 6 ? 0 : c / 34; };
+    pad.addEventListener('pointerdown', (e) => { id = e.pointerId; y0 = e.clientY; pad.setPointerCapture(id); pad.classList.add('on'); e.stopPropagation(); });
+    pad.addEventListener('pointermove', (e) => { if (e.pointerId === id) set(e.clientY - y0); });
+    const end = (e) => { if (e.pointerId !== id) return; id = null; set(0); pad.classList.remove('on'); };
+    pad.addEventListener('pointerup', end); pad.addEventListener('pointercancel', end);
+    ['touchstart', 'touchmove'].forEach((t) => pad.addEventListener(t, (e) => e.stopPropagation(), { passive: true }));
   }
   async _prewarm(locs) {
     const r = this.stage.renderer, cam = this.stage.camera, sc = this.stage.scene;
@@ -143,7 +163,7 @@ export class App {
     const gate = this.$('gate'), btn = this.$('start');
     gate.classList.add('ready'); btn.disabled = false; btn.focus({ preventScroll: true });
     const go = (withSound) => {
-      if (this.started) return; this.started = true;
+      if (this.started) return; this.started = true; this._joystick();
       if (withSound) this.store.set('sound', true);
       document.body.classList.remove('is-loading');
       const done = () => { gate.remove(); this.$('chrome').hidden = false; };
