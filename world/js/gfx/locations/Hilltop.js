@@ -4,7 +4,7 @@ import { RoundedBoxGeometry } from '../../../../room/vendor/RoundedBoxGeometry.j
 import { Location } from '../Location.js';
 import { clay, textTexture, PALETTE as P } from '../materials.js';
 
-const X = -34, Y = 12, Z = -62;
+const X = 40, Y = 0, Z = -70;   // ground-level lookout toward the Dighi hills
 const GLYPH = { Email: '@', 'Google Scholar': 'Sc', ORCID: 'iD', LinkedIn: 'in' };
 const TINT = [P.coral, P.pink, P.peach, P.mauve];
 
@@ -14,9 +14,7 @@ export class Hilltop extends Location {
     this.links = links;
   }
   build() {
-    const hill = this.add(new THREE.Mesh(new THREE.ConeGeometry(13, Y + 4, 9, 1), clay(P.leafDark, { flatShading: true })), X, (Y - 4) / 2 - 2.2, Z + 2);
-    hill.scale.y = 1; hill.castShadow = false;
-    this.add(new THREE.Mesh(new THREE.CylinderGeometry(7, 8, 1, 32), clay(P.leaf)), X, Y - 0.5, Z + 2);
+    this.add(new THREE.Mesh(new THREE.CylinderGeometry(7, 8, 1, 32), clay(P.leaf)), X, Y - 0.48, Z + 2);
     // little fort wall hint (Pune hill-fort mood)
     for (let i = -3; i <= 3; i++) this.add(new THREE.Mesh(new RoundedBoxGeometry(1.2, 1 + (i % 2 ? 0.4 : 0), 0.8, 2, 0.15), clay(P.stone)), X + i * 1.5, Y + 0.5, Z - 4.4);
     this.tiles = [];

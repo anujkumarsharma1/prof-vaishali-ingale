@@ -9,17 +9,13 @@ const GLYPHS = {
   I: ['1', '1', '1', '1', '1', '1', '1'],
   '!': ['1', '1', '1', '1', '1', '0', '1']
 };
-const X = 30, Y = 6, Z = -16;
+const X = 30, Y = 1.2, Z = -16;   // a raised terrace on the ground (the road can reach it)
 
 export class HiTerrace extends Location {
   constructor() { super('about', 'About', { charPos: [X, Y, Z + 6], camPos: [X - 1.5, Y + 2.6, Z + 14], look: [X, Y + 3.2, Z - 4] }); }
   build() {
     // building under the terrace
-    this.add(new THREE.Mesh(new RoundedBoxGeometry(14, Y, 14, 4, 0.5), clay(P.cream)), X, Y / 2 - 0.3, Z + 2);
-    for (let r = 0; r < 3; r++) for (let c = -2; c <= 2; c++) {
-      const w = new THREE.Mesh(new RoundedBoxGeometry(1.6, 1.1, 0.12, 2, 0.06), clay(P.mauve));
-      this.add(w, X + c * 2.5, 1.4 + r * 1.6, Z + 9.03);
-    }
+    this.add(new THREE.Mesh(new RoundedBoxGeometry(14, Y, 14, 4, 0.3), clay(P.cream)), X, Y / 2 - 0.05, Z + 2);
     // terrace floor and puffy parapet
     this.add(new THREE.Mesh(new RoundedBoxGeometry(14.4, 0.5, 14.4, 3, 0.2), clay(P.sand)), X, Y - 0.25, Z + 2);
     [[0, 9.1, 14, 0.6], [0, -5.1, 14, 0.6], [-7.1, 2, 0.6, 14], [7.1, 2, 0.6, 14]].forEach(([dx, dz, w, d]) =>

@@ -42,11 +42,14 @@ export class World {
       if (this.locations.some((l) => l.camPos.distanceTo(c.position) < 30 || l.charPos.distanceTo(c.position) < 22)) continue;   // keep views clear
       this.root.add(c); this.clouds.push(c);
     }
+    // ground under everything, so every path is on terrain and the camera is always above the road
+    const ground = new THREE.Mesh(new THREE.CircleGeometry(160, 64), clay('#b6d3a8')); ground.rotation.x = -Math.PI / 2; ground.position.y = -0.03; ground.receiveShadow = true; this.root.add(ground);
     // a soft clay road the scooter rides along between places (ribbon + kerbs along the avatar spline)
     const N = 220, half = 1.1, pos = [], kerbL = [], kerbR = [], up = new THREE.Vector3(0, 1, 0);
+    const tStart = path.secT(1);   // gate -> main building is the walkway; the road starts at the drive
     for (let i = 0; i <= N; i++) {
-      const t = i / N, p = path.char.getPoint(t), tan = path.char.getTangent(t), side = new THREE.Vector3().crossVectors(tan, up).normalize();
-      const y = p.y - 0.04;
+      const t = tStart + (1 - tStart) * (i / N), p = path.char.getPoint(t), tan = path.char.getTangent(t), side = new THREE.Vector3().crossVectors(tan, up).normalize();
+      const y = Math.max(0, p.y - 0.06) + 0.02;   // on the ground, slightly below the avatar's feet
       pos.push(p.x + side.x * half, y, p.z + side.z * half, p.x - side.x * half, y, p.z - side.z * half);
       kerbL.push(new THREE.Vector3(p.x + side.x * half, y + 0.06, p.z + side.z * half)); kerbR.push(new THREE.Vector3(p.x - side.x * half, y + 0.06, p.z - side.z * half));
     }
