@@ -303,3 +303,20 @@ a:hover, a:focus-visible { text-decoration: underline; text-underline-offset: 0.
   .w-kit-btn { justify-content: center; }
   .w-kit-qr { display: none; }   /* a QR code to the page you are already on is useless on a phone */
 }
+
+/* Phosphor Icons (MIT, vendored inline; licence in room/vendor/phosphor/LICENSE) */
+.ph { width: 1.05em; height: 1.05em; display: inline-block; vertical-align: -0.14em; flex: none; }
+.ph-folder { color: #9a5a2c; vertical-align: middle; }
+.ph-folder .ph-fold-fill { opacity: 1; fill: #e8bf98; }
+.folder:hover .ph-folder .ph-fold-fill, .folder:focus-visible .ph-folder .ph-fold-fill { fill: #f0cda9; }
+.win-title svg.ph-folder { width: 1.3em; height: 1.3em; }
+
+/* Text fill: warm ink gradient on the room's display headings */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .w-h, .os-name {
+    background: linear-gradient(100deg, #2b1a10 0%, #6b3413 55%, #a04a0d 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+  }
+}
+@media (forced-colors: active) { .w-h, .os-name { -webkit-text-fill-color: currentColor; background: none; } }

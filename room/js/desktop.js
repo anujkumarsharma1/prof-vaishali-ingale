@@ -6,12 +6,8 @@
   var gsap = window.gsap;
   var SITE = '../', ROOM = '';
 
-  var FOLDER_SVG =
-    '<svg viewBox="0 0 64 50" aria-hidden="true" focusable="false">' +
-    '<path d="M3 7.5A3.5 3.5 0 0 1 6.5 4h15.2c1 0 1.9.4 2.6 1.1L28 9h29.5A3.5 3.5 0 0 1 61 12.5V16H3z" fill="#c98f63"/>' +
-    '<rect x="3" y="12" width="58" height="35" rx="3.5" fill="#e8bf98"/>' +
-    '<rect x="3" y="12" width="58" height="1.2" fill="#f3d6ba"/>' +
-    '</svg>';
+  var FOLDER_SVG = /* Phosphor folder-simple, duotone (MIT) */
+    '<svg class="ph ph-folder" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false"><path d="M224,88V200.89a7.11,7.11,0,0,1-7.11,7.11H40a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H93.33a8,8,0,0,1,4.8,1.6L128,80h88A8,8,0,0,1,224,88Z" class="ph-fold-fill"/><path d="M216,72H130.67L102.93,51.2a16.12,16.12,0,0,0-9.6-3.2H40A16,16,0,0,0,24,64V200a16,16,0,0,0,16,16H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72Zm0,128H40V64H93.33L123.2,86.4A8,8,0,0,0,128,88h88Z"/></svg>';
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -57,7 +53,7 @@
       if (s.items) h += list(s.items);
       if (s.papers) h += papers(s.papers, 'w-papers');
       if (s.timeline) h += timeline(s.timeline);
-      if (s.more && s.link) h += '<p class="w-sec-more">' + link(s.link, 'More <span aria-hidden="true">→</span>') + '</p>';
+      if (s.more && s.link) h += '<p class="w-sec-more">' + link(s.link, 'More <svg class="ph" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg>') + '</p>';
       h += '</section>';
     });
     if (f.pubs) {
@@ -88,7 +84,7 @@
     }
     if (f.url) {
       var mail = /^mailto:/.test(f.url);
-      h += '<p class="w-more">' + link(f.url, (mail ? 'Write an email' : 'Open the full page') + ' <span aria-hidden="true">→</span>') + '</p>';
+      h += '<p class="w-more">' + link(f.url, (mail ? 'Write an email' : 'Open the full page') + ' <svg class="ph" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg>') + '</p>';
     }
     return h;
   }
@@ -103,7 +99,7 @@
     os.setAttribute('aria-label', 'Portfolio desktop');
     os.innerHTML =
       '<div class="os-bar"><span class="os-who"><strong>Vaishali S. Ingale</strong></span>' +
-      '<button class="os-office" type="button"><span aria-hidden="true">←</span>&nbsp;' + esc(opts.standLabel || 'Stand up') + '</button>' +
+      '<button class="os-office" type="button"><svg class="ph" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"/></svg>&nbsp;' + esc(opts.standLabel || 'Stand up') + '</button>' +
       '<span class="os-right"><a class="os-lite" href="?2d">Lighter version</a>' +
       '<span class="os-where">' + esc(new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })) + '</span></span></div>' +
       '<div class="os-desk" tabindex="-1"><div class="os-hello"><p class="os-kicker">' + esc(C.subtitle) + '</p>' +
@@ -116,9 +112,9 @@
       }).join('') + '</ul></div>' +
       '<div class="win-scrim" hidden></div>' +
       '<section class="win" role="dialog" aria-modal="true" aria-labelledby="win-h" tabindex="-1" hidden>' +
-      '<div class="win-bar"><button class="win-back" type="button"><span aria-hidden="true">←</span> Folders</button>' +
+      '<div class="win-bar"><button class="win-back" type="button"><svg class="ph" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"/></svg> Folders</button>' +
       '<p class="win-title">' + FOLDER_SVG + '<span></span></p>' +
-      '<button class="win-close" type="button" aria-label="Close window">Close <span aria-hidden="true">✕</span></button></div>' +
+      '<button class="win-close" type="button" aria-label="Close window">Close <svg class="ph" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg></button></div>' +
       '<div class="win-body"></div></section>';
     desk = os.querySelector('.os-desk');
     grid = os.querySelector('.os-grid');
