@@ -1,0 +1,32 @@
+/* Phosphor Icons (MIT, regular weight; SVGs in ../assets/icons/phosphor/) + text fill. Loaded after world.css. */
+.ph{display:inline-block;flex:none;fill:currentColor;stroke:none!important;vertical-align:middle}
+/* icon bar: filled Phosphor glyphs inherit the button colour */
+.iconbar svg.ph{width:22px;height:22px;fill:currentColor;stroke:none;color:var(--plum)}
+.iconbar [aria-pressed=true] svg.ph{color:var(--plum)}
+#ico-sound .ph.off,#ico-sound[aria-pressed=true] .ph.on{display:inline-block}
+#ico-sound .ph.on,#ico-sound[aria-pressed=true] .ph.off{display:none}
+#ico-motion .ph.on{display:inline-block}#ico-motion .ph.off{display:none}
+#ico-motion[aria-pressed=true] .ph.on{display:none}#ico-motion[aria-pressed=true] .ph.off{display:inline-block;color:var(--coral)}
+#ico-sound[aria-pressed=false] .ph{opacity:.75}
+/* gate help + menu arrow */
+.gate-help svg.ph{width:20px;height:20px;margin-top:0;fill:currentColor;stroke:none}
+.menu-classic .ph.arrow{width:15px;height:15px;margin-left:4px;transition:transform .2s ease}
+.menu-classic a:hover .ph.arrow,.menu-classic a:focus-visible .ph.arrow{transform:translateX(3px)}
+/* scroll hint: Phosphor glyph with a gentle bob instead of the hand-drawn mouse/finger */
+.scroll-hint svg.ph{width:40px;height:40px;fill:#fff;stroke:none;animation:ph-bob 1.5s ease-in-out infinite}
+.scroll-hint svg.ph.swipe{animation-name:ph-swipe}
+@keyframes ph-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+.scroll-hint svg.ph.swipe{transform:rotate(-90deg)}
+@keyframes ph-swipe{0%,100%{transform:translateY(4px) rotate(-90deg)}50%{transform:translateY(-8px) rotate(-90deg)}}
+.reduced .scroll-hint svg.ph{animation:none}
+@media (prefers-reduced-motion:reduce){.scroll-hint svg.ph,.menu-classic .ph.arrow{animation:none;transition:none}}
+
+/* text fill: plum→coral gradient on the display headings only (body copy stays solid for legibility) */
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  .gate-name,.panel .title{
+    background:linear-gradient(100deg,var(--plum) 0%,#8a4a63 55%,var(--coral) 115%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+  .panel .h2{background:linear-gradient(90deg,var(--plum),#8a4a63);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .panel .h2 .count{-webkit-text-fill-color:#fff}
+  @media (forced-colors:active){.gate-name,.panel .title,.panel .h2{background:none;-webkit-text-fill-color:CanvasText;color:CanvasText}}
+}
